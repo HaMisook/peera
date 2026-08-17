@@ -239,7 +239,7 @@
   </header>
 
   <!-- ===== 1. data ===== -->
-  <section class="card">
+  <section class="card" id="dataPanel">
     <h2><span class="num">1</span>자료 준비하기</h2>
     <div class="opts" style="margin-top:0; margin-bottom:10px">
       <label style="flex:1; display:flex; align-items:center; gap:8px">제목
@@ -277,7 +277,7 @@
 
   <!-- ===== compare ===== -->
   <section class="card" id="compPanel" style="display:none">
-    <h2><span class="num">2</span>두 자료를 나란히 비교해 보세요</h2>
+    <h2>⚖️ 두 자료를 나란히 비교해 보세요</h2>
     <div class="comp-inputs">
       <div class="comp-row a">
         <input type="text" id="cNameA" class="cname" value="모둠 A" maxlength="14">
@@ -382,6 +382,7 @@ function setMode(m){
     $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("on", m===k);
     $(k+"Panel").style.display = m===k ? "" : "none";
   });
+  $("dataPanel").style.display = m==="comp" ? "none" : "";
   if(m==="comp" && !compInit){ compInit=true; renderComp(); }
 }
 
