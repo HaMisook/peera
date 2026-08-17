@@ -7,6 +7,36 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════════
+     ★ Firebase 실시간 설문 설정 ★
+     학생들이 각자 태블릿에서 제출하는 '실시간 설문'을 쓰려면
+     Firebase 콘솔의 웹 앱 구성값(firebaseConfig)을 아래에 붙여 넣으세요.
+     null 로 두면 실시간 기능 없이 '한 화면 입력' 설문만 동작합니다.
+
+     붙여 넣는 모양 예시:
+     const FIREBASE_CONFIG = {
+       apiKey: "AIza...",
+       authDomain: "peera-xxxx.firebaseapp.com",
+       databaseURL: "https://peera-xxxx-default-rtdb.asia-southeast1.firebasedatabase.app",
+       projectId: "peera-xxxx",
+       storageBucket: "peera-xxxx.appspot.com",
+       messagingSenderId: "...",
+       appId: "..."
+     };
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD-NA3G7FegDiJ3_YvnZwYBwVuhZfp8hno",
+  authDomain: "peera-8da97.firebaseapp.com",
+  databaseURL: "https://peera-8da97-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "peera-8da97",
+  storageBucket: "peera-8da97.firebasestorage.app",
+  messagingSenderId: "938681928602",
+  appId: "1:938681928602:web:43864fa9041f1ea23a8823"
+};
+</script>
+
 <style>
   :root{
     --ink:#4a4458; --muted:#8b8499; --faint:#b8b1c4;
@@ -185,6 +215,61 @@
   .progress{font-size:13.5px; color:var(--muted); font-weight:600;}
 
   footer{font-size:12.5px; color:var(--faint); text-align:center; margin-top:26px;}
+
+  /* survey mode */
+  .chips{display:flex; flex-wrap:wrap; gap:7px;}
+  .chip{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:40px; height:36px; padding:0 9px;
+    background:var(--accent-soft); color:#b2437c;
+    font-size:16px; font-weight:800; border-radius:11px;
+  }
+  .sv-question{
+    font-family:"Jua","Pretendard",sans-serif; font-size:26px; text-align:center;
+    color:var(--ink); margin:6px 0 4px; line-height:1.4;
+  }
+  .sv-count{font-size:14px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:12px;}
+  .sv-display{
+    max-width:340px; margin:0 auto 12px; text-align:center;
+    font-size:44px; font-weight:800; color:var(--ink); letter-spacing:.02em;
+    background:#fdfbfd; border:2px solid var(--line); border-radius:18px; padding:10px 16px; min-height:76px;
+  }
+  .sv-pad{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    max-width:340px; margin:0 auto;
+  }
+  .sv-pad button{
+    font-family:"Jua","Pretendard",sans-serif; font-size:26px; color:var(--ink);
+    background:#fff; border:1.5px solid var(--line); border-radius:16px;
+    height:64px; cursor:pointer; box-shadow:0 2px 6px rgba(157,127,216,.12);
+    transition:transform .08s, background .12s;
+  }
+  .sv-pad button:active{transform:scale(.94); background:var(--accent-softer);}
+  .sv-pad button.del{color:var(--bad); background:#fff5f8;}
+  .sv-submit{
+    display:block; max-width:340px; width:100%; margin:12px auto 0;
+    font-family:"Jua","Pretendard",sans-serif; font-size:21px; color:#fff;
+    background:linear-gradient(120deg,#f09ec2,var(--accent)); border:none; border-radius:16px;
+    padding:15px; cursor:pointer; box-shadow:0 5px 14px rgba(228,132,172,.4);
+    transition:transform .1s;
+  }
+  .sv-submit:active{transform:scale(.97);}
+  .sv-thanks{
+    text-align:center; font-size:15px; font-weight:700; color:var(--good);
+    margin-top:10px; opacity:0; transition:opacity .3s; min-height:22px;
+  }
+  .sv-thanks.show{opacity:1;}
+  .sv-join{
+    display:flex; gap:20px; align-items:center; justify-content:center; flex-wrap:wrap;
+    background:#fdfbfd; border:1.5px solid var(--line); border-radius:18px; padding:18px; margin-top:6px;
+  }
+  .sv-join img{border-radius:12px; background:#fff; border:1px solid var(--line);}
+  .sv-join-info{text-align:center;}
+  .sv-code-label{font-size:13px; font-weight:800; color:var(--muted);}
+  .sv-code{font-family:"Jua",sans-serif; font-size:52px; color:var(--accent); letter-spacing:.12em; line-height:1.2;}
+  .sv-url{font-size:12.5px; color:var(--muted); word-break:break-all; max-width:280px; margin:6px auto 10px;}
+  body.student .wrap>*:not(#stCard){display:none;}
+  #stCard{max-width:480px; margin:0 auto;}
   @media (max-width:560px){
     h1{font-size:19px;}
     .modes button{font-size:13.5px; padding:8px 13px;}
@@ -199,12 +284,13 @@
     <a class="home" href="index.html">← 피어라 매직!</a>
     <div class="modes" role="tablist">
       <button id="tabAuto" class="on" onclick="setMode('auto')">자동으로 그리기</button>
-      <button id="tabPlay" onclick="setMode('play')">내가 직접 만들기</button>
+      <button id="tabPlay" onclick="setMode('play')">직접 만들기</button>
+      <button id="tabSurvey" onclick="setMode('survey')">설문조사</button>
     </div>
   </header>
 
   <!-- ===== 1. data input ===== -->
-  <section class="card">
+  <section class="card" id="dataPanel">
     <h2><span class="num">1</span>자료 준비하기</h2>
     <div class="opts" style="margin-top:0; margin-bottom:10px">
       <label style="flex:1; display:flex; align-items:center; gap:8px">제목
@@ -252,6 +338,77 @@
       <span class="progress" id="playProgress"></span>
     </div>
     <div class="verdict" id="verdict"></div>
+  </section>
+
+  <!-- ===== survey mode ===== -->
+  <section class="card" id="surveyPanel" style="display:none">
+    <!-- 설정 화면 -->
+    <div id="svSetup">
+      <h2>📋 설문조사 만들기</h2>
+      <div class="opts" style="margin-top:0; margin-bottom:10px">
+        <label style="flex:1; display:flex; align-items:center; gap:8px">질문
+          <input type="text" id="svQ" placeholder="예) 여러분의 키는 몇 cm인가요?" maxlength="50" style="flex:1; min-width:150px">
+        </label>
+      </div>
+      <div class="opts" style="margin-top:0">
+        <label>단위명 <input type="text" id="svU" placeholder="cm, 분 …" maxlength="8" style="width:80px"></label>
+        <span class="grow"></span>
+        <button class="btn small" onclick="svStart()">한 화면으로 시작</button>
+        <button class="btn small" style="background:linear-gradient(120deg,#b79aec,#9d7fd8); box-shadow:0 4px 12px rgba(157,127,216,.35)" onclick="svStartLive()">📡 실시간으로 시작</button>
+      </div>
+      <p class="pool-hint" style="margin-top:12px"><b>한 화면</b>: 전자칠판·선생님 태블릿을 차례로 넘기며 입력 · <b>실시간</b>: 학생들이 각자 태블릿에서 QR/코드로 접속해 제출 (Firebase 설정 필요)</p>
+      <div class="notice" id="svLiveHint"></div>
+    </div>
+
+    <!-- 실시간 진행 화면 (교사용) -->
+    <div id="svLive" style="display:none">
+      <div class="sv-question" id="svLiveQ"></div>
+      <div class="sv-join">
+        <img id="svQr" alt="QR 코드" width="180" height="180">
+        <div class="sv-join-info">
+          <div class="sv-code-label">접속 코드</div>
+          <div class="sv-code" id="svLiveCode"></div>
+          <div class="sv-url" id="svLiveUrl"></div>
+          <button class="btn small ghost" onclick="svCopyUrl()">🔗 주소 복사</button>
+        </div>
+      </div>
+      <div class="sv-count" id="svLiveCount" style="font-size:19px; margin-top:14px">0명 제출</div>
+      <div class="chips" id="svLiveChips" style="justify-content:center; margin-top:8px"></div>
+      <div class="plot-actions" style="justify-content:center; margin-top:16px">
+        <button class="btn small" onclick="svLiveFinish()">설문 마치기</button>
+      </div>
+    </div>
+    <!-- 수집 화면 -->
+    <div id="svCollect" style="display:none">
+      <div class="sv-question" id="svQShow"></div>
+      <div class="sv-count" id="svCount">지금까지 0명 참여</div>
+      <div class="sv-display" id="svDisplay">&nbsp;</div>
+      <div class="sv-pad">
+        <button onclick="svKey('7')">7</button><button onclick="svKey('8')">8</button><button onclick="svKey('9')">9</button>
+        <button onclick="svKey('4')">4</button><button onclick="svKey('5')">5</button><button onclick="svKey('6')">6</button>
+        <button onclick="svKey('1')">1</button><button onclick="svKey('2')">2</button><button onclick="svKey('3')">3</button>
+        <button onclick="svKey('.')">.</button><button onclick="svKey('0')">0</button><button class="del" onclick="svKey('del')">⌫</button>
+      </div>
+      <button class="sv-submit" onclick="svSubmit()">제출하기</button>
+      <div class="sv-thanks" id="svThanks">고마워요! 다음 친구에게 넘겨주세요 💕</div>
+      <div class="plot-actions" style="justify-content:center; margin-top:16px">
+        <button class="btn small ghost" onclick="svUndo()">↩ 마지막 값 취소</button>
+        <button class="btn small ghost" onclick="svToggleShow()" id="svShowBtn">👀 모인 값 보기</button>
+        <button class="btn small" onclick="svFinish()">설문 마치기</button>
+      </div>
+      <div class="chips" id="svChips" style="display:none; justify-content:center; margin-top:10px"></div>
+    </div>
+    <!-- 완료 화면 -->
+    <div id="svDone" style="display:none">
+      <h2>🎉 설문 완료!</h2>
+      <div class="sv-count" id="svDoneCount"></div>
+      <div class="chips" id="svDoneChips" style="margin:10px 0 16px"></div>
+      <div class="plot-actions">
+        <button class="btn" onclick="svSend('auto')">자동으로 그리기</button>
+        <button class="btn" style="background:linear-gradient(120deg,#7fd4ae,#5bbd94); box-shadow:0 4px 12px rgba(91,189,148,.35)" onclick="svSend('play')">직접 만들기 활동으로</button>
+        <button class="btn small ghost" onclick="svReset()">새 설문 만들기</button>
+      </div>
+    </div>
   </section>
 
   <footer>줄기와 잎 그림: 자료를 줄기와 잎으로 나누어 정리한 그림 · 잎은 작은 값부터 차례로 씁니다.</footer>
@@ -361,8 +518,11 @@ function setMode(m){
   mode = m;
   $("tabAuto").classList.toggle("on", m==="auto");
   $("tabPlay").classList.toggle("on", m==="play");
+  $("tabSurvey").classList.toggle("on", m==="survey");
   $("autoPanel").style.display = m==="auto" ? "" : "none";
   $("playPanel").style.display = m==="play" ? "" : "none";
+  $("surveyPanel").style.display = m==="survey" ? "" : "none";
+  $("dataPanel").style.display = m==="survey" ? "none" : "";
   if(m==="play") renderPlay();
 }
 
@@ -598,6 +758,194 @@ function highlightRow(x,y){
 }
 function clearRowHighlight(){
   document.querySelectorAll(".prow.target").forEach(r=>r.classList.remove("target"));
+}
+
+/* ================= survey mode ================= */
+let svValues=[], svBuf="", svShow=false, svThanksTimer=null;
+
+function svStart(){
+  if(!$("svQ").value.trim()){ $("svQ").focus(); $("svQ").placeholder="질문을 먼저 입력해 주세요!"; return; }
+  svValues=[]; svBuf=""; svShow=false;
+  $("svQShow").textContent=$("svQ").value.trim();
+  $("svSetup").style.display="none";
+  $("svDone").style.display="none";
+  $("svCollect").style.display="";
+  svUpdate();
+}
+function svKey(k){
+  if(k==="del"){ svBuf=svBuf.slice(0,-1); }
+  else if(k==="."){ if(!svBuf.includes(".") && svBuf.length) svBuf+="."; }
+  else{ if(svBuf.replace(".","").length<5) svBuf+=k; }
+  svUpdate();
+}
+function svUpdate(){
+  $("svDisplay").innerHTML = svBuf ? svBuf : "&nbsp;";
+  const u=$("svU").value.trim();
+  $("svCount").textContent=`지금까지 ${svValues.length}명 참여`+(u?` · 단위: ${u}`:"");
+  const chips=$("svChips");
+  chips.style.display = svShow ? "flex" : "none";
+  $("svShowBtn").textContent = svShow ? "🙈 값 숨기기" : "👀 모인 값 보기";
+  if(svShow) chips.innerHTML = svValues.map(v=>`<span class="chip">${v}</span>`).join("") || '<span style="color:var(--faint);font-size:13px">아직 없어요</span>';
+}
+function svSubmit(){
+  const v=parseFloat(svBuf);
+  if(!Number.isFinite(v) || svBuf==="") return;
+  if(svValues.length>=80) return;
+  svValues.push(v);
+  svBuf="";
+  svUpdate();
+  const t=$("svThanks");
+  t.classList.add("show");
+  clearTimeout(svThanksTimer);
+  svThanksTimer=setTimeout(()=>t.classList.remove("show"), 1500);
+}
+function svUndo(){ svValues.pop(); svUpdate(); }
+function svToggleShow(){ svShow=!svShow; svUpdate(); }
+function svFinish(){
+  if(!svValues.length){ svUndo(); return; }
+  $("svCollect").style.display="none";
+  $("svDone").style.display="";
+  const u=$("svU").value.trim();
+  $("svDoneCount").textContent=`${svValues.length}명의 자료가 모였어요`+(u?` (단위: ${u})`:"");
+  $("svDoneChips").innerHTML=svValues.map(v=>`<span class="chip">${v}</span>`).join("");
+}
+function svSend(target){
+  $("titleInput").value=$("svQ").value.trim();
+  $("unitLabel").value=$("svU").value.trim();
+  $("dataInput").value=svValues.join(", ");
+  $("unitSel").value="auto";
+  applyData();
+  setMode(target);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function svReset(){
+  svValues=[]; svBuf="";
+  $("svDone").style.display="none";
+  $("svCollect").style.display="none";
+  $("svLive").style.display="none";
+  if(liveUnsub){ liveUnsub(); liveUnsub=null; }
+  $("svSetup").style.display="";
+}
+
+/* ---------- 실시간 설문 (Firebase) ---------- */
+let fb=null, liveRoom=null, liveUnsub=null;
+async function fbInit(){
+  if(fb) return fb;
+  const appM=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const dbM=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+  const app=appM.initializeApp(FIREBASE_CONFIG);
+  fb={db:dbM.getDatabase(app), ref:dbM.ref, set:dbM.set, push:dbM.push, get:dbM.get, onValue:dbM.onValue};
+  return fb;
+}
+function svLiveNote(msg){ const n=$("svLiveHint"); n.textContent=msg; n.className="notice show"; }
+async function svStartLive(){
+  $("svLiveHint").className="notice";
+  if(!$("svQ").value.trim()){ $("svQ").focus(); $("svQ").placeholder="질문을 먼저 입력해 주세요!"; return; }
+  if(!FIREBASE_CONFIG){
+    svLiveNote("아직 Firebase 설정이 없어요. 파일 상단의 FIREBASE_CONFIG에 Firebase 웹 앱 구성값을 붙여 넣으면 실시간 설문을 쓸 수 있어요. (설정 전에는 '한 화면으로 시작'을 이용해 주세요)");
+    return;
+  }
+  try{
+    const f=await fbInit();
+    liveRoom=String(Math.floor(1000+Math.random()*9000));
+    await f.set(f.ref(f.db,"surveys/"+liveRoom+"/meta"),
+      {q:$("svQ").value.trim(), unit:$("svU").value.trim(), t:Date.now()});
+    svValues=[];
+    $("svSetup").style.display="none";
+    $("svLive").style.display="";
+    $("svLiveQ").textContent=$("svQ").value.trim();
+    const url=location.origin+location.pathname+"?room="+liveRoom;
+    $("svLiveUrl").textContent=url;
+    $("svLiveCode").textContent=liveRoom;
+    $("svQr").src="https://api.qrserver.com/v1/create-qr-code/?size=360x360&data="+encodeURIComponent(url);
+    liveUnsub=f.onValue(f.ref(f.db,"surveys/"+liveRoom+"/values"), snap=>{
+      const obj=snap.val()||{};
+      svValues=Object.values(obj).map(Number).filter(Number.isFinite);
+      $("svLiveCount").textContent=svValues.length+"명 제출";
+      $("svLiveChips").innerHTML=svValues.map(v=>`<span class="chip">${v}</span>`).join("");
+    });
+  }catch(e){
+    svLiveNote("Firebase 연결에 실패했어요: "+e.message+" — 설정값과 데이터베이스 규칙을 확인해 주세요.");
+  }
+}
+function svCopyUrl(){
+  const url=$("svLiveUrl").textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(url);
+}
+function svLiveFinish(){
+  if(liveUnsub){ liveUnsub(); liveUnsub=null; }
+  $("svLive").style.display="none";
+  svFinish();
+}
+
+/* ---------- 학생 제출 화면 (?room=코드) ---------- */
+let stBuf="";
+(function(){
+  const room=new URLSearchParams(location.search).get("room");
+  if(room && /^\d{4}$/.test(room)){
+    if(FIREBASE_CONFIG) studentMode(room);
+  }
+})();
+async function studentMode(room){
+  document.body.classList.add("student");
+  const wrap=document.querySelector(".wrap");
+  const card=document.createElement("section");
+  card.className="card"; card.id="stCard";
+  card.innerHTML=`
+    <div style="text-align:center; font-family:'Jua',sans-serif; font-size:15px; color:var(--accent); margin-bottom:4px">✨ 피어라 매직! 설문</div>
+    <div class="sv-question" id="stQ">설문을 불러오는 중…</div>
+    <div class="sv-count" id="stU"></div>
+    <div id="stForm">
+      <div class="sv-display" id="stDisplay">&nbsp;</div>
+      <div class="sv-pad">
+        <button onclick="stKey('7')">7</button><button onclick="stKey('8')">8</button><button onclick="stKey('9')">9</button>
+        <button onclick="stKey('4')">4</button><button onclick="stKey('5')">5</button><button onclick="stKey('6')">6</button>
+        <button onclick="stKey('1')">1</button><button onclick="stKey('2')">2</button><button onclick="stKey('3')">3</button>
+        <button onclick="stKey('.')">.</button><button onclick="stKey('0')">0</button><button class="del" onclick="stKey('del')">⌫</button>
+      </div>
+      <button class="sv-submit" onclick="stSubmit('${room}')">제출하기</button>
+    </div>
+    <div id="stDone" style="display:none; text-align:center; padding:26px 0">
+      <div style="font-size:44px">🎉</div>
+      <div class="sv-question">제출 완료!</div>
+      <div class="sv-count">참여해 줘서 고마워요.</div>
+      <button class="btn small ghost" style="margin-top:10px" onclick="stAgain()">값을 잘못 냈어요 (다시 제출)</button>
+    </div>`;
+  wrap.appendChild(card);
+  try{
+    const f=await fbInit();
+    const snap=await f.get(f.ref(f.db,"surveys/"+room+"/meta"));
+    const meta=snap.val();
+    if(!meta){ $("stQ").textContent="설문을 찾을 수 없어요. 코드를 다시 확인해 주세요."; $("stForm").style.display="none"; return; }
+    $("stQ").textContent=meta.q;
+    $("stU").textContent=meta.unit? "단위: "+meta.unit : "";
+  }catch(e){
+    $("stQ").textContent="연결에 실패했어요: "+e.message;
+  }
+}
+function stKey(k){
+  if(k==="del") stBuf=stBuf.slice(0,-1);
+  else if(k==="."){ if(!stBuf.includes(".") && stBuf.length) stBuf+="."; }
+  else if(stBuf.replace(".","").length<5) stBuf+=k;
+  $("stDisplay").innerHTML=stBuf||"&nbsp;";
+}
+async function stSubmit(room){
+  const v=parseFloat(stBuf);
+  if(!Number.isFinite(v)) return;
+  try{
+    const f=await fbInit();
+    await f.push(f.ref(f.db,"surveys/"+room+"/values"), v);
+    stBuf="";
+    $("stForm").style.display="none";
+    $("stDone").style.display="";
+  }catch(e){
+    $("stQ").textContent="제출에 실패했어요: "+e.message;
+  }
+}
+function stAgain(){
+  $("stDone").style.display="none";
+  $("stForm").style.display="";
+  $("stDisplay").innerHTML="&nbsp;";
 }
 
 /* check answers */
