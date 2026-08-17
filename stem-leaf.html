@@ -5,16 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>줄기와 잎 그림 탐구소</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1e293b; --muted:#64748b; --faint:#94a3b8;
-    --surface:#f1f5f9; --card:#ffffff; --line:#e2e8f0;
-    --accent:#2563eb; --accent-soft:#dbeafe; --accent-softer:#eff6ff;
-    --good:#16a34a; --good-soft:#dcfce7;
-    --bad:#dc2626; --bad-soft:#fee2e2;
-    --warn:#d97706; --warn-soft:#fef3c7;
-    --stem-bg:#eef2ff; --stem-ink:#3730a3;
-    --radius:14px;
+    --ink:#4a4458; --muted:#8b8499; --faint:#b8b1c4;
+    --surface:#fdf8f4; --card:#ffffff; --line:#f0e8ee;
+    --accent:#e484ac; --accent-soft:#ffd6e8; --accent-softer:#fff0f7;
+    --good:#3da97e; --good-soft:#d3f2e4;
+    --bad:#e05c7f; --bad-soft:#ffe0ea;
+    --warn:#d9a520; --warn-soft:#fff3c9;
+    --stem-bg:#e8ddff; --stem-ink:#7a5fc0;
+    --lavender:#e8ddff; --lavender-deep:#9d7fd8;
+    --mint:#d3f2e4; --mint-deep:#5bbd94;
+    --radius:20px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
@@ -28,29 +32,44 @@
 
   /* ---------- header ---------- */
   header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
-  h1{font-size:22px; font-weight:800; margin:0; letter-spacing:-0.02em;}
-  h1 .badge{display:inline-block; font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:999px; padding:3px 10px; margin-left:8px; vertical-align:middle;}
-  .modes{display:flex; background:#e2e8f0; border-radius:999px; padding:4px;}
+  h1{font-family:"Jua","Pretendard",sans-serif; font-size:23px; font-weight:400; margin:0; letter-spacing:0; display:flex; align-items:center; gap:9px;}
+  h1 .mark{
+    width:38px; height:38px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,var(--accent-soft) 0%,var(--lavender) 55%,#d6ebff 100%);
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+    box-shadow:0 3px 10px rgba(228,132,172,.28);
+  }
+  h1 .badge{display:inline-block; font-family:"Pretendard",sans-serif; font-size:12px; font-weight:800; color:#b2437c; background:var(--accent-soft); border-radius:999px; padding:4px 11px; margin-left:2px; vertical-align:middle;}
+  .home{
+    font-size:13px; font-weight:700; color:var(--muted); text-decoration:none;
+    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:7px 13px;
+  }
+  .home:hover{color:var(--accent); border-color:var(--accent-soft); background:var(--accent-softer);}
+  .modes{display:flex; background:#f3e8f2; border-radius:999px; padding:4px;}
   .modes button{
     border:none; background:transparent; color:var(--muted);
-    font-family:inherit; font-size:15px; font-weight:700; padding:9px 18px; border-radius:999px; cursor:pointer;
+    font-family:"Jua","Pretendard",sans-serif; font-size:15px; font-weight:400; padding:9px 18px; border-radius:999px; cursor:pointer;
     transition:background .18s, color .18s;
   }
-  .modes button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 3px rgba(15,23,42,.12);}
+  .modes button.on{background:var(--card); color:var(--accent); box-shadow:0 2px 6px rgba(228,132,172,.22);}
 
   /* ---------- cards ---------- */
-  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:0 6px 24px rgba(157,127,216,.10);}
   .card h2{font-size:15px; font-weight:800; margin:0 0 10px; color:var(--ink); display:flex; align-items:center; gap:8px;}
   .card h2 .num{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800;}
 
   /* ---------- input panel ---------- */
   .samples{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
   .samples button{
-    font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink);
-    background:var(--accent-softer); border:1px solid #bfdbfe; border-radius:999px;
-    padding:8px 14px; cursor:pointer; transition:background .15s;
+    font-family:inherit; font-size:13.5px; font-weight:700; color:#b2437c;
+    background:var(--accent-softer); border:1.5px solid var(--accent-soft); border-radius:999px;
+    padding:8px 14px; cursor:pointer; transition:background .15s, transform .12s;
   }
+  .samples button:hover{transform:translateY(-1px);}
   .samples button:active{background:var(--accent-soft);}
+  .samples button:nth-child(2){color:#2e8a66; background:#effaf4; border-color:var(--mint);}
+  .samples button:nth-child(3){color:#7a5fc0; background:#f6f1ff; border-color:var(--lavender);}
+  .samples button:nth-child(4){color:#a37b12; background:#fffae6; border-color:#f5e6ae;}
   textarea{
     width:100%; min-height:64px; resize:vertical;
     font-family:inherit; font-size:16px; line-height:1.5; color:var(--ink);
@@ -66,9 +85,9 @@
   .opts input[type=text]{width:80px;}
   .opts .grow{flex:1;}
   .btn{
-    font-family:inherit; font-size:16px; font-weight:800; letter-spacing:-0.01em;
-    border:none; border-radius:12px; padding:12px 22px; cursor:pointer;
-    background:var(--accent); color:#fff; box-shadow:0 2px 6px rgba(37,99,235,.28);
+    font-family:"Jua","Pretendard",sans-serif; font-size:16px; font-weight:400; letter-spacing:0;
+    border:none; border-radius:14px; padding:12px 22px; cursor:pointer;
+    background:linear-gradient(120deg,#f09ec2,var(--accent)); color:#fff; box-shadow:0 4px 12px rgba(228,132,172,.35);
     transition:transform .1s, box-shadow .15s;
   }
   .btn:active{transform:scale(.97);}
@@ -103,8 +122,8 @@
   .leaf{
     display:inline-flex; align-items:center; justify-content:center;
     min-width:36px; height:36px; padding:0 6px;
-    background:var(--accent-soft); color:#1d4ed8;
-    font-size:17px; font-weight:800; border-radius:9px;
+    background:var(--accent-soft); color:#b2437c;
+    font-size:17px; font-weight:800; border-radius:11px;
     cursor:pointer; user-select:none;
     transition:transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s, background .2s;
   }
@@ -129,12 +148,12 @@
   .pcard{
     display:inline-flex; align-items:center; justify-content:center;
     min-width:52px; height:44px; padding:0 10px;
-    background:#fff; border:1.5px solid #cbd5e1; border-radius:10px;
+    background:#fff; border:1.5px solid #eadcf0; border-radius:12px;
     font-size:18px; font-weight:800; color:var(--ink);
-    cursor:grab; user-select:none; box-shadow:0 1px 3px rgba(15,23,42,.08);
+    cursor:grab; user-select:none; box-shadow:0 2px 5px rgba(157,127,216,.12);
     transition:transform .15s, border-color .15s, box-shadow .15s;
   }
-  .pcard.sel{border-color:var(--accent); background:var(--accent-softer); color:var(--accent); transform:scale(1.08); box-shadow:0 3px 10px rgba(37,99,235,.25);}
+  .pcard.sel{border-color:var(--accent); background:var(--accent-softer); color:#b2437c; transform:scale(1.08); box-shadow:0 4px 12px rgba(228,132,172,.3);}
   .pcard.dragging{opacity:.35;}
   .drag-ghost{
     position:fixed; z-index:99; pointer-events:none;
@@ -176,7 +195,8 @@
 <div class="wrap">
 
   <header>
-    <h1>줄기와 잎 그림 탐구소<span class="badge">중1 통계</span></h1>
+    <h1><span class="mark">✨</span>줄기와 잎 그림 탐구소<span class="badge">중1 통계</span></h1>
+    <a class="home" href="index.html">← 피어라 매직!</a>
     <div class="modes" role="tablist">
       <button id="tabAuto" class="on" onclick="setMode('auto')">자동으로 그리기</button>
       <button id="tabPlay" onclick="setMode('play')">내가 직접 만들기</button>
