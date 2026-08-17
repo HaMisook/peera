@@ -2,638 +2,385 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>줄기와 잎 그림 탐구소</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>피어라 매직! — 게임처럼 배우는 중학교 수학</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════════
+     ★ 배경 이미지 설정 ★
+     히어로(메인 배너) 배경 이미지를 넣고 싶으면 아래 heroImage 에
+     이미지 파일 경로나 주소를 넣어 주세요. 비워 두면("") 파스텔
+     그라데이션 배경이 대신 표시됩니다.
+     예) heroImage: "hero.png"
+     예) heroImage: "https://example.com/bg.jpg"
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+  const SITE_CONFIG = {
+    heroImage: "",
+  };
+</script>
+
 <style>
   :root{
-    --ink:#1e293b; --muted:#64748b; --faint:#94a3b8;
-    --surface:#f1f5f9; --card:#ffffff; --line:#e2e8f0;
-    --accent:#2563eb; --accent-soft:#dbeafe; --accent-softer:#eff6ff;
-    --good:#16a34a; --good-soft:#dcfce7;
-    --bad:#dc2626; --bad-soft:#fee2e2;
-    --warn:#d97706; --warn-soft:#fef3c7;
-    --stem-bg:#eef2ff; --stem-ink:#3730a3;
-    --radius:14px;
+    --ink:#4a4458; --muted:#8b8499; --faint:#b8b1c4;
+    --bg:#fdf8f4;
+    --card:#ffffff; --line:#f0e8ee;
+    --pink:#ffd6e8; --pink-deep:#e484ac;
+    --peach:#ffe4d1; --peach-deep:#f09a6a;
+    --mint:#d3f2e4; --mint-deep:#5bbd94;
+    --sky:#d6ebff; --sky-deep:#6aa5e0;
+    --lavender:#e8ddff; --lavender-deep:#9d7fd8;
+    --lemon:#fff3c9; --lemon-deep:#d9a520;
+    --radius:22px;
+    --shadow:0 6px 24px rgba(157,127,216,.13);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
   body{
-    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-    background:var(--surface); color:var(--ink);
-    min-height:100vh; padding:16px 14px 60px;
-    touch-action:manipulation;
+    margin:0; font-family:"Pretendard","Pretendard Variable",-apple-system,system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55;
   }
-  .wrap{max-width:860px; margin:0 auto;}
+  .disp{font-family:"Jua","Pretendard",sans-serif; font-weight:400; letter-spacing:0;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 18px;}
 
-  /* ---------- header ---------- */
-  header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
-  h1{font-size:22px; font-weight:800; margin:0; letter-spacing:-0.02em;}
-  h1 .badge{display:inline-block; font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:999px; padding:3px 10px; margin-left:8px; vertical-align:middle;}
-  .modes{display:flex; background:#e2e8f0; border-radius:999px; padding:4px;}
-  .modes button{
-    border:none; background:transparent; color:var(--muted);
-    font-family:inherit; font-size:15px; font-weight:700; padding:9px 18px; border-radius:999px; cursor:pointer;
-    transition:background .18s, color .18s;
+  /* ========== header ========== */
+  header{
+    position:sticky; top:0; z-index:40;
+    background:rgba(255,255,255,.82); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
   }
-  .modes button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 3px rgba(15,23,42,.12);}
+  .nav{
+    max-width:1080px; margin:0 auto; padding:10px 18px;
+    display:flex; align-items:center; gap:14px;
+  }
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); margin-right:auto;}
+  .logo .mark{
+    width:44px; height:44px; border-radius:14px;
+    background:linear-gradient(135deg,var(--pink) 0%,var(--lavender) 55%,var(--sky) 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; box-shadow:0 3px 10px rgba(228,132,172,.3);
+  }
+  .logo .t1{font-size:20px; line-height:1.1;}
+  .logo .t1 .accent{color:var(--pink-deep);}
+  .logo .t2{font-size:11px; color:var(--muted); letter-spacing:.06em;}
+  .nav-links{display:flex; gap:6px;}
+  .nav-links a{
+    text-decoration:none; color:var(--ink); font-weight:700; font-size:15px;
+    padding:9px 16px; border-radius:999px; transition:background .15s, color .15s;
+  }
+  .nav-links a:hover{background:var(--lavender); color:var(--lavender-deep);}
+  .nav-links a.board{background:var(--lemon); color:#a37b12;}
+  .auth{display:flex; gap:8px;}
+  .auth button{
+    font-family:inherit; font-size:14px; font-weight:700; cursor:pointer;
+    border-radius:999px; padding:9px 16px; border:1.5px solid var(--line); background:#fff; color:var(--muted);
+  }
+  .auth button.join{background:var(--pink-deep); border-color:var(--pink-deep); color:#fff; box-shadow:0 3px 10px rgba(228,132,172,.35);}
+  @media (max-width:760px){ .auth{display:none;} .nav-links a{padding:8px 10px; font-size:13.5px;} }
 
-  /* ---------- cards ---------- */
-  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
-  .card h2{font-size:15px; font-weight:800; margin:0 0 10px; color:var(--ink); display:flex; align-items:center; gap:8px;}
-  .card h2 .num{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800;}
+  /* ========== hero ========== */
+  .hero{
+    position:relative; overflow:hidden;
+    border-radius:28px; margin:20px auto 0; max-width:1080px;
+    min-height:400px; display:flex; align-items:center;
+    background:
+      radial-gradient(ellipse 60% 80% at 85% 20%, rgba(255,214,232,.9), transparent 60%),
+      radial-gradient(ellipse 55% 70% at 15% 85%, rgba(211,242,228,.9), transparent 60%),
+      radial-gradient(ellipse 50% 60% at 90% 90%, rgba(214,235,255,.95), transparent 60%),
+      linear-gradient(120deg,#fff1e8 0%, #f3ecff 55%, #e4f0ff 100%);
+    background-size:cover; background-position:center;
+  }
+  .hero.has-image::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(255,250,252,.88) 0%, rgba(255,250,252,.55) 45%, rgba(255,250,252,0) 75%);
+  }
+  .hero-inner{position:relative; z-index:2; padding:52px 48px; max-width:600px;}
+  .quest-badge{
+    display:inline-flex; align-items:center; gap:7px;
+    background:#fff; border:1.5px solid var(--pink); color:var(--pink-deep);
+    font-size:13.5px; font-weight:800; border-radius:999px; padding:7px 15px;
+    box-shadow:0 2px 8px rgba(228,132,172,.18); margin-bottom:18px;
+  }
+  .hero h1{font-size:46px; line-height:1.22; margin:0 0 16px;}
+  .hero h1 .grad{
+    background:linear-gradient(90deg,var(--pink-deep),var(--lavender-deep),var(--sky-deep));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p{font-size:16.5px; color:var(--muted); margin:0 0 26px; font-weight:500;}
+  .hero-btns{display:flex; gap:12px; flex-wrap:wrap;}
+  .btn-big{
+    font-family:"Jua",sans-serif; font-size:18px; cursor:pointer;
+    border:none; border-radius:18px; padding:14px 28px;
+    transition:transform .12s, box-shadow .15s;
+  }
+  .btn-big:hover{transform:translateY(-2px);}
+  .btn-big:active{transform:scale(.97);}
+  .btn-start{background:linear-gradient(120deg,#ffd97a,#ffb7a3); color:#7a4a12; box-shadow:0 6px 18px rgba(240,154,106,.4);}
+  .btn-grade{background:#fff; color:var(--sky-deep); border:2px solid var(--sky); box-shadow:0 4px 14px rgba(106,165,224,.18);}
+  /* floating shapes (배경 이미지가 없을 때의 장식) */
+  .shape{position:absolute; border-radius:50%; opacity:.85; z-index:1; animation:float 7s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);} 50%{transform:translateY(-16px);}}
+  .hero.has-image .shape{display:none;}
+  .sym{
+    position:absolute; z-index:1; font-family:"Jua",sans-serif; user-select:none;
+    animation:float 8s ease-in-out infinite;
+  }
+  .hero.has-image .sym{display:none;}
+  @media (max-width:760px){
+    .hero{margin:14px 12px 0; min-height:340px;}
+    .hero-inner{padding:36px 26px;}
+    .hero h1{font-size:33px;}
+  }
 
-  /* ---------- input panel ---------- */
-  .samples{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
-  .samples button{
-    font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink);
-    background:var(--accent-softer); border:1px solid #bfdbfe; border-radius:999px;
-    padding:8px 14px; cursor:pointer; transition:background .15s;
-  }
-  .samples button:active{background:var(--accent-soft);}
-  textarea{
-    width:100%; min-height:64px; resize:vertical;
-    font-family:inherit; font-size:16px; line-height:1.5; color:var(--ink);
-    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; background:#fafbfc;
-  }
-  textarea:focus{outline:none; border-color:var(--accent); background:#fff;}
-  .opts{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin-top:10px;}
-  .opts label{font-size:13.5px; font-weight:700; color:var(--muted);}
-  .opts select, .opts input[type=text]{
-    font-family:inherit; font-size:15px; color:var(--ink);
-    border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff;
-  }
-  .opts input[type=text]{width:80px;}
-  .opts .grow{flex:1;}
-  .btn{
-    font-family:inherit; font-size:16px; font-weight:800; letter-spacing:-0.01em;
-    border:none; border-radius:12px; padding:12px 22px; cursor:pointer;
-    background:var(--accent); color:#fff; box-shadow:0 2px 6px rgba(37,99,235,.28);
-    transition:transform .1s, box-shadow .15s;
-  }
-  .btn:active{transform:scale(.97);}
-  .btn.ghost{background:#fff; color:var(--accent); border:1.5px solid var(--accent); box-shadow:none;}
-  .btn.small{font-size:14px; padding:9px 16px; border-radius:10px;}
-  .notice{font-size:13px; color:var(--warn); background:var(--warn-soft); border-radius:8px; padding:7px 11px; margin-top:9px; display:none;}
-  .notice.show{display:block;}
-  .count{font-size:13px; color:var(--muted); margin-top:8px;}
+  /* ========== section head ========== */
+  .sec-head{margin:52px 0 22px;}
+  .sec-head .eyebrow{font-size:13.5px; font-weight:800; color:var(--lavender-deep); letter-spacing:.04em;}
+  .sec-head h2{font-size:30px; margin:4px 0 0;}
+  .sec-head .side{font-size:14px; color:var(--muted); margin-top:6px;}
 
-  /* ---------- plot ---------- */
-  .plot-head{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
-  .plot-title{font-size:16px; font-weight:800;}
-  .plot-key{font-size:13.5px; color:var(--muted); background:var(--surface); border-radius:8px; padding:4px 10px;}
-  .plot-key b{color:var(--accent); font-weight:800;}
+  /* ========== grade cards ========== */
+  .grades{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:860px){ .grades{grid-template-columns:1fr;} }
+  .gcard{
+    background:var(--card); border-radius:var(--radius); overflow:hidden;
+    box-shadow:var(--shadow); border:1px solid var(--line);
+    display:flex; flex-direction:column;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .gcard:hover{transform:translateY(-5px); box-shadow:0 14px 34px rgba(157,127,216,.2);}
+  .gcard .top{padding:22px 22px 18px; position:relative;}
+  .gcard.mint .top{background:linear-gradient(135deg,#e9f9f1,#d3f2e4);}
+  .gcard.peach .top{background:linear-gradient(135deg,#fff0e4,#ffe4d1);}
+  .gcard.lavender .top{background:linear-gradient(135deg,#f1eaff,#e8ddff);}
+  .gbadge{
+    display:inline-block; font-size:12.5px; font-weight:800;
+    background:#fff; border-radius:999px; padding:5px 13px; margin-bottom:10px;
+    box-shadow:0 2px 6px rgba(74,68,88,.08);
+  }
+  .gcard.mint .gbadge{color:var(--mint-deep);}
+  .gcard.peach .gbadge{color:var(--peach-deep);}
+  .gcard.lavender .gbadge{color:var(--lavender-deep);}
+  .gcard .top h3{font-size:30px; margin:0; line-height:1.15;}
+  .gcard .top .sub{font-size:14px; color:var(--muted); font-weight:700; margin-top:3px;}
+  .gcard .top .chara{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    font-size:44px; filter:drop-shadow(0 4px 6px rgba(74,68,88,.15));
+  }
+  .gcard .body{padding:18px 20px 20px; display:flex; flex-direction:column; gap:8px; flex:1;}
+  .gcard .desc{font-size:14px; color:var(--muted); margin:0 0 6px;}
+  .unit{
+    display:flex; align-items:center; gap:9px;
+    background:#faf7fb; border:1px solid var(--line); border-radius:12px;
+    padding:10px 13px; font-size:14.5px; font-weight:600; color:var(--ink);
+    text-decoration:none; transition:background .15s, border-color .15s;
+  }
+  .unit:hover{background:#f4eefa;}
+  .unit .dot{width:8px; height:8px; border-radius:50%; flex:none;}
+  .gcard.mint .dot{background:var(--mint-deep);}
+  .gcard.peach .dot{background:var(--peach-deep);}
+  .gcard.lavender .dot{background:var(--lavender-deep);}
+  .unit .tag{
+    margin-left:auto; font-size:11.5px; font-weight:800; border-radius:999px; padding:3px 9px; flex:none;
+  }
+  .unit .tag.play{background:var(--pink); color:#b2437c;}
+  .unit .tag.soon{background:#f1eff4; color:var(--faint);}
+  .more{font-size:13px; color:var(--faint); padding-left:4px;}
+  .enter{
+    font-family:"Jua",sans-serif; font-size:17px; cursor:pointer;
+    border:none; border-radius:15px; padding:13px; margin-top:10px;
+    transition:transform .12s, filter .15s;
+  }
+  .enter:hover{filter:brightness(1.04); transform:translateY(-1px);}
+  .gcard.mint .enter{background:linear-gradient(120deg,#7fd4ae,#5bbd94); color:#fff; box-shadow:0 5px 14px rgba(91,189,148,.35);}
+  .gcard.peach .enter{background:linear-gradient(120deg,#ffb98e,#f09a6a); color:#fff; box-shadow:0 5px 14px rgba(240,154,106,.35);}
+  .gcard.lavender .enter{background:linear-gradient(120deg,#b79aec,#9d7fd8); color:#fff; box-shadow:0 5px 14px rgba(157,127,216,.35);}
 
-  table.slp{border-collapse:collapse; width:100%;}
-  table.slp th{
-    font-size:13px; font-weight:800; color:var(--muted);
-    border-bottom:2px solid var(--ink); padding:6px 8px;
+  /* ========== board banner ========== */
+  .board-banner{
+    margin-top:26px; border-radius:var(--radius);
+    background:linear-gradient(120deg,#fff8e0,#fff3c9);
+    border:1px solid #f5e6ae;
+    padding:24px 28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
   }
-  table.slp th.stem-col{width:64px; text-align:center; border-right:2px solid var(--ink);}
-  table.slp th.leaf-col{text-align:left; padding-left:14px;}
-  table.slp td{padding:4px 8px; border-bottom:1px dashed var(--line); vertical-align:middle;}
-  table.slp tr:last-child td{border-bottom:none;}
-  td.stem{
-    text-align:center; font-size:18px; font-weight:800; color:var(--stem-ink);
-    background:var(--stem-bg); border-right:2px solid var(--ink); width:64px;
+  .board-banner .ic{font-size:38px;}
+  .board-banner .tx{flex:1; min-width:220px;}
+  .board-banner h3{margin:0 0 3px; font-size:21px;}
+  .board-banner p{margin:0; font-size:14px; color:#a37b12; font-weight:600;}
+  .board-banner button{
+    font-family:"Jua",sans-serif; font-size:16px; cursor:pointer;
+    background:#fff; color:#a37b12; border:2px solid #f0d98a; border-radius:14px; padding:11px 22px;
   }
-  td.leaves{padding-left:14px;}
-  .leafrow{display:flex; flex-wrap:wrap; gap:6px; min-height:42px; align-items:center; padding:3px 0;}
 
-  .leaf{
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:36px; height:36px; padding:0 6px;
-    background:var(--accent-soft); color:#1d4ed8;
-    font-size:17px; font-weight:800; border-radius:9px;
-    cursor:pointer; user-select:none;
-    transition:transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s, background .2s;
+  footer{
+    margin-top:64px; padding:30px 18px 44px; text-align:center;
+    color:var(--faint); font-size:13px; border-top:1px solid var(--line); background:#fff;
   }
-  .leaf.hidden-in{opacity:0; transform:translateY(-14px) scale(.6);}
-  .leaf.picked{background:var(--accent); color:#fff; transform:scale(1.12);}
-  .tip{
-    position:fixed; z-index:50; pointer-events:none;
-    background:var(--ink); color:#fff; font-size:13.5px; font-weight:600;
-    border-radius:8px; padding:6px 10px; opacity:0; transition:opacity .15s;
-    transform:translate(-50%,-130%); white-space:nowrap;
-  }
-  .tip.show{opacity:1;}
+  footer .fl{font-family:"Jua",sans-serif; font-size:16px; color:var(--muted); margin-bottom:6px;}
 
-  .plot-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
-  .empty{color:var(--faint); font-size:15px; text-align:center; padding:34px 0;}
-
-  /* ---------- practice mode ---------- */
-  .pool{
-    display:flex; flex-wrap:wrap; gap:8px; min-height:52px;
-    background:var(--surface); border:1.5px dashed var(--line); border-radius:12px; padding:10px;
+  /* toast */
+  .toast{
+    position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; font-size:14.5px; font-weight:600;
+    border-radius:999px; padding:12px 22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s; z-index:99; white-space:nowrap;
   }
-  .pcard{
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:52px; height:44px; padding:0 10px;
-    background:#fff; border:1.5px solid #cbd5e1; border-radius:10px;
-    font-size:18px; font-weight:800; color:var(--ink);
-    cursor:grab; user-select:none; box-shadow:0 1px 3px rgba(15,23,42,.08);
-    transition:transform .15s, border-color .15s, box-shadow .15s;
-  }
-  .pcard.sel{border-color:var(--accent); background:var(--accent-softer); color:var(--accent); transform:scale(1.08); box-shadow:0 3px 10px rgba(37,99,235,.25);}
-  .pcard.dragging{opacity:.35;}
-  .drag-ghost{
-    position:fixed; z-index:99; pointer-events:none;
-    transform:translate(-50%,-50%) scale(1.1);
-  }
-  .pool-hint{font-size:13px; color:var(--muted); margin:8px 0 0;}
-
-  .prow td.leaves{transition:background .2s, box-shadow .2s;}
-  .prow.target td{background:var(--accent-softer);}
-  .prow.target td.stem{background:var(--accent-soft);}
-  .pleaf{position:relative;}
-  .pleaf.ok{background:var(--good-soft); color:var(--good);}
-  .pleaf.bad{background:var(--bad-soft); color:var(--bad); animation:shake .4s;}
-  .pleaf.order{box-shadow:0 0 0 2px var(--warn) inset;}
-  @keyframes shake{
-    0%,100%{transform:translateX(0);} 20%{transform:translateX(-5px);}
-    40%{transform:translateX(5px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);}
-  }
-  .rowmark{font-size:16px; font-weight:800; width:26px; text-align:center;}
-  .rowmark.ok{color:var(--good);}
-  .verdict{
-    margin-top:12px; border-radius:10px; padding:11px 14px;
-    font-size:15px; font-weight:700; display:none;
-  }
-  .verdict.show{display:block;}
-  .verdict.good{background:var(--good-soft); color:#166534;}
-  .verdict.warn{background:var(--warn-soft); color:#92400e;}
-  .verdict.bad{background:var(--bad-soft); color:#991b1b;}
-  .progress{font-size:13.5px; color:var(--muted); font-weight:600;}
-
-  footer{font-size:12.5px; color:var(--faint); text-align:center; margin-top:26px;}
-  @media (max-width:560px){
-    h1{font-size:19px;}
-    .modes button{font-size:13.5px; padding:8px 13px;}
-  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
+
+<header>
+  <nav class="nav">
+    <a class="logo" href="#">
+      <span class="mark">✨</span>
+      <span>
+        <div class="t1 disp">피어라 <span class="accent">매직!</span></div>
+        <div class="t2">Peer R.A.A. MAGIC</div>
+      </span>
+    </a>
+    <div class="nav-links">
+      <a href="#g1">중1</a>
+      <a href="#g2">중2</a>
+      <a href="#g3">중3</a>
+      <a href="#" class="board" onclick="toast('전자칠판은 준비 중이에요!'); return false;">전자칠판</a>
+    </div>
+    <div class="auth">
+      <button onclick="toast('로그인은 준비 중이에요!')">로그인</button>
+      <button class="join" onclick="toast('가입은 준비 중이에요!')">가입</button>
+    </div>
+  </nav>
+</header>
+
 <div class="wrap">
 
-  <header>
-    <h1>줄기와 잎 그림 탐구소<span class="badge">중1 통계</span></h1>
-    <div class="modes" role="tablist">
-      <button id="tabAuto" class="on" onclick="setMode('auto')">자동으로 그리기</button>
-      <button id="tabPlay" onclick="setMode('play')">내가 직접 만들기</button>
-    </div>
-  </header>
+  <!-- ===== hero ===== -->
+  <section class="hero" id="hero">
+    <!-- 파스텔 장식 (배경 이미지를 넣으면 자동으로 숨겨져요) -->
+    <span class="shape" style="width:150px;height:150px;right:12%;top:14%;background:radial-gradient(circle at 35% 35%,#ffe3f0,#ffc9e2);animation-delay:0s"></span>
+    <span class="shape" style="width:90px;height:90px;right:28%;bottom:16%;background:radial-gradient(circle at 35% 35%,#d9f6e8,#bcecd6);animation-delay:1.2s"></span>
+    <span class="shape" style="width:64px;height:64px;right:6%;bottom:34%;background:radial-gradient(circle at 35% 35%,#e0ecff,#c8ddfa);animation-delay:2.1s"></span>
+    <span class="shape" style="width:46px;height:46px;right:40%;top:16%;background:radial-gradient(circle at 35% 35%,#fff3cf,#ffe9a8);animation-delay:.6s"></span>
+    <span class="sym" style="right:20%;top:44%;font-size:44px;color:#e484ac;animation-delay:.4s">π</span>
+    <span class="sym" style="right:9%;top:12%;font-size:34px;color:#9d7fd8;animation-delay:1.6s">√</span>
+    <span class="sym" style="right:33%;bottom:10%;font-size:38px;color:#6aa5e0;animation-delay:2.4s">∑</span>
+    <span class="sym" style="right:4%;bottom:12%;font-size:30px;color:#5bbd94;animation-delay:3s">÷</span>
 
-  <!-- ===== 1. data input ===== -->
-  <section class="card">
-    <h2><span class="num">1</span>자료 준비하기</h2>
-    <div class="opts" style="margin-top:0; margin-bottom:10px">
-      <label style="flex:1; display:flex; align-items:center; gap:8px">제목
-        <input type="text" id="titleInput" placeholder="예) 우리 반 학생들의 키" maxlength="40" style="flex:1; width:auto; min-width:150px">
-      </label>
-    </div>
-    <div class="samples" id="samples"></div>
-    <textarea id="dataInput" placeholder="변량을 쉼표나 띄어쓰기로 구분해 입력하세요. 예) 152, 148, 163, 157 …"></textarea>
-    <div class="opts">
-      <label>잎의 단위
-        <select id="unitSel">
-          <option value="auto">자동 추천</option>
-          <option value="1">일의 자리 (줄기: 십의 자리)</option>
-          <option value="0.1">소수 첫째 자리 (줄기: 일의 자리)</option>
-        </select>
-      </label>
-      <label>단위명 <input type="text" id="unitLabel" placeholder="cm, 회, 초 …" maxlength="8"></label>
-      <span class="grow"></span>
-      <button class="btn small" onclick="applyData()">자료 적용</button>
-    </div>
-    <div class="notice" id="notice"></div>
-    <div class="count" id="dataCount"></div>
-  </section>
-
-  <!-- ===== 2a. auto mode ===== -->
-  <section class="card" id="autoPanel">
-    <h2><span class="num">2</span>줄기와 잎 그림</h2>
-    <div id="autoPlot"><div class="empty">위에서 자료를 적용하면 그림이 그려져요.</div></div>
-    <div class="plot-actions" id="autoActions" style="display:none">
-      <button class="btn small" id="sortBtn" onclick="sortLeaves()">잎을 크기순으로 정렬하기</button>
-      <button class="btn small ghost" onclick="renderAuto(true)">다시 그리기</button>
+    <div class="hero-inner">
+      <span class="quest-badge">🎮 오늘의 메인 퀘스트</span>
+      <h1 class="disp">피어라,<br><span class="grad">수학의 마법!</span></h1>
+      <p>게임과 시뮬레이션으로 배우는 중학교 수학.<br>미션을 클리어하고 마법 배지를 모아 보세요!</p>
+      <div class="hero-btns">
+        <button class="btn-big btn-start" onclick="location.href='#grades'">🚀 모험 시작하기</button>
+        <button class="btn-big btn-grade" onclick="location.href='#grades'">학년 선택</button>
+      </div>
     </div>
   </section>
 
-  <!-- ===== 2b. practice mode ===== -->
-  <section class="card" id="playPanel" style="display:none">
-    <h2><span class="num">2</span>변량 카드를 알맞은 줄기에 놓아 보세요</h2>
-    <div class="pool" id="pool"></div>
-    <p class="pool-hint">카드를 <b>탭해서 고른 뒤 줄기 줄을 탭</b>하거나, <b>끌어서</b> 놓으세요. 놓은 잎을 다시 탭하면 되돌아와요.</p>
-    <div id="playPlot" style="margin-top:14px"></div>
-    <div class="plot-actions">
-      <button class="btn small" onclick="checkPlay()">확인하기</button>
-      <button class="btn small ghost" onclick="resetPlay()">처음부터</button>
-      <span class="grow" style="flex:1"></span>
-      <span class="progress" id="playProgress"></span>
-    </div>
-    <div class="verdict" id="verdict"></div>
-  </section>
+  <!-- ===== grade cards ===== -->
+  <div class="sec-head" id="grades">
+    <div class="eyebrow">퀘스트 선택</div>
+    <h2 class="disp">학년별 모험 맵</h2>
+    <div class="side">원하는 학년을 골라 미션을 시작해 보세요 · 2022 개정 교육과정</div>
+  </div>
 
-  <footer>줄기와 잎 그림: 자료를 줄기와 잎으로 나누어 정리한 그림 · 잎은 작은 값부터 차례로 씁니다.</footer>
+  <div class="grades">
+
+    <!-- 중1 -->
+    <article class="gcard mint" id="g1">
+      <div class="top">
+        <span class="gbadge">🌱 새싹 배지</span>
+        <h3 class="disp">중1</h3>
+        <div class="sub">새싹 탐험가</div>
+        <span class="chara">🧭</span>
+      </div>
+      <div class="body">
+        <p class="desc">수와 연산, 도형의 기초를 게임처럼 탐험해요. 시뮬레이션으로 개념을 몸소 느껴 보세요!</p>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>1. 소인수분해<span class="tag soon">준비중</span></a>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>2. 정수와 유리수<span class="tag soon">준비중</span></a>
+        <a class="unit" href="stem-leaf.html"><span class="dot"></span>7. 자료의 정리와 해석 · 줄기와 잎 그림<span class="tag play">체험하기</span></a>
+        <div class="more">외 5개 단원 (문자와 식 · 좌표평면과 그래프 · 기본 도형 · 작도와 합동 · 대푯값 …)</div>
+        <button class="enter" onclick="toast('중1 모험 맵은 준비 중이에요!')">중1 입장하기</button>
+      </div>
+    </article>
+
+    <!-- 중2 -->
+    <article class="gcard peach" id="g2">
+      <div class="top">
+        <span class="gbadge">🔥 불꽃 배지</span>
+        <h3 class="disp">중2</h3>
+        <div class="sub">불꽃 모험가</div>
+        <span class="chara">🗺️</span>
+      </div>
+      <div class="body">
+        <p class="desc">일차함수, 확률, 도형의 성질을 퀘스트로 정복해요. 인터랙티브 도구로 직접 실험해 보세요!</p>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>1. 유리수와 순환소수<span class="tag soon">준비중</span></a>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>5. 일차함수와 그래프<span class="tag soon">준비중</span></a>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>9. 경우의 수와 확률<span class="tag soon">준비중</span></a>
+        <div class="more">외 6개 단원 (식의 계산 · 일차부등식 · 연립방정식 · 삼각형과 사각형의 성질 · 도형의 닮음 …)</div>
+        <button class="enter" onclick="toast('중2 모험 맵은 준비 중이에요!')">중2 입장하기</button>
+      </div>
+    </article>
+
+    <!-- 중3 -->
+    <article class="gcard lavender" id="g3">
+      <div class="top">
+        <span class="gbadge">⭐ 별빛 배지</span>
+        <h3 class="disp">중3</h3>
+        <div class="sub">별빛 마법사</div>
+        <span class="chara">🔮</span>
+      </div>
+      <div class="body">
+        <p class="desc">이차방정식, 삼각비, 통계까지! 보스 스테이지처럼 도전적인 미션을 클리어해 보세요.</p>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>1. 제곱근과 실수<span class="tag soon">준비중</span></a>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>4. 이차함수<span class="tag soon">준비중</span></a>
+        <a class="unit" href="#" onclick="toast('이 단원 콘텐츠는 준비 중이에요!'); return false;"><span class="dot"></span>7. 산포도와 상관관계<span class="tag soon">준비중</span></a>
+        <div class="more">외 4개 단원 (다항식의 곱셈과 인수분해 · 이차방정식 · 삼각비 · 원의 성질)</div>
+        <button class="enter" onclick="toast('중3 모험 맵은 준비 중이에요!')">중3 입장하기</button>
+      </div>
+    </article>
+  </div>
+
+  <!-- ===== 전자칠판 배너 ===== -->
+  <div class="board-banner">
+    <span class="ic">🖍️</span>
+    <div class="tx">
+      <h3 class="disp">전자칠판</h3>
+      <p>수업 중 바로 쓰는 판서 도구 — 좌표평면, 모눈, 도형 스탬프까지 (준비 중)</p>
+    </div>
+    <button onclick="toast('전자칠판은 준비 중이에요!')">열어 보기</button>
+  </div>
+
 </div>
 
-<div class="tip" id="tip"></div>
+<footer>
+  <div class="fl disp">피어라 매직! ✨</div>
+  피어라 매직은 게임과 시뮬레이션으로 수학의 즐거움을 배우는 중학교 수학 학습 공간입니다.
+</footer>
+
+<div class="toast" id="toast"></div>
 
 <script>
-"use strict";
-
-/* ================= sample datasets ================= */
-const SAMPLES = [
-  { name:"우리 반 학생들의 키", unit:"cm", leaf:"1",
-    data:[148,152,160,145,157,163,151,158,169,155,147,162,154,171,150,166,159,144,153,161] },
-  { name:"줄넘기 기록", unit:"회", leaf:"1",
-    data:[37,21,45,52,18,33,40,27,55,31,24,48,36,29,42,15,38,50,26,34] },
-  { name:"100 m 달리기 기록", unit:"초", leaf:"0.1",
-    data:[16.5,17.2,15.8,18.4,16.9,17.7,15.4,19.1,16.2,17.5,18.8,16.7,15.9,17.0,18.1,16.4] },
-  { name:"하루 독서 시간", unit:"분", leaf:"1",
-    data:[35,52,47,60,28,44,55,39,62,48,31,58,42,36,50,25,45,53,40,33] },
-];
-
-/* ================= state ================= */
-let data = [];          // [{value, stem, leaf, id}]
-let leafUnit = 1;       // 1 or 0.1 (resolved)
-let unitLabel = "";
-let plotTitle = "";
-let mode = "auto";
-let autoSorted = false;
-// practice state
-let pool = [];          // ids not yet placed
-let placed = {};        // stem -> [id,...] in placed order
-let selectedCard = null;
-
-const $ = id => document.getElementById(id);
-
-/* ================= samples UI ================= */
-const sampleBox = $("samples");
-SAMPLES.forEach((s,i)=>{
-  const b = document.createElement("button");
-  b.textContent = "예시: " + s.name;
-  b.onclick = ()=>{
-    $("dataInput").value = s.data.join(", ");
-    $("unitSel").value = s.leaf;
-    $("unitLabel").value = s.unit;
-    $("titleInput").value = s.name;
-    applyData();
-  };
-  sampleBox.appendChild(b);
-});
-
-/* ================= parsing ================= */
-function applyData(){
-  const raw = $("dataInput").value.trim();
-  const notice = $("notice");
-  notice.className = "notice";
-  if(!raw){ showNotice("자료를 먼저 입력해 주세요."); return; }
-
-  let nums = raw.split(/[,\s、]+/).filter(t=>t.length)
-    .map(t=>Number(t)).filter(n=>Number.isFinite(n) && n>=0);
-  if(!nums.length){ showNotice("숫자를 찾지 못했어요. 쉼표나 띄어쓰기로 구분해 주세요."); return; }
-  if(nums.length>80){ nums = nums.slice(0,80); showNotice("자료가 많아 앞의 80개만 사용해요."); }
-
-  const hasDecimal = nums.some(n=>!Number.isInteger(n));
-  const sel = $("unitSel").value;
-  if(sel==="auto"){ leafUnit = hasDecimal ? 0.1 : 1; }
-  else{ leafUnit = Number(sel); }
-  if(hasDecimal && leafUnit===1){
-    showNotice("소수 자료가 있어요. 잎의 단위를 '소수 첫째 자리'로 바꾸면 소수점 아래까지 나타낼 수 있어요. (지금은 반올림해서 그립니다)");
-  }
-  unitLabel = $("unitLabel").value.trim();
-  plotTitle = $("titleInput").value.trim();
-
-  data = nums.map((v,i)=>{
-    const t = Math.round(v * (leafUnit===0.1 ? 10 : 1));
-    const stem = Math.floor(t/10), leaf = ((t%10)+10)%10;
-    return { value:v, stem, leaf, id:"d"+i };
-  });
-
-  $("dataCount").textContent = "자료 " + data.length + "개" + (unitLabel? " · 단위: "+unitLabel : "") +
-    " · 잎의 단위: " + (leafUnit===0.1 ? "0.1 (소수 첫째 자리)" : "1 (일의 자리)");
-
-  autoSorted = false;
-  renderAuto(true);
-  resetPlay();
-}
-
-function showNotice(msg){ const n=$("notice"); n.textContent=msg; n.className="notice show"; }
-
-function stemsRange(){
-  if(!data.length) return [];
-  const s = data.map(d=>d.stem);
-  const min = Math.min(...s), max = Math.max(...s);
-  const arr=[]; for(let k=min;k<=max;k++) arr.push(k);
-  return arr;
-}
-function keyExample(){
-  if(!data.length) return "";
-  const d = data[0];
-  const shown = leafUnit===0.1 ? (d.stem + d.leaf/10).toFixed(1) : (d.stem*10 + d.leaf);
-  const josa = [2,4,5,9].includes(d.leaf) ? "는" : "은";  // 이·사·오·구 + 는
-  return `<b>${d.stem}|${d.leaf}</b>${josa} ${shown}${unitLabel} `;
-}
-
-/* ================= mode switch ================= */
-function setMode(m){
-  mode = m;
-  $("tabAuto").classList.toggle("on", m==="auto");
-  $("tabPlay").classList.toggle("on", m==="play");
-  $("autoPanel").style.display = m==="auto" ? "" : "none";
-  $("playPanel").style.display = m==="play" ? "" : "none";
-  if(m==="play") renderPlay();
-}
-
-/* ================= auto mode ================= */
-function renderAuto(animate){
-  const box = $("autoPlot");
-  if(!data.length){
-    box.innerHTML = '<div class="empty">위에서 자료를 적용하면 그림이 그려져요.</div>';
-    $("autoActions").style.display="none";
-    return;
-  }
-  autoSorted = false;
-  $("sortBtn").disabled = false;
-  $("sortBtn").textContent = "잎을 크기순으로 정렬하기";
-
-  const stems = stemsRange();
-  let html = `<div class="plot-head"><span class="plot-title">${currentTitle()}</span>
-              <span class="plot-key">${keyExample()}</span></div>`;
-  html += `<table class="slp"><tr><th class="stem-col">줄기</th><th class="leaf-col">잎</th></tr>`;
-  stems.forEach(st=>{
-    html += `<tr><td class="stem">${st}</td><td class="leaves"><div class="leafrow" data-stem="${st}">`;
-    data.filter(d=>d.stem===st).forEach(d=>{
-      html += `<span class="leaf ${animate?'hidden-in':''}" id="a_${d.id}" data-id="${d.id}">${d.leaf}</span>`;
-    });
-    html += `</div></td></tr>`;
-  });
-  html += `</table>`;
-  box.innerHTML = html;
-  $("autoActions").style.display="flex";
-
-  box.querySelectorAll(".leaf").forEach(el=>{
-    el.addEventListener("click", e=>showLeafTip(e, el.dataset.id));
-  });
-
-  if(animate){
-    const leaves = [...box.querySelectorAll(".leaf.hidden-in")];
-    // reveal in original input order
-    const order = data.map(d=>"a_"+d.id);
-    order.forEach((id,i)=>{
-      const el = $(id);
-      if(el) setTimeout(()=>el.classList.remove("hidden-in"), 120 + i*55);
-    });
-  }
-}
-
-function currentTitle(){
-  const t = plotTitle || "줄기와 잎 그림";
-  return escapeHtml(t) + (unitLabel ? ` <span style="font-weight:600;color:var(--muted);font-size:13px">(단위: ${escapeHtml(unitLabel)})</span>` : "");
-}
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-
-/* FLIP sort animation */
-function sortLeaves(){
-  if(autoSorted) return;
-  const rows = document.querySelectorAll("#autoPlot .leafrow");
-  const first = {};
-  rows.forEach(r=>[...r.children].forEach(el=>{ first[el.id]=el.getBoundingClientRect(); }));
-  rows.forEach(r=>{
-    const kids=[...r.children].sort((a,b)=>Number(a.textContent)-Number(b.textContent));
-    kids.forEach(k=>r.appendChild(k));
-  });
-  rows.forEach(r=>[...r.children].forEach(el=>{
-    const f=first[el.id], l=el.getBoundingClientRect();
-    const dx=f.left-l.left, dy=f.top-l.top;
-    if(dx||dy){
-      el.style.transition="none";
-      el.style.transform=`translate(${dx}px,${dy}px)`;
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        el.style.transition="";
-        el.style.transform="";
-      }));
+  // ---- 배경 이미지 적용 ----
+  (function(){
+    const url = (SITE_CONFIG.heroImage || "").trim();
+    if(url){
+      const hero = document.getElementById("hero");
+      hero.classList.add("has-image");
+      hero.style.backgroundImage = `url("${url.replace(/"/g,'%22')}")`;
     }
-  }));
-  autoSorted = true;
-  $("sortBtn").textContent = "정렬 완료!";
-  $("sortBtn").disabled = true;
-}
+  })();
 
-/* leaf tooltip */
-let tipTimer=null;
-function showLeafTip(e, id){
-  const d = data.find(x=>x.id===id);
-  if(!d) return;
-  const tip = $("tip");
-  tip.textContent = `이 잎은 ${fmtVal(d)}${unitLabel} 이에요`;
-  tip.style.left = e.clientX+"px";
-  tip.style.top = e.clientY+"px";
-  tip.classList.add("show");
-  clearTimeout(tipTimer);
-  tipTimer = setTimeout(()=>tip.classList.remove("show"), 1600);
-}
-function fmtVal(d){
-  return leafUnit===0.1 ? (d.stem + d.leaf/10).toFixed(1) : String(d.stem*10 + d.leaf);
-}
-
-/* ================= practice mode ================= */
-function resetPlay(){
-  placed = {};
-  selectedCard = null;
-  pool = data.map(d=>d.id);
-  // shuffle
-  for(let i=pool.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [pool[i],pool[j]]=[pool[j],pool[i]];
+  // ---- toast ----
+  let toastTimer = null;
+  function toast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove("show"), 2000);
   }
-  stemsRange().forEach(st=>placed[st]=[]);
-  $("verdict").className="verdict";
-  renderPlay();
-}
-
-function renderPlay(){
-  const poolBox = $("pool");
-  const plotBox = $("playPlot");
-  if(!data.length){
-    poolBox.innerHTML="";
-    plotBox.innerHTML='<div class="empty">먼저 위에서 자료를 적용해 주세요.</div>';
-    $("playProgress").textContent="";
-    return;
-  }
-  // pool cards
-  poolBox.innerHTML = pool.length ? "" : '<span style="color:var(--faint);font-size:14px;align-self:center">카드를 모두 놓았어요! [확인하기]를 눌러 보세요.</span>';
-  pool.forEach(id=>{
-    const d = data.find(x=>x.id===id);
-    const c = document.createElement("span");
-    c.className = "pcard" + (selectedCard===id?" sel":"");
-    c.textContent = fmtVal(d);
-    c.dataset.id = id;
-    c.addEventListener("click", ()=>{
-      selectedCard = (selectedCard===id)? null : id;
-      renderPlay();
-    });
-    enableDrag(c, id);
-    poolBox.appendChild(c);
-  });
-
-  // board
-  const stems = stemsRange();
-  let html = `<div class="plot-head"><span class="plot-title">${currentTitle()}</span>
-              <span class="plot-key">${keyExample()}</span></div>`;
-  html += `<table class="slp"><tr><th class="stem-col">줄기</th><th class="leaf-col">잎</th><th style="width:26px"></th></tr>`;
-  stems.forEach(st=>{
-    html += `<tr class="prow" data-stem="${st}"><td class="stem">${st}</td><td class="leaves"><div class="leafrow">`;
-    (placed[st]||[]).forEach(id=>{
-      const d = data.find(x=>x.id===id);
-      html += `<span class="leaf pleaf" data-id="${id}" data-stem="${st}">${d.leaf}</span>`;
-    });
-    html += `</div></td><td class="rowmark" data-mark="${st}"></td></tr>`;
-  });
-  html += `</table>`;
-  plotBox.innerHTML = html;
-
-  // row tap = place selected card
-  plotBox.querySelectorAll(".prow").forEach(tr=>{
-    tr.addEventListener("click", e=>{
-      if(e.target.classList.contains("pleaf")) return;
-      if(selectedCard!=null) placeCard(selectedCard, Number(tr.dataset.stem));
-    });
-  });
-  // placed leaf tap = return to pool
-  plotBox.querySelectorAll(".pleaf").forEach(el=>{
-    el.addEventListener("click", ()=>{
-      const id = el.dataset.id, st = Number(el.dataset.stem);
-      placed[st] = placed[st].filter(x=>x!==id);
-      pool.push(id);
-      $("verdict").className="verdict";
-      renderPlay();
-    });
-  });
-
-  const total = data.length, done = total - pool.length;
-  $("playProgress").textContent = `${done} / ${total} 배치`;
-}
-
-function placeCard(id, stem){
-  pool = pool.filter(x=>x!==id);
-  placed[stem].push(id);
-  selectedCard = null;
-  $("verdict").className="verdict";
-  renderPlay();
-}
-
-/* drag support (pointer events) */
-function enableDrag(el, id){
-  el.addEventListener("pointerdown", ev=>{
-    if(ev.pointerType==="mouse" && ev.button!==0) return;
-    const startX=ev.clientX, startY=ev.clientY;
-    let ghost=null, dragging=false;
-
-    const move = e=>{
-      if(!dragging && Math.hypot(e.clientX-startX, e.clientY-startY) > 8){
-        dragging = true;
-        el.classList.add("dragging");
-        ghost = el.cloneNode(true);
-        ghost.classList.add("drag-ghost");
-        ghost.classList.remove("dragging","sel");
-        document.body.appendChild(ghost);
-      }
-      if(dragging){
-        e.preventDefault();
-        ghost.style.left=e.clientX+"px";
-        ghost.style.top=e.clientY+"px";
-        highlightRow(e.clientX, e.clientY);
-      }
-    };
-    const up = e=>{
-      document.removeEventListener("pointermove", move);
-      document.removeEventListener("pointerup", up);
-      document.removeEventListener("pointercancel", up);
-      if(ghost) ghost.remove();
-      el.classList.remove("dragging");
-      clearRowHighlight();
-      if(dragging){
-        const row = rowAt(e.clientX, e.clientY);
-        if(row) placeCard(id, Number(row.dataset.stem));
-      }
-    };
-    document.addEventListener("pointermove", move, {passive:false});
-    document.addEventListener("pointerup", up);
-    document.addEventListener("pointercancel", up);
-  });
-  el.style.touchAction = "none";
-}
-function rowAt(x,y){
-  const els = document.elementsFromPoint(x,y);
-  return els.map(e=>e.closest && e.closest(".prow")).find(Boolean) || null;
-}
-function highlightRow(x,y){
-  clearRowHighlight();
-  const r = rowAt(x,y);
-  if(r) r.classList.add("target");
-}
-function clearRowHighlight(){
-  document.querySelectorAll(".prow.target").forEach(r=>r.classList.remove("target"));
-}
-
-/* check answers */
-function checkPlay(){
-  if(!data.length) return;
-  const v = $("verdict");
-  let wrongStem=0, wrongOrder=0;
-
-  document.querySelectorAll(".pleaf").forEach(el=>el.classList.remove("ok","bad","order"));
-  document.querySelectorAll(".rowmark").forEach(m=>{m.textContent=""; m.classList.remove("ok");});
-
-  stemsRange().forEach(st=>{
-    const ids = placed[st]||[];
-    let rowOk = true;
-    // stem correctness
-    ids.forEach(id=>{
-      const d = data.find(x=>x.id===id);
-      const el = document.querySelector(`.pleaf[data-id="${id}"]`);
-      if(d.stem===st){ el.classList.add("ok"); }
-      else{ el.classList.add("bad"); wrongStem++; rowOk=false; }
-    });
-    // ascending order (only among correctly-stemmed leaves)
-    const leaves = ids.map(id=>data.find(x=>x.id===id)).filter(d=>d.stem===st).map(d=>d.leaf);
-    for(let i=1;i<leaves.length;i++){
-      if(leaves[i]<leaves[i-1]){
-        wrongOrder++;
-        rowOk = false;
-        ids.forEach(id=>{
-          const d=data.find(x=>x.id===id);
-          if(d.stem===st) document.querySelector(`.pleaf[data-id="${id}"]`).classList.add("order");
-        });
-        break;
-      }
-    }
-    // complete row?
-    const need = data.filter(d=>d.stem===st).length;
-    if(rowOk && ids.length===need && need>0){
-      const m = document.querySelector(`.rowmark[data-mark="${st}"]`);
-      if(m){ m.textContent="✓"; m.classList.add("ok"); }
-    }
-  });
-
-  if(pool.length){
-    v.className="verdict show warn";
-    v.textContent = `아직 놓지 않은 카드가 ${pool.length}개 있어요.`;
-  }else if(wrongStem){
-    v.className="verdict show bad";
-    v.textContent = `줄기가 잘못된 잎이 ${wrongStem}개 있어요. 빨간 잎을 탭해서 다시 놓아 보세요.`;
-  }else if(wrongOrder){
-    v.className="verdict show warn";
-    v.textContent = "줄기는 모두 맞았어요! 이제 잎을 작은 수부터 차례로 놓아 보세요. (노란 테두리 줄)";
-  }else{
-    v.className="verdict show good";
-    v.textContent = "완성! 줄기와 잎 그림을 정확하게 만들었어요.";
-  }
-}
 </script>
 </body>
 </html>
