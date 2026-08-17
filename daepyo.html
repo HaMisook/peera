@@ -186,6 +186,42 @@
   .plot-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; align-items:center;}
 
   footer{font-size:12.5px; color:var(--faint); text-align:center; margin-top:26px;}
+
+  /* compare mode */
+  .comp-inputs{margin-bottom:6px;}
+  .comp-row{display:flex; gap:8px; margin-bottom:8px;}
+  .cname{
+    width:110px; flex:none; font-family:"Jua",sans-serif; font-size:15px; text-align:center;
+    border:1.5px solid var(--line); border-radius:11px; padding:9px 6px; background:#fff;
+  }
+  .comp-row.a .cname{background:#effaf4; border-color:var(--mint); color:var(--mint-ink);}
+  .comp-row.b .cname{background:#f6f1ff; border-color:var(--lavender); color:var(--lavender-ink);}
+  .cdata{
+    flex:1; font-family:inherit; font-size:15px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:11px; padding:9px 12px; background:#fafbfc;
+  }
+  .cdata:focus{outline:none; border-color:var(--accent); background:#fff;}
+  .lane-label{font-family:"Jua",sans-serif; font-size:14px; margin:10px 0 2px;}
+  .lane-label.a{color:var(--mint-ink);} .lane-label.b{color:var(--lavender-ink);}
+  table.ctab{border-collapse:separate; border-spacing:0 8px; width:100%; margin-top:8px;}
+  table.ctab th{font-family:"Jua",sans-serif; font-size:15px; font-weight:400; padding:4px;}
+  table.ctab th.ca{color:var(--mint-ink);} table.ctab th.cb{color:var(--lavender-ink);}
+  table.ctab td{background:#fdfbfd; border:1.5px solid var(--line); padding:10px; text-align:center; vertical-align:middle;}
+  table.ctab td:first-child{border-radius:12px 0 0 12px; border-right:none; width:150px;}
+  table.ctab td:nth-child(2){border-left:none; border-right:none;}
+  table.ctab td:last-child{border-radius:0 12px 12px 0; border-left:none;}
+  table.ctab .cv{font-size:20px; font-weight:800;}
+  table.ctab .cf{font-size:11.5px; color:var(--muted); margin-top:3px;}
+  table.ctab td.va .cv{color:var(--mint-ink);} table.ctab td.vb .cv{color:var(--lavender-ink);}
+  table.ctab button{
+    font-family:"Jua",sans-serif; font-size:14px; cursor:pointer; width:100%;
+    border:none; border-radius:10px; padding:10px 6px; color:#fff;
+    background:linear-gradient(120deg,#f09ec2,var(--accent)); box-shadow:0 3px 9px rgba(228,132,172,.3);
+  }
+  .talk{
+    margin-top:12px; border-radius:12px; padding:11px 14px;
+    background:var(--warn-soft); font-size:13.5px; color:#7a5c0d; line-height:1.6;
+  }
 </style>
 </head>
 <body>
@@ -196,8 +232,9 @@
     <a class="home" href="index.html">← 피어라 매직!</a>
     <div class="modes">
       <button id="tabAuto" class="on" onclick="setMode('auto')">버튼으로 구하기</button>
-      <button id="tabPlay" onclick="setMode('play')">내가 직접 구하기</button>
+      <button id="tabPlay" onclick="setMode('play')">직접 구하기</button>
       <button id="tabLab" onclick="setMode('lab')">실험실</button>
+      <button id="tabComp" onclick="setMode('comp')">비교하기</button>
     </div>
   </header>
 
@@ -236,6 +273,26 @@
   <section class="card" id="labPanel" style="display:none">
     <h2><span class="num">2</span>실험실 — 점을 끌면 대푯값이 어떻게 변할까?</h2>
     <div id="labBody"><div class="empty">먼저 위에서 자료를 적용해 주세요.</div></div>
+  </section>
+
+  <!-- ===== compare ===== -->
+  <section class="card" id="compPanel" style="display:none">
+    <h2><span class="num">2</span>두 자료를 나란히 비교해 보세요</h2>
+    <div class="comp-inputs">
+      <div class="comp-row a">
+        <input type="text" id="cNameA" class="cname" value="모둠 A" maxlength="14">
+        <input type="text" id="cDataA" class="cdata" placeholder="자료 A (쉼표로 구분)">
+      </div>
+      <div class="comp-row b">
+        <input type="text" id="cNameB" class="cname" value="모둠 B" maxlength="14">
+        <input type="text" id="cDataB" class="cdata" placeholder="자료 B (쉼표로 구분)">
+      </div>
+      <div class="plot-actions" style="margin-top:4px">
+        <button class="btn small" onclick="compApply()">비교 그림 그리기</button>
+        <button class="btn small ghost" onclick="compTextbook()">📖 교과서 자료 불러오기</button>
+      </div>
+    </div>
+    <div id="compBody"></div>
   </section>
 
   <footer>대푯값: 자료 전체의 특징을 하나의 수로 나타낸 값 — 평균 · 중앙값 · 최빈값</footer>
@@ -321,10 +378,11 @@ function applyData(){
 /* ================= mode ================= */
 function setMode(m){
   mode=m;
-  ["auto","play","lab"].forEach(k=>{
+  ["auto","play","lab","comp"].forEach(k=>{
     $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("on", m===k);
     $(k+"Panel").style.display = m===k ? "" : "none";
   });
+  if(m==="comp" && !compInit){ compInit=true; renderComp(); }
 }
 
 /* ================= AUTO mode ================= */
@@ -596,6 +654,95 @@ function updateLab(){
 }
 function labReset(){
   labData=[...data]; labDomain=null; renderLab();
+}
+
+/* ================= COMPARE mode ================= */
+let compInit=false;
+let compA=[18,13,20,15,19,17,12,14,16];
+let compB=[15,16,14,17,19,13,18,17,96];
+const C_W=760, C_H=118, C_PAD=40, C_AXIS=C_H-32, C_R=8;
+
+function compTextbook(){
+  $("cNameA").value="모둠 A"; $("cNameB").value="모둠 B";
+  $("cDataA").value="18, 13, 20, 15, 19, 17, 12, 14, 16";
+  $("cDataB").value="15, 16, 14, 17, 19, 13, 18, 17, 96";
+  compApply();
+}
+function parseList(s){
+  return s.split(/[,\s、]+/).filter(t=>t.length).map(Number).filter(Number.isFinite).slice(0,40);
+}
+function compApply(){
+  const a=parseList($("cDataA").value), b=parseList($("cDataB").value);
+  if(!a.length || !b.length){
+    $("compBody").innerHTML='<div class="empty">두 자료를 모두 입력하고 [비교 그림 그리기]를 눌러 주세요.</div>';
+    return;
+  }
+  compA=a; compB=b;
+  renderComp();
+}
+function drawLane(arr, color, dark){
+  const lo=Math.min(...compA,...compB), hi=Math.max(...compA,...compB);
+  const range=Math.max(hi-lo,6);
+  const dlo=Math.floor(lo-range*0.06-1), dhi=Math.ceil(hi+range*0.06+1);
+  const x=v=>C_PAD+(v-dlo)/(dhi-dlo)*(C_W-2*C_PAD);
+  const span=dhi-dlo, step=span<=12?1:span<=30?5:span<=80?10:span<=200?25:50;
+  let g=`<line x1="${C_PAD-14}" y1="${C_AXIS}" x2="${C_W-C_PAD+14}" y2="${C_AXIS}" stroke="#c9bfd6" stroke-width="2"/>`;
+  for(let t=Math.ceil(dlo/step)*step; t<=dhi; t+=step){
+    g+=`<line x1="${x(t)}" y1="${C_AXIS}" x2="${x(t)}" y2="${C_AXIS+6}" stroke="#c9bfd6" stroke-width="1.5"/>
+        <text x="${x(t)}" y="${C_AXIS+21}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8b8499">${t}</text>`;
+  }
+  const pos={};
+  arr.forEach(v=>{
+    const key=v, lvl=pos[key]=(pos[key]??-1)+1;
+    g+=`<circle cx="${x(v)}" cy="${C_AXIS-12-lvl*(C_R*2+3)}" r="${C_R}" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+  });
+  const m=mean(arr);
+  g+=`<path d="M ${x(m)} ${C_AXIS+1} l -8 12 l 16 0 z" fill="${dark}"/>
+      <text x="${x(m)}" y="${C_AXIS-2-((Math.max(...Object.values(pos))+1)*(C_R*2+3))-6}" text-anchor="middle" font-size="0"></text>`;
+  return `<svg viewBox="0 0 ${C_W} ${C_H}">${g}</svg>`;
+}
+function renderComp(){
+  if(!$("cDataA").value.trim()) $("cDataA").value=compA.join(", ");
+  if(!$("cDataB").value.trim()) $("cDataB").value=compB.join(", ");
+  const nA=esc($("cNameA").value.trim()||"자료 A"), nB=esc($("cNameB").value.trim()||"자료 B");
+  let html=`<div class="lane-label a">🟢 ${nA} (${compA.length}개) — ▲는 평균 자리</div>
+    <div class="labwrap">${drawLane(compA,"#7fd4ae","#2e8a66")}</div>
+    <div class="lane-label b">🟣 ${nB} (${compB.length}개) — ▲는 평균 자리</div>
+    <div class="labwrap">${drawLane(compB,"#c4aef0","#7a5fc0")}</div>`;
+  html+=`<table class="ctab">
+    <tr><th></th><th class="ca">${nA}</th><th class="cb">${nB}</th></tr>
+    <tr><td><button onclick="compReveal('mean')">📌 평균 구하기</button></td>
+        <td class="va" id="cMeanA"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td>
+        <td class="vb" id="cMeanB"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td></tr>
+    <tr><td><button onclick="compReveal('median')">🎯 중앙값 찾기</button></td>
+        <td class="va" id="cMedA"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td>
+        <td class="vb" id="cMedB"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td></tr>
+    <tr><td><button onclick="compReveal('mode')">👑 최빈값 찾기</button></td>
+        <td class="va" id="cModA"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td>
+        <td class="vb" id="cModB"><span class="q" style="font-size:22px;color:var(--faint)">?</span></td></tr>
+  </table>
+  <div class="talk">💬 <b>생각해 보기</b> — 두 자료의 평균은 각각 자료 전체를 잘 대표하고 있나요?
+  극단적으로 크거나 작은 값이 있는 쪽은 어느 대푯값이 더 적절할지 점 그림을 보며 이야기해 보세요.</div>`;
+  $("compBody").innerHTML=html;
+}
+function compCell(id, html){ $(id).innerHTML=`<div class="cv pop">${html.v}</div><div class="cf">${html.f}</div>`; }
+function compReveal(kind){
+  const u=$("unitLabel") && unitLabel ? unitLabel : "";
+  const mk=(arr)=>{
+    if(kind==="mean"){
+      const s=arr.reduce((x,y)=>x+y,0);
+      return {v:fmt(mean(arr))+u, f:`${fmt(s)} ÷ ${arr.length}`};
+    }
+    if(kind==="median"){
+      const so=[...arr].sort((x,y)=>x-y), n=so.length;
+      return {v:fmt(median(arr))+u, f:n%2? `${(n+1)/2}번째 값` : `(${so[n/2-1]}+${so[n/2]}) ÷ 2`};
+    }
+    const mo=modes(arr);
+    return mo.list.length? {v:mo.list.map(fmt).join(", ")+u, f:`${mo.max}번씩 나타남`} : {v:"없음", f:"모두 한 번씩"};
+  };
+  if(kind==="mean"){ compCell("cMeanA",mk(compA)); compCell("cMeanB",mk(compB)); }
+  if(kind==="median"){ compCell("cMedA",mk(compA)); compCell("cMedB",mk(compB)); }
+  if(kind==="mode"){ compCell("cModA",mk(compA)); compCell("cModB",mk(compB)); }
 }
 </script>
 </body>
