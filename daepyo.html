@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>대푯값 탐구소</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#4a4458; --muted:#8b8499; --faint:#b8b1c4;
+    --surface:#fdf8f4; --card:#ffffff; --line:#f0e8ee;
+    --accent:#e484ac; --accent-soft:#ffd6e8; --accent-softer:#fff0f7; --accent-ink:#b2437c;
+    --good:#3da97e; --good-soft:#d3f2e4;
+    --bad:#e05c7f; --bad-soft:#ffe0ea;
+    --warn:#d9a520; --warn-soft:#fff3c9;
+    --mint:#d3f2e4; --mint-deep:#5bbd94; --mint-ink:#2e8a66;
+    --lavender:#e8ddff; --lavender-deep:#9d7fd8; --lavender-ink:#7a5fc0;
+    --radius:20px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    background:var(--surface); color:var(--ink);
+    min-height:100vh; padding:16px 14px 60px;
+    touch-action:manipulation;
+  }
+  .wrap{max-width:860px; margin:0 auto;}
+
+  header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+  h1{font-family:"Jua","Pretendard",sans-serif; font-size:23px; font-weight:400; margin:0; display:flex; align-items:center; gap:9px;}
+  h1 .mark{
+    width:38px; height:38px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,var(--accent-soft) 0%,var(--lavender) 55%,#d6ebff 100%);
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+    box-shadow:0 3px 10px rgba(228,132,172,.28);
+  }
+  h1 .badge{display:inline-block; font-family:"Pretendard",sans-serif; font-size:12px; font-weight:800; color:var(--accent-ink); background:var(--accent-soft); border-radius:999px; padding:4px 11px; margin-left:2px; vertical-align:middle;}
+  .home{
+    font-size:13px; font-weight:700; color:var(--muted); text-decoration:none;
+    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:7px 13px;
+  }
+  .home:hover{color:var(--accent); border-color:var(--accent-soft); background:var(--accent-softer);}
+  .modes{display:flex; background:#f3e8f2; border-radius:999px; padding:4px;}
+  .modes button{
+    border:none; background:transparent; color:var(--muted);
+    font-family:"Jua","Pretendard",sans-serif; font-size:14.5px; padding:9px 15px; border-radius:999px; cursor:pointer;
+    transition:background .18s, color .18s;
+  }
+  .modes button.on{background:var(--card); color:var(--accent); box-shadow:0 2px 6px rgba(228,132,172,.22);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:0 6px 24px rgba(157,127,216,.10);}
+  .card h2{font-size:15px; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px;}
+  .card h2 .num{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800;}
+
+  .samples{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
+  .samples button{
+    font-family:inherit; font-size:13.5px; font-weight:700; color:var(--accent-ink);
+    background:var(--accent-softer); border:1.5px solid var(--accent-soft); border-radius:999px;
+    padding:8px 14px; cursor:pointer; transition:transform .12s;
+  }
+  .samples button:hover{transform:translateY(-1px);}
+  .samples button:nth-child(2){color:var(--mint-ink); background:#effaf4; border-color:var(--mint);}
+  .samples button:nth-child(3){color:var(--lavender-ink); background:#f6f1ff; border-color:var(--lavender);}
+  .samples button:nth-child(4){color:#a37b12; background:#fffae6; border-color:#f5e6ae;}
+  textarea{
+    width:100%; min-height:60px; resize:vertical;
+    font-family:inherit; font-size:16px; line-height:1.5; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:#fafbfc;
+  }
+  textarea:focus{outline:none; border-color:var(--accent); background:#fff;}
+  .opts{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin-top:10px;}
+  .opts label{font-size:13.5px; font-weight:700; color:var(--muted);}
+  .opts input[type=text]{
+    font-family:inherit; font-size:15px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff;
+  }
+  .opts .grow{flex:1;}
+  .btn{
+    font-family:"Jua","Pretendard",sans-serif; font-size:16px;
+    border:none; border-radius:14px; padding:12px 22px; cursor:pointer;
+    background:linear-gradient(120deg,#f09ec2,var(--accent)); color:#fff; box-shadow:0 4px 12px rgba(228,132,172,.35);
+    transition:transform .1s;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.ghost{background:#fff; color:var(--accent); border:1.5px solid var(--accent); box-shadow:none;}
+  .btn.small{font-size:14px; padding:9px 16px; border-radius:11px;}
+  .count{font-size:13px; color:var(--muted); margin-top:8px;}
+  .notice{font-size:13px; color:var(--warn); background:var(--warn-soft); border-radius:8px; padding:7px 11px; margin-top:9px; display:none;}
+  .notice.show{display:block;}
+  .empty{color:var(--faint); font-size:15px; text-align:center; padding:34px 0;}
+
+  .plot-head{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px;}
+  .plot-title{font-family:"Jua",sans-serif; font-size:17px;}
+  .plot-title .u{font-family:"Pretendard"; font-weight:600; color:var(--muted); font-size:13px;}
+
+  /* data chips */
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin:8px 0 4px;}
+  .chip{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:40px; height:38px; padding:0 9px;
+    background:var(--lavender); color:var(--lavender-ink);
+    font-size:16.5px; font-weight:800; border-radius:11px;
+    transition:transform .3s, background .3s, color .3s;
+  }
+  .chip.mid{background:var(--mint); color:var(--mint-ink); transform:scale(1.12); box-shadow:0 3px 8px rgba(91,189,148,.3);}
+  .chip.dim{opacity:.32;}
+  .chip.mode-hit{background:var(--accent-soft); color:var(--accent-ink); transform:scale(1.12); box-shadow:0 3px 8px rgba(228,132,172,.3);}
+  .chips-label{font-size:12.5px; font-weight:700; color:var(--faint); margin-top:8px;}
+
+  /* stat cards */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
+  @media (max-width:640px){ .stats{grid-template-columns:1fr;} }
+  .stat{
+    border-radius:16px; padding:14px; border:1.5px solid var(--line); background:#fdfbfd;
+    display:flex; flex-direction:column; gap:8px; min-height:118px;
+  }
+  .stat .name{font-family:"Jua",sans-serif; font-size:16px; display:flex; align-items:center; gap:7px;}
+  .stat .val{
+    font-size:26px; font-weight:800; letter-spacing:-0.01em; min-height:34px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .stat .val .unit{font-size:14px; font-weight:700; color:var(--muted);}
+  .stat .how{font-size:12.5px; color:var(--muted); line-height:1.5;}
+  .stat button{
+    font-family:"Jua",sans-serif; font-size:15px; cursor:pointer;
+    border:none; border-radius:11px; padding:10px; color:#fff; margin-top:auto;
+    transition:transform .12s;
+  }
+  .stat button:active{transform:scale(.96);}
+  .stat.mean{border-color:#f7cfdf;}
+  .stat.mean .name{color:var(--accent-ink);}
+  .stat.mean .val{color:var(--accent-ink);}
+  .stat.mean button{background:linear-gradient(120deg,#f09ec2,var(--accent)); box-shadow:0 3px 9px rgba(228,132,172,.3);}
+  .stat.median{border-color:#bfe8d4;}
+  .stat.median .name{color:var(--mint-ink);}
+  .stat.median .val{color:var(--mint-ink);}
+  .stat.median button{background:linear-gradient(120deg,#7fd4ae,var(--mint-deep)); box-shadow:0 3px 9px rgba(91,189,148,.3);}
+  .stat.mode{border-color:#d9c9f5;}
+  .stat.mode .name{color:var(--lavender-ink);}
+  .stat.mode .val{color:var(--lavender-ink);}
+  .stat.mode button{background:linear-gradient(120deg,#b79aec,var(--lavender-deep)); box-shadow:0 3px 9px rgba(157,127,216,.3);}
+  .stat .q{font-size:26px; color:var(--faint); font-weight:800;}
+  .pop{animation:pop .45s cubic-bezier(.2,.8,.3,1.4);}
+  @keyframes pop{0%{transform:scale(.4); opacity:0;} 100%{transform:scale(1); opacity:1;}}
+
+  /* practice */
+  .p-inputs{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
+  @media (max-width:640px){ .p-inputs{grid-template-columns:1fr;} }
+  .p-box{border-radius:16px; padding:13px; border:1.5px solid var(--line);}
+  .p-box .name{font-family:"Jua",sans-serif; font-size:15px; margin-bottom:8px;}
+  .p-box input{
+    width:100%; font-family:inherit; font-size:17px; font-weight:700; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; padding:10px; background:#fff; text-align:center;
+  }
+  .p-box input:focus{outline:none; border-color:var(--accent);}
+  .p-box .hint{font-size:11.5px; color:var(--faint); margin-top:6px;}
+  .p-box.ok{border-color:var(--mint-deep); background:#f2fbf7;}
+  .p-box.ok input{border-color:var(--mint-deep); color:var(--mint-ink);}
+  .p-box.no{border-color:var(--bad); background:#fff5f8; animation:shake .4s;}
+  .p-box.no input{border-color:var(--bad); color:var(--bad);}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-4px);}}
+  .verdict{margin-top:12px; border-radius:12px; padding:11px 14px; font-size:15px; font-weight:700; display:none;}
+  .verdict.show{display:block;}
+  .verdict.good{background:var(--good-soft); color:#166a4d;}
+  .verdict.warn{background:var(--warn-soft); color:#92670e;}
+  .sol{margin-top:12px; border-radius:12px; padding:12px 14px; background:#faf7fb; border:1px dashed var(--line); font-size:14px; line-height:1.7; display:none;}
+  .sol.show{display:block;}
+  .sol b{color:var(--accent-ink);}
+
+  /* lab */
+  .labwrap{background:#fdfbfd; border:1.5px solid var(--line); border-radius:16px; padding:10px 8px 4px; margin-top:6px;}
+  svg{display:block; width:100%; height:auto; touch-action:none;}
+  .lab-stats{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
+  .mini{
+    flex:1; min-width:130px; border-radius:13px; padding:10px 13px; border:1.5px solid var(--line);
+  }
+  .mini .k{font-size:12.5px; font-weight:800;}
+  .mini .v{font-size:21px; font-weight:800; margin-top:2px; transition:color .2s;}
+  .mini.mean{border-color:#f7cfdf; background:#fff7fa;} .mini.mean .k{color:var(--accent-ink);} .mini.mean .v{color:var(--accent-ink);}
+  .mini.median{border-color:#bfe8d4; background:#f4fbf8;} .mini.median .k{color:var(--mint-ink);} .mini.median .v{color:var(--mint-ink);}
+  .mini.mode{border-color:#d9c9f5; background:#f9f6ff;} .mini.mode .k{color:var(--lavender-ink);} .mini.mode .v{color:var(--lavender-ink);}
+  .lab-hint{font-size:13.5px; color:var(--muted); margin-top:10px; background:var(--warn-soft); border-radius:10px; padding:9px 13px;}
+  .plot-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; align-items:center;}
+
+  footer{font-size:12.5px; color:var(--faint); text-align:center; margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1><span class="mark">✨</span>대푯값 탐구소<span class="badge">중1 통계</span></h1>
+    <a class="home" href="index.html">← 피어라 매직!</a>
+    <div class="modes">
+      <button id="tabAuto" class="on" onclick="setMode('auto')">버튼으로 구하기</button>
+      <button id="tabPlay" onclick="setMode('play')">내가 직접 구하기</button>
+      <button id="tabLab" onclick="setMode('lab')">실험실</button>
+    </div>
+  </header>
+
+  <!-- ===== 1. data ===== -->
+  <section class="card">
+    <h2><span class="num">1</span>자료 준비하기</h2>
+    <div class="opts" style="margin-top:0; margin-bottom:10px">
+      <label style="flex:1; display:flex; align-items:center; gap:8px">제목
+        <input type="text" id="titleInput" placeholder="예) 우리 모둠의 수학 점수" maxlength="40" style="flex:1; min-width:150px">
+      </label>
+    </div>
+    <div class="samples" id="samples"></div>
+    <textarea id="dataInput" placeholder="변량을 쉼표나 띄어쓰기로 구분해 입력하세요. 예) 75, 80, 85, 80, 90 …"></textarea>
+    <div class="opts">
+      <label>단위명 <input type="text" id="unitLabel" placeholder="점, 회, ℃ …" maxlength="8" style="width:80px"></label>
+      <span class="grow"></span>
+      <button class="btn small" onclick="applyData()">자료 적용</button>
+    </div>
+    <div class="notice" id="notice"></div>
+    <div class="count" id="dataCount"></div>
+  </section>
+
+  <!-- ===== auto ===== -->
+  <section class="card" id="autoPanel">
+    <h2><span class="num">2</span>버튼을 눌러 대푯값을 구해 보세요</h2>
+    <div id="autoBody"><div class="empty">위에서 자료를 적용하면 시작할 수 있어요.</div></div>
+  </section>
+
+  <!-- ===== practice ===== -->
+  <section class="card" id="playPanel" style="display:none">
+    <h2><span class="num">2</span>대푯값을 직접 구해 보세요</h2>
+    <div id="playBody"><div class="empty">먼저 위에서 자료를 적용해 주세요.</div></div>
+  </section>
+
+  <!-- ===== lab ===== -->
+  <section class="card" id="labPanel" style="display:none">
+    <h2><span class="num">2</span>실험실 — 점을 끌면 대푯값이 어떻게 변할까?</h2>
+    <div id="labBody"><div class="empty">먼저 위에서 자료를 적용해 주세요.</div></div>
+  </section>
+
+  <footer>대푯값: 자료 전체의 특징을 하나의 수로 나타낸 값 — 평균 · 중앙값 · 최빈값</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ================= samples ================= */
+const SAMPLES = [
+  { name:"모둠 A의 단 댓글 수", unit:"개", data:[18,13,20,15,19,17,12,14,16] },
+  { name:"모둠 B의 단 댓글 수", unit:"개", data:[15,16,14,17,19,13,18,17,96] },
+  { name:"우석이네 모둠의 통학 시간", unit:"분", data:[12,8,16,40,11,7,9] },
+  { name:"옷 가게에서 판매한 상의의 치수", unit:"호", data:[95,90,95,90,95,95,100,100,95,105] },
+];
+
+/* ================= state ================= */
+let data = [];
+let unitLabel = "";
+let plotTitle = "";
+let mode = "auto";
+let revealed = {mean:false, median:false, mode:false};
+// practice
+let pData = [], pUnit = "", pTitle = "";
+// lab
+let labData = [], labDomain = null, dragIdx = -1;
+
+const $ = id => document.getElementById(id);
+
+/* ================= helpers ================= */
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function median(arr){
+  const s=[...arr].sort((a,b)=>a-b), n=s.length;
+  return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2;
+}
+function modes(arr){
+  const f={};
+  arr.forEach(v=>f[v]=(f[v]||0)+1);
+  const max=Math.max(...Object.values(f));
+  if(max===1) return {list:[], max:1};
+  return {list:Object.keys(f).filter(k=>f[k]===max).map(Number).sort((a,b)=>a-b), max};
+}
+function fmt(x){
+  if(!Number.isFinite(x)) return "-";
+  return (Math.round(x*100)/100).toString();
+}
+function esc(s){ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function showNotice(msg){ const n=$("notice"); n.textContent=msg; n.className="notice show"; }
+
+/* ================= samples UI ================= */
+SAMPLES.forEach(s=>{
+  const b=document.createElement("button");
+  b.textContent="예시: "+s.name;
+  b.onclick=()=>{
+    $("dataInput").value=s.data.join(", ");
+    $("unitLabel").value=s.unit;
+    $("titleInput").value=s.name;
+    applyData();
+  };
+  $("samples").appendChild(b);
+});
+
+/* ================= apply ================= */
+function applyData(){
+  const raw=$("dataInput").value.trim();
+  $("notice").className="notice";
+  if(!raw){ showNotice("자료를 먼저 입력해 주세요."); return; }
+  let nums=raw.split(/[,\s、]+/).filter(t=>t.length).map(Number).filter(n=>Number.isFinite(n));
+  if(!nums.length){ showNotice("숫자를 찾지 못했어요. 쉼표나 띄어쓰기로 구분해 주세요."); return; }
+  if(nums.length>40){ nums=nums.slice(0,40); showNotice("자료가 많아 앞의 40개만 사용해요."); }
+  data=nums;
+  unitLabel=$("unitLabel").value.trim();
+  plotTitle=$("titleInput").value.trim();
+  $("dataCount").textContent="자료 "+data.length+"개"+(unitLabel?" · 단위: "+unitLabel:"");
+  revealed={mean:false, median:false, mode:false};
+  renderAuto();
+  pData=[...data]; pUnit=unitLabel; pTitle=plotTitle;
+  renderPlay(true);
+  labData=[...data]; labDomain=null;
+  renderLab();
+}
+
+/* ================= mode ================= */
+function setMode(m){
+  mode=m;
+  ["auto","play","lab"].forEach(k=>{
+    $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("on", m===k);
+    $(k+"Panel").style.display = m===k ? "" : "none";
+  });
+}
+
+/* ================= AUTO mode ================= */
+function titleHtml(t,u){
+  return `<span class="plot-title">${esc(t||"대푯값 구하기")} ${u?`<span class="u">(단위: ${esc(u)})</span>`:""}</span>`;
+}
+function renderAuto(){
+  if(!data.length){ $("autoBody").innerHTML='<div class="empty">위에서 자료를 적용하면 시작할 수 있어요.</div>'; return; }
+  const sorted=[...data].sort((a,b)=>a-b);
+  let html=`<div class="plot-head">${titleHtml(plotTitle,unitLabel)}</div>`;
+  html+=`<div class="chips-label">입력한 자료 (${data.length}개)</div><div class="chips">`+
+    data.map(v=>`<span class="chip" style="background:#faf5fb;color:var(--muted)">${v}</span>`).join("")+`</div>`;
+  html+=`<div class="chips-label">크기순으로 정렬한 자료</div><div class="chips" id="sortedChips">`+
+    sorted.map((v,i)=>`<span class="chip" data-i="${i}">${v}</span>`).join("")+`</div>`;
+
+  html+=`<div class="stats">
+    <div class="stat mean">
+      <div class="name">📌 평균</div>
+      <div class="val" id="meanVal"><span class="q">?</span></div>
+      <div class="how" id="meanHow">모든 변량의 합을 개수로 나눈 값</div>
+      <button onclick="reveal('mean')">평균 구하기</button>
+    </div>
+    <div class="stat median">
+      <div class="name">🎯 중앙값</div>
+      <div class="val" id="medianVal"><span class="q">?</span></div>
+      <div class="how" id="medianHow">크기순으로 나열했을 때 한가운데 값</div>
+      <button onclick="reveal('median')">중앙값 찾기</button>
+    </div>
+    <div class="stat mode">
+      <div class="name">👑 최빈값</div>
+      <div class="val" id="modeVal"><span class="q">?</span></div>
+      <div class="how" id="modeHow">가장 많이 나타나는 값</div>
+      <button onclick="reveal('mode')">최빈값 찾기</button>
+    </div>
+  </div>`;
+  $("autoBody").innerHTML=html;
+}
+
+function reveal(kind){
+  if(!data.length) return;
+  const u = unitLabel? `<span class="unit">${esc(unitLabel)}</span>` : "";
+  const sorted=[...data].sort((a,b)=>a-b), n=sorted.length;
+  const chips=[...document.querySelectorAll("#sortedChips .chip")];
+  chips.forEach(c=>c.classList.remove("mid","dim","mode-hit"));
+
+  if(kind==="mean"){
+    const sum=data.reduce((a,b)=>a+b,0), m=mean(data);
+    $("meanVal").innerHTML=`<span class="pop">${fmt(m)}</span>${u}`;
+    $("meanHow").innerHTML=`(전체의 합) ÷ (개수) = ${fmt(sum)} ÷ ${n} = <b>${fmt(m)}</b>`;
+  }
+  if(kind==="median"){
+    const md=median(data);
+    if(n%2){
+      const k=(n-1)/2;
+      chips.forEach((c,i)=>{ if(i===k)c.classList.add("mid"); else c.classList.add("dim"); });
+      $("medianHow").innerHTML=`자료가 ${n}개(홀수) → 한가운데인 <b>${k+1}번째 값</b>`;
+    }else{
+      const k=n/2;
+      chips.forEach((c,i)=>{ if(i===k-1||i===k)c.classList.add("mid"); else c.classList.add("dim"); });
+      $("medianHow").innerHTML=`자료가 ${n}개(짝수) → 가운데 두 값(${k}번째, ${k+1}번째)의 평균 = (${sorted[k-1]} + ${sorted[k]}) ÷ 2`;
+    }
+    $("medianVal").innerHTML=`<span class="pop">${fmt(md)}</span>${u}`;
+  }
+  if(kind==="mode"){
+    const mo=modes(data);
+    if(!mo.list.length){
+      $("modeVal").innerHTML=`<span class="pop" style="font-size:19px">없음</span>`;
+      $("modeHow").innerHTML=`모든 값이 한 번씩만 나타나서 최빈값이 <b>없어요</b>`;
+    }else{
+      chips.forEach(c=>{ if(mo.list.includes(Number(c.textContent))) c.classList.add("mode-hit"); else c.classList.add("dim"); });
+      $("modeVal").innerHTML=`<span class="pop">${mo.list.map(fmt).join(", ")}</span>${u}`;
+      $("modeHow").innerHTML=`<b>${mo.list.map(fmt).join(", ")}</b>이(가) ${mo.max}번씩 나타나 가장 많아요` +
+        (mo.list.length>1 ? " — 최빈값은 여러 개일 수도 있어요!" : "");
+    }
+  }
+}
+
+/* ================= PRACTICE mode ================= */
+function renderPlay(reset){
+  if(!pData.length){ $("playBody").innerHTML='<div class="empty">먼저 위에서 자료를 적용해 주세요.</div>'; return; }
+  let html=`<div class="plot-head">${titleHtml(pTitle,pUnit)}
+    <button class="btn small ghost" onclick="newProblem()">🎲 새 문제 만들기</button></div>`;
+  html+=`<div class="chips">`+pData.map(v=>`<span class="chip">${v}</span>`).join("")+`</div>`;
+  html+=`<div class="p-inputs">
+    <div class="p-box" id="pbMean">
+      <div class="name" style="color:var(--accent-ink)">📌 평균</div>
+      <input type="text" id="inMean" inputmode="decimal" placeholder="?">
+      <div class="hint">소수는 소수점까지 정확히 (예: 80.5)</div>
+    </div>
+    <div class="p-box" id="pbMedian">
+      <div class="name" style="color:var(--mint-ink)">🎯 중앙값</div>
+      <input type="text" id="inMedian" inputmode="decimal" placeholder="?">
+      <div class="hint">크기순으로 나열해 보세요</div>
+    </div>
+    <div class="p-box" id="pbMode">
+      <div class="name" style="color:var(--lavender-ink)">👑 최빈값</div>
+      <input type="text" id="inMode" placeholder="? (여러 개면 쉼표로)">
+      <div class="hint">없으면 '없음'이라고 쓰세요</div>
+    </div>
+  </div>
+  <div class="plot-actions">
+    <button class="btn small" onclick="checkPlay()">확인하기</button>
+    <button class="btn small ghost" onclick="toggleSol()">풀이 보기</button>
+  </div>
+  <div class="verdict" id="pVerdict"></div>
+  <div class="sol" id="pSol"></div>`;
+  $("playBody").innerHTML=html;
+}
+
+function newProblem(){
+  const t=SAMPLES[Math.floor(Math.random()*SAMPLES.length)];
+  const n=6+Math.floor(Math.random()*4);           // 6~9개
+  const pool=[...new Set(t.data)];
+  pData=Array.from({length:n},()=>pool[Math.floor(Math.random()*pool.length)]);
+  pUnit=t.unit; pTitle=t.name+" (연습)";
+  renderPlay(true);
+}
+
+function checkPlay(){
+  const trueMean=mean(pData), trueMed=median(pData), trueModes=modes(pData).list;
+  const v=$("pVerdict");
+  let okCnt=0;
+
+  const mval=parseFloat(($("inMean").value||"").replace(",", "."));
+  const mOk=Number.isFinite(mval) && Math.abs(mval-trueMean)<=0.051;
+  $("pbMean").className="p-box "+(mOk?"ok":"no"); if(mOk)okCnt++;
+
+  const dval=parseFloat(($("inMedian").value||"").replace(",", "."));
+  const dOk=Number.isFinite(dval) && Math.abs(dval-trueMed)<1e-9;
+  $("pbMedian").className="p-box "+(dOk?"ok":"no"); if(dOk)okCnt++;
+
+  const raw=($("inMode").value||"").trim();
+  let oOk=false;
+  if(/^없음|없다|no$/i.test(raw)) oOk = trueModes.length===0;
+  else{
+    const set=raw.split(/[,\s]+/).filter(x=>x.length).map(Number).filter(Number.isFinite).sort((a,b)=>a-b);
+    oOk = set.length===trueModes.length && set.every((x,i)=>x===trueModes[i]) && set.length>0;
+  }
+  $("pbMode").className="p-box "+(oOk?"ok":"no"); if(oOk)okCnt++;
+
+  if(okCnt===3){ v.className="verdict show good"; v.textContent="완벽해요! 세 가지 대푯값을 모두 정확히 구했어요."; }
+  else{ v.className="verdict show warn"; v.textContent=`${okCnt} / 3 정답 — 빨간 칸을 다시 생각해 보세요.`; }
+}
+
+function toggleSol(){
+  const s=$("pSol");
+  if(s.classList.contains("show")){ s.classList.remove("show"); return; }
+  const sorted=[...pData].sort((a,b)=>a-b), n=sorted.length;
+  const sum=pData.reduce((a,b)=>a+b,0), mo=modes(pData);
+  let medStr;
+  if(n%2) medStr=`자료 ${n}개(홀수)의 한가운데 ${(n+1)/2}번째 값 = <b>${fmt(median(pData))}</b>`;
+  else medStr=`가운데 두 값 (${sorted[n/2-1]}, ${sorted[n/2]})의 평균 = <b>${fmt(median(pData))}</b>`;
+  s.innerHTML=`정렬: ${sorted.join(", ")}<br>
+    📌 평균 = ${fmt(sum)} ÷ ${n} = <b>${fmt(mean(pData))}</b><br>
+    🎯 중앙값: ${medStr}<br>
+    👑 최빈값: ${mo.list.length? "<b>"+mo.list.map(fmt).join(", ")+"</b> ("+mo.max+"번)" : "<b>없음</b> (모두 한 번씩)"}`;
+  s.classList.add("show");
+}
+
+/* ================= LAB mode ================= */
+const LAB_W=760, LAB_H=250, LAB_PAD=40, AXIS_Y=LAB_H-38, R=11;
+
+function labScale(){
+  const [lo,hi]=labDomain;
+  return v => LAB_PAD + (v-lo)/(hi-lo)*(LAB_W-2*LAB_PAD);
+}
+function labInvert(px){
+  const [lo,hi]=labDomain;
+  return lo + (px-LAB_PAD)/(LAB_W-2*LAB_PAD)*(hi-lo);
+}
+function computeDomain(){
+  const lo=Math.min(...labData), hi=Math.max(...labData);
+  const range=Math.max(hi-lo, 6);
+  labDomain=[Math.floor(lo-range*0.35-2), Math.ceil(hi+range*0.9+2)];
+}
+function stacks(){
+  const pos={}, out=[];
+  labData.forEach((v,i)=>{
+    const key=Math.round(v*10)/10;
+    pos[key]=(pos[key]||0);
+    out[i]={v, lvl:pos[key]};
+    pos[key]++;
+  });
+  return out;
+}
+function renderLab(){
+  if(!labData.length){ $("labBody").innerHTML='<div class="empty">먼저 위에서 자료를 적용해 주세요.</div>'; return; }
+  if(!labDomain) computeDomain();
+  let html=`<div class="plot-head">${titleHtml(plotTitle,unitLabel)}
+    <button class="btn small ghost" onclick="labReset()">자료 초기화</button></div>`;
+  html+=`<div class="labwrap"><svg id="labSvg" viewBox="0 0 ${LAB_W} ${LAB_H}"></svg></div>`;
+  html+=`<div class="lab-stats">
+    <div class="mini mean"><div class="k">📌 평균</div><div class="v" id="lMean">-</div></div>
+    <div class="mini median"><div class="k">🎯 중앙값</div><div class="v" id="lMedian">-</div></div>
+    <div class="mini mode"><div class="k">👑 최빈값</div><div class="v" id="lMode">-</div></div>
+  </div>
+  <div class="lab-hint">💡 점 하나를 오른쪽 끝으로 쭉 끌어 보세요. 평균과 중앙값 중 어느 것이 크게 변하나요? 그 이유는 무엇일까요?</div>`;
+  $("labBody").innerHTML=html;
+  buildLabSvg();
+  updateLab();
+}
+function buildLabSvg(){
+  const svg=$("labSvg"), x=labScale();
+  const [lo,hi]=labDomain;
+  let g=`<line x1="${LAB_PAD-14}" y1="${AXIS_Y}" x2="${LAB_W-LAB_PAD+14}" y2="${AXIS_Y}" stroke="#c9bfd6" stroke-width="2"/>`;
+  // ticks
+  const span=hi-lo, step=span<=12?1:span<=30?5:span<=80?10:span<=200?25:50;
+  for(let t=Math.ceil(lo/step)*step; t<=hi; t+=step){
+    g+=`<line x1="${x(t)}" y1="${AXIS_Y}" x2="${x(t)}" y2="${AXIS_Y+6}" stroke="#c9bfd6" stroke-width="1.5"/>
+        <text x="${x(t)}" y="${AXIS_Y+22}" text-anchor="middle" font-size="12" font-weight="600" fill="#8b8499">${t}</text>`;
+  }
+  // markers (updated later)
+  g+=`<line id="mkMedian" y1="26" y2="${AXIS_Y}" stroke="#5bbd94" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <text id="mkMedianT" y="18" text-anchor="middle" font-size="12.5" font-weight="800" fill="#2e8a66"></text>
+      <path id="mkMean" fill="#e484ac"></path>
+      <text id="mkMeanT" y="${AXIS_Y+38}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#b2437c"></text>`;
+  // dots
+  labData.forEach((v,i)=>{
+    g+=`<circle class="dot" data-i="${i}" r="${R}" fill="#c4aef0" stroke="#fff" stroke-width="2.5" style="cursor:grab"/>`;
+  });
+  svg.innerHTML=g;
+  svg.querySelectorAll(".dot").forEach(c=>{
+    c.addEventListener("pointerdown", ev=>{
+      dragIdx=Number(c.dataset.i);
+      c.setPointerCapture(ev.pointerId);
+      c.setAttribute("fill","#e484ac");
+      const move=e=>{
+        if(dragIdx<0) return;
+        const rect=svg.getBoundingClientRect();
+        const px=(e.clientX-rect.left)/rect.width*LAB_W;
+        let v=labInvert(px);
+        const [lo2,hi2]=labDomain;
+        v=Math.max(lo2, Math.min(hi2, v));
+        const isInt=labData.every(x=>Number.isInteger(x))||true;
+        labData[dragIdx]=Math.round(v); // 정수 단위로 스냅
+        updateLab();
+      };
+      const up=e=>{
+        dragIdx=-1;
+        c.setAttribute("fill","#c4aef0");
+        c.removeEventListener("pointermove",move);
+        c.removeEventListener("pointerup",up);
+        c.removeEventListener("pointercancel",up);
+      };
+      c.addEventListener("pointermove",move);
+      c.addEventListener("pointerup",up);
+      c.addEventListener("pointercancel",up);
+    });
+  });
+}
+function updateLab(){
+  const svg=$("labSvg"); if(!svg) return;
+  const x=labScale(), st=stacks();
+  svg.querySelectorAll(".dot").forEach(c=>{
+    const i=Number(c.dataset.i);
+    c.setAttribute("cx", x(st[i].v));
+    c.setAttribute("cy", AXIS_Y-14-st[i].lvl*(R*2+3));
+  });
+  const m=mean(labData), md=median(labData), mo=modes(labData);
+  const mx=x(m), dx=x(md);
+  svg.querySelector("#mkMedian").setAttribute("x1",dx);
+  svg.querySelector("#mkMedian").setAttribute("x2",dx);
+  const mt=svg.querySelector("#mkMedianT"); mt.setAttribute("x",dx); mt.textContent="중앙값 "+fmt(md);
+  svg.querySelector("#mkMean").setAttribute("d",`M ${mx} ${AXIS_Y+2} l -9 14 l 18 0 z`);
+  const mmt=svg.querySelector("#mkMeanT"); mmt.setAttribute("x",mx); mmt.textContent="평균 "+fmt(m);
+  $("lMean").textContent=fmt(m)+(unitLabel?" "+unitLabel:"");
+  $("lMedian").textContent=fmt(md)+(unitLabel?" "+unitLabel:"");
+  $("lMode").textContent=mo.list.length? mo.list.map(fmt).join(", ")+(unitLabel?" "+unitLabel:"") : "없음";
+}
+function labReset(){
+  labData=[...data]; labDomain=null; renderLab();
+}
+</script>
+</body>
+</html>
