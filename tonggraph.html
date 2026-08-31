@@ -27,7 +27,7 @@
   }
 
   /* ===== 앱 틀: 왼쪽 메뉴 + 본문 ===== */
-  .app{display:flex; min-height:100vh;}
+  .app{display:flex; min-height:100vh; overflow-x:clip;}
   .side{width:224px; flex:none; background:#fff; border-right:1.5px solid var(--line); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; z-index:12; transition:margin .2s;}
   .app.collapsed .side{margin-left:-224px;}
   .side-head{display:flex; align-items:center; justify-content:space-between; padding:14px 14px 10px 16px; border-bottom:1.5px solid var(--line);}
@@ -105,6 +105,36 @@
   .pop-title:first-child{margin-top:0;}
   .pop .tools{justify-content:flex-start; margin-bottom:0; max-width:540px;}
   .pop .seg.left{margin-right:0;}
+  /* ===== 오른쪽 패널 (계급 설정 · 옵션) — 왼쪽 메뉴와 같은 방식 ===== */
+  .rp{width:300px; flex:none; background:#fff; border-left:1.5px solid var(--line); display:none; flex-direction:column; position:sticky; top:0; height:100vh; z-index:12; margin-right:-300px; transition:margin .2s; overflow:auto;}
+  .rp.show{display:flex; margin-right:0; animation:slideL .2s ease;}
+  @keyframes slideL{from{margin-right:-300px} to{margin-right:0}}
+  .rp-head{font-family:"Jua",sans-serif; font-size:19px; color:var(--ink); display:flex; align-items:baseline; gap:7px; white-space:nowrap;}
+  .rp-head small{font-family:"Pretendard"; font-size:11.5px; font-weight:700; color:var(--muted);}
+  .rp-body{padding:12px 18px 18px; display:flex; flex-direction:column;}
+  .opt-title{font-family:"Jua",sans-serif; font-size:14px; color:var(--accent-ink); margin:14px 0 6px; padding-bottom:4px; border-bottom:1px dashed var(--line);}
+  .opt-title:first-child{margin-top:2px;}
+  .rp .prow{padding:7px 0;}
+  .rp .szrow{gap:6px;}
+  .rp .szrow input{width:58px;}
+  /* 계급 설정 도구를 세로로 정렬 */
+  .rp .tools{flex-direction:column; align-items:stretch; justify-content:flex-start; gap:10px; margin:4px 0 0;}
+  .rp .tools .seg{display:flex;}
+  .rp .tools .seg.left{margin-right:0;}
+  .rp .tools .seg button{flex:1; padding:7px 8px; white-space:nowrap;}
+  .rp .tools .lbl{white-space:nowrap;}
+  .rp .tools .lbl .seg button{flex:none; padding:6px 12px;}
+  .rp .tools .lbl{justify-content:space-between;}
+  .rp .tools .lbl .seg{flex:0 0 auto;}
+  .rp .tools .tbtn{justify-content:center;}
+  .rp .tools input[type=number]{width:80px;}
+  .rp .err{margin-top:8px;}
+  .app.rp-open ~ .zoombar{right:314px;}
+  @media (max-width:900px){
+    .rp{position:fixed; right:0; top:0;}
+    .rp.show{box-shadow:0 0 30px rgba(0,0,0,.15);}
+    .app.rp-open ~ .zoombar{right:14px;}
+  }
   .prow{display:flex; align-items:center; gap:8px; padding:5px 0; font-size:13.5px; font-weight:700; color:var(--ink);}
   .prow small{color:var(--faint); font-weight:600;}
   .szrow{color:var(--muted); font-size:13px; flex-wrap:wrap;}
@@ -361,21 +391,8 @@
         <div class="srcbadge" id="src-result"></div>
       </div>
       <div class="tb-right" id="tbRight">
-        <div class="pop-wrap"><button class="tb-btn" id="tbCls" onclick="togglePop('popCls')" title="계급 설정"><span class="i">📐</span>계급 설정</button>
-          <div class="pop" id="popCls"><div class="pop-title">계급 설정</div><div class="tools" id="tools-result"></div><div class="err" id="err-result"></div></div></div>
-        <div class="pop-wrap"><button class="tb-btn" id="tbOpt" onclick="togglePop('popOpt')" title="표·그래프 옵션"><span class="i">🎛️</span>옵션</button>
-          <div class="pop" id="popOpt">
-            <div class="pop-title">표</div>
-            <label class="toggle ans prow" title="끄면 도수·상대도수 칸이 비워져요"><input type="checkbox" id="optAns" onchange="render()">답 표시</label>
-            <label class="toggle prow"><input type="checkbox" id="optRel" onchange="render()">상대도수 열</label>
-            <label class="toggle prow"><input type="checkbox" id="optTally" onchange="render()">正 표시 열 <small>(자료 하나)</small></label>
-            <label class="toggle prow"><input type="checkbox" id="optMax" onchange="render()">최다 계급 강조 <small>(자료 하나)</small></label>
-            <div class="pop-title">그래프</div>
-            <label class="toggle prow"><input type="checkbox" id="optHistVal" checked onchange="render()">값 표시</label>
-            <label class="toggle prow"><input type="checkbox" id="optGrid" checked onchange="render()">눈금선</label>
-            <div class="prow szrow">크기 &nbsp;너비 <input type="number" id="sz-w-hist" value="760" min="300" max="1600" step="20" onchange="setSize('hist')"> 높이 <input type="number" id="sz-h-hist" value="400" min="200" max="1200" step="20" onchange="setSize('hist')"><button class="tbtn" onclick="resetSize('hist')" title="기본 크기로">↺</button>
-              <input type="hidden" id="sz-w-poly" value="760"><input type="hidden" id="sz-h-poly" value="400"></div>
-          </div></div>
+        <button class="tb-btn" id="tbCls" onclick="toggleRP('popCls')" title="계급 설정"><span class="i">📐</span>계급 설정</button>
+        <button class="tb-btn" id="tbOpt" onclick="toggleRP('popOpt')" title="표·그래프 옵션"><span class="i">🎛️</span>옵션</button>
         <button class="tb-btn" onclick="saveCurrent()" title="내 자료함에 저장"><span class="i">💾</span>저장</button>
       </div>
     </div>
@@ -433,12 +450,33 @@
       <div class="shead">도수분포표</div>
       <div class="srow"><div class="k">답 표시 기본값<small>새 자료를 만들거나 불러올 때 도수·상대도수 칸을 보여 줄지 정해요 (이 기기에 기억됨)</small></div><label class="toggle ans"><input type="checkbox" id="optAnsDefault" onchange="savePref()"></label></div>
       <div class="srow"><div class="k">상대도수 소수 자릿수<small>표·그래프·복사에 모두 적용</small></div><span class="seg"><button id="dec2" class="on" onclick="setDec(2)">둘째 자리</button><button id="dec3" onclick="setDec(3)">셋째 자리</button></span></div>
-      <div class="dt-help" style="margin-top:18px">답 표시·상대도수 열·값 표시·눈금선·그래프 크기는 상단의 <b>옵션</b>에서, 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요. 제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요.</div>
+      <div class="dt-help" style="margin-top:18px">답 표시·상대도수 열·값 표시·눈금선·그래프 크기는 상단 <b>옵션</b>에서, 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요. 제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요.</div>
     </div>
   </section>
 
     </div></div>
   </div>
+
+  <!-- ===== 오른쪽 패널: 계급 설정 · 옵션 (왼쪽 메뉴처럼 열고 닫음) ===== -->
+  <aside class="rp" id="popCls" data-btn="tbCls">
+    <div class="side-head"><span class="rp-head">📐 계급 설정 <small>계급 · 두 자료 · 세로축</small></span><button class="side-x" onclick="toggleRP('popCls',false)" title="계급 설정 닫기">✕</button></div>
+    <div class="rp-body"><div class="tools" id="tools-result"></div><div class="err" id="err-result"></div></div>
+  </aside>
+  <aside class="rp" id="popOpt" data-btn="tbOpt">
+    <div class="side-head"><span class="rp-head">🎛️ 옵션 <small>표 · 그래프</small></span><button class="side-x" onclick="toggleRP('popOpt',false)" title="옵션 닫기">✕</button></div>
+    <div class="rp-body">
+      <div class="opt-title">표</div>
+      <label class="toggle ans prow" title="끄면 도수·상대도수 칸이 비워져요"><input type="checkbox" id="optAns" onchange="render()">답 표시</label>
+      <label class="toggle prow"><input type="checkbox" id="optRel" onchange="render()">상대도수 열</label>
+      <label class="toggle prow"><input type="checkbox" id="optTally" onchange="render()">正 표시 열 <small>(자료 하나)</small></label>
+      <label class="toggle prow"><input type="checkbox" id="optMax" onchange="render()">최다 계급 강조 <small>(자료 하나)</small></label>
+      <div class="opt-title">그래프</div>
+      <label class="toggle prow"><input type="checkbox" id="optHistVal" checked onchange="render()">값 표시</label>
+      <label class="toggle prow"><input type="checkbox" id="optGrid" checked onchange="render()">눈금선</label>
+      <div class="prow szrow">크기 &nbsp;너비 <input type="number" id="sz-w-hist" value="760" min="300" max="1600" step="20" onchange="setSize('hist')"> 높이 <input type="number" id="sz-h-hist" value="400" min="200" max="1200" step="20" onchange="setSize('hist')"><button class="tbtn" onclick="resetSize('hist')" title="기본 크기로">↺</button>
+        <input type="hidden" id="sz-w-poly" value="760"><input type="hidden" id="sz-h-poly" value="400"></div>
+    </div>
+  </aside>
 </div>
 <div class="zoombar" id="zoombar">
   <button class="zb fit" id="zbFit" onclick="toggleFit()" title="내용 전체가 화면 안에 들어오도록 배율을 자동으로 맞춰요">⤢ 화면 맞춤</button>
@@ -833,14 +871,19 @@ function resetAll(){
 
 /* ================= 왼쪽 메뉴 · 팝오버 ================= */
 function toggleSide(){ $("app").classList.toggle("collapsed"); try{ localStorage.setItem("tonggraph.side", $("app").classList.contains("collapsed")?"c":"o"); }catch(e){} queueFit(); }
-function togglePop(id){
-  const el=$(id), open=el.classList.contains("show");
-  document.querySelectorAll(".pop").forEach(x=>x.classList.remove("show"));
-  document.querySelectorAll(".tb-btn").forEach(x=>x.classList.remove("on"));
-  if(!open){ el.classList.add("show"); el.previousElementSibling.classList.add("on"); if(id==="popCls" && view!=="result"){ if(!(selected.tab||selected.hist||selected.poly)) selected.tab=true; showView("result"); render(); } }
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeRP(); });
+/* 오른쪽 패널(계급 설정·옵션): 왼쪽 메뉴처럼 열고 닫음. 한 번에 하나만 열리고, 열린 채로 표·그래프를 바로 바꿔 볼 수 있어요 */
+function toggleRP(id, force){
+  const el=$(id), open = (typeof force==="boolean") ? force : !el.classList.contains("show");
+  document.querySelectorAll(".rp").forEach(x=>{ x.classList.remove("show"); $(x.dataset.btn).classList.remove("on"); });
+  if(open){
+    el.classList.add("show"); $(el.dataset.btn).classList.add("on");
+    if(id==="popCls" && view!=="result"){ if(!(selected.tab||selected.hist||selected.poly)) selected.tab=true; showView("result"); render(); }
+  }
+  $("app").classList.toggle("rp-open", open);
+  queueFit();
 }
-document.addEventListener("click", e=>{ if(!e.target.closest(".pop-wrap")) { document.querySelectorAll(".pop").forEach(x=>x.classList.remove("show")); document.querySelectorAll(".tb-btn").forEach(x=>x.classList.remove("on")); } });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ document.querySelectorAll(".pop").forEach(x=>x.classList.remove("show")); document.querySelectorAll(".tb-btn").forEach(x=>x.classList.remove("on")); } });
+function closeRP(){ if($("app").classList.contains("rp-open")) toggleRP("popOpt", false); }
 
 /* ================= 화면 배율 (화면 맞춤) ================= */
 let fitMode = false, zoomLevel = 1;
@@ -1094,7 +1137,7 @@ function showView(v){
   $("nav-set").classList.toggle("on", v==="set");
   ["tab","hist","poly"].forEach(k=>$("nav-"+k).classList.toggle("on", v==="result" && selected[k]));
   $("viewTitle").innerHTML=titleHTML();
-  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden";
+  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden"; if(v!=="result") closeRP();
   placeSource();
   if(window.innerWidth<=900) $("app").classList.add("collapsed");
 }
