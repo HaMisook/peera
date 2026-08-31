@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>통그래프 — 도수분포표 · 히스토그램 · 도수분포다각형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#4a4458; --muted:#8b8499; --faint:#b8b1c4;
+    --surface:#fdf8f4; --card:#ffffff; --line:#f0e8ee;
+    --accent:#e484ac; --accent-soft:#ffd6e8; --accent-softer:#fff0f7; --accent-ink:#b2437c;
+    --good:#3da97e; --good-soft:#d3f2e4;
+    --bad:#e05c7f; --bad-soft:#ffe0ea;
+    --warn:#d9a520; --warn-soft:#fff3c9;
+    --mint:#d3f2e4; --mint-deep:#5bbd94; --mint-ink:#2e8a66;
+    --lavender:#e8ddff; --lavender-deep:#9d7fd8; --lavender-ink:#7a5fc0;
+    --sky:#d6ebff; --sky-deep:#6fa8e6; --sky-ink:#3d74b8;
+    --radius:20px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    background:var(--surface); color:var(--ink);
+    min-height:100vh; padding:16px 14px 60px;
+    touch-action:manipulation;
+  }
+  .wrap{max-width:860px; margin:0 auto;}
+
+  header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+  h1{font-family:"Jua","Pretendard",sans-serif; font-size:23px; font-weight:400; margin:0; display:flex; align-items:center; gap:9px;}
+  h1 .mark{
+    width:38px; height:38px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,var(--accent-soft) 0%,var(--lavender) 55%,#d6ebff 100%);
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+    box-shadow:0 3px 10px rgba(228,132,172,.28);
+  }
+  h1 .badge{display:inline-block; font-family:"Pretendard",sans-serif; font-size:12px; font-weight:800; color:var(--accent-ink); background:var(--accent-soft); border-radius:999px; padding:4px 11px; margin-left:2px; vertical-align:middle;}
+  .home{
+    font-size:13px; font-weight:700; color:var(--muted); text-decoration:none;
+    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:7px 13px;
+  }
+  .home:hover{color:var(--accent); border-color:var(--accent-soft); background:var(--accent-softer);}
+  .tagline{font-size:13.5px; color:var(--muted); margin:-6px 0 14px 2px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; box-shadow:0 6px 24px rgba(157,127,216,.10);}
+  .card h2{font-size:15px; font-weight:800; margin:0 0 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .card h2 .num{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800; flex:none;}
+  .card h2 .sub{font-size:12.5px; font-weight:600; color:var(--muted);}
+
+  .samples{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
+  .samples button{
+    font-family:inherit; font-size:13.5px; font-weight:700; color:var(--accent-ink);
+    background:var(--accent-softer); border:1.5px solid var(--accent-soft); border-radius:999px;
+    padding:8px 14px; cursor:pointer; transition:transform .12s;
+  }
+  .samples button:hover{transform:translateY(-1px);}
+  .samples button:nth-child(2){color:var(--mint-ink); background:#effaf4; border-color:var(--mint);}
+  .samples button:nth-child(3){color:var(--lavender-ink); background:#f6f1ff; border-color:var(--lavender);}
+  .samples button:nth-child(4){color:#a37b12; background:#fffae6; border-color:#f5e6ae;}
+  textarea{
+    width:100%; min-height:70px; resize:vertical;
+    font-family:inherit; font-size:16px; line-height:1.5; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:#fafbfc;
+  }
+  textarea:focus{outline:none; border-color:var(--accent); background:#fff;}
+  .opts{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin-top:10px;}
+  .opts label{font-size:13.5px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:7px;}
+  .opts input[type=text], .opts input[type=number]{
+    font-family:inherit; font-size:15px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff;
+  }
+  .opts input:focus{outline:none; border-color:var(--accent);}
+  .opts .grow{flex:1;}
+  .btn{
+    font-family:"Jua","Pretendard",sans-serif; font-size:16px;
+    border:none; border-radius:14px; padding:12px 22px; cursor:pointer;
+    background:linear-gradient(120deg,#f09ec2,var(--accent)); color:#fff; box-shadow:0 4px 12px rgba(228,132,172,.35);
+    transition:transform .1s;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.ghost{background:#fff; color:var(--accent); border:1.5px solid var(--accent); box-shadow:none;}
+  .btn.small{font-size:14px; padding:9px 16px; border-radius:11px;}
+  .btn.mint{background:linear-gradient(120deg,#7fd4ae,var(--mint-deep)); box-shadow:0 4px 12px rgba(91,189,148,.35);}
+  .btn.lav{background:linear-gradient(120deg,#b79aec,var(--lavender-deep)); box-shadow:0 4px 12px rgba(157,127,216,.35);}
+  .btn.sky{background:linear-gradient(120deg,#8fbdf0,var(--sky-deep)); box-shadow:0 4px 12px rgba(111,168,230,.35);}
+  .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+  .count{font-size:13px; color:var(--muted); margin-top:8px; line-height:1.6;}
+  .count b{color:var(--ink);}
+  .notice{font-size:13px; color:#92670e; background:var(--warn-soft); border-radius:8px; padding:7px 11px; margin-top:9px; display:none; line-height:1.5;}
+  .notice.show{display:block;}
+  .notice.bad{color:#9c2c4c; background:var(--bad-soft);}
+  .empty{color:var(--faint); font-size:15px; text-align:center; padding:30px 0;}
+
+  /* sorted chips */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 2px;}
+  .chip{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:34px; height:30px; padding:0 8px;
+    background:var(--lavender); color:var(--lavender-ink);
+    font-size:14px; font-weight:800; border-radius:9px;
+  }
+  .chip.lo{background:var(--mint); color:var(--mint-ink);}
+  .chip.hi{background:var(--accent-soft); color:var(--accent-ink);}
+  .chips-label{font-size:12.5px; font-weight:700; color:var(--faint); margin-top:8px;}
+
+  /* class settings */
+  .cls-grid{display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end;}
+  @media (max-width:640px){ .cls-grid{grid-template-columns:1fr 1fr;} .cls-grid .full{grid-column:1 / -1;} }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field .k{font-size:13px; font-weight:800; color:var(--muted);}
+  .field input{
+    font-family:inherit; font-size:18px; font-weight:800; color:var(--ink); text-align:center;
+    border:1.5px solid var(--line); border-radius:12px; padding:10px; background:#fff; width:100%;
+  }
+  .field input:focus{outline:none; border-color:var(--accent);}
+  .stepper{display:flex; gap:6px; align-items:center;}
+  .stepper input{flex:1; min-width:0;}
+  .stepper button{
+    width:38px; height:44px; border-radius:11px; border:1.5px solid var(--line); background:#fff;
+    font-size:18px; font-weight:800; color:var(--muted); cursor:pointer; flex:none;
+  }
+  .stepper button:hover{border-color:var(--accent-soft); color:var(--accent); background:var(--accent-softer);}
+  .preview{
+    margin-top:12px; border-radius:12px; padding:11px 14px; background:#faf7fb; border:1px dashed var(--line);
+    font-size:14px; line-height:1.7;
+  }
+  .preview b{color:var(--accent-ink);}
+  .preview .ok{color:var(--mint-ink); font-weight:800;}
+  .preview .warn{color:#92670e; font-weight:800;}
+  .range-bar{position:relative; height:26px; margin-top:8px; border-radius:8px; background:#f3eef5; overflow:hidden;}
+  .range-bar .seg{position:absolute; top:0; bottom:0; border-right:2px solid #fff; background:var(--lavender); opacity:.85;}
+  .range-bar .seg:nth-child(even){background:var(--sky);}
+  .range-bar .pt{position:absolute; top:8px; width:8px; height:8px; margin-left:-4px; border-radius:50%; background:var(--accent-ink); opacity:.75;}
+
+  /* action buttons */
+  .actions{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:4px;}
+  @media (max-width:640px){ .actions{grid-template-columns:1fr;} }
+  .act{
+    font-family:"Jua","Pretendard",sans-serif; font-size:17px; cursor:pointer; color:#fff;
+    border:none; border-radius:16px; padding:16px 12px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    transition:transform .12s, box-shadow .2s, opacity .2s;
+  }
+  .act small{font-family:"Pretendard",sans-serif; font-size:12px; font-weight:600; opacity:.92;}
+  .act .ic{font-size:26px; line-height:1;}
+  .act:active{transform:scale(.97);}
+  .act.tab{background:linear-gradient(135deg,#f09ec2,var(--accent)); box-shadow:0 5px 14px rgba(228,132,172,.35);}
+  .act.hist{background:linear-gradient(135deg,#8fbdf0,var(--sky-deep)); box-shadow:0 5px 14px rgba(111,168,230,.35);}
+  .act.poly{background:linear-gradient(135deg,#b79aec,var(--lavender-deep)); box-shadow:0 5px 14px rgba(157,127,216,.35);}
+  .act.off{opacity:.55; box-shadow:none; filter:saturate(.6);}
+  .act:disabled{opacity:.35; cursor:not-allowed; box-shadow:none;}
+  .act .state{font-family:"Pretendard",sans-serif; font-size:11px; font-weight:800; background:rgba(255,255,255,.28); border-radius:999px; padding:2px 9px; margin-top:2px;}
+
+  /* result panels */
+  .panel{display:none;}
+  .panel.show{display:block; animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .panel h2 .ic{font-size:18px;}
+  .panel.tab h2{color:var(--accent-ink);} .panel.hist h2{color:var(--sky-ink);} .panel.poly h2{color:var(--lavender-ink);}
+  .tools{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin-bottom:10px;}
+  .tools .sp{flex:1;}
+  .toggle{display:inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:700; color:var(--muted); cursor:pointer; user-select:none;}
+  .toggle input{appearance:none; width:38px; height:22px; border-radius:999px; background:#e6dfe9; position:relative; cursor:pointer; transition:background .2s; margin:0;}
+  .toggle input::after{content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .toggle input:checked{background:var(--accent);}
+  .toggle input:checked::after{left:19px;}
+  .toggle.mint input:checked{background:var(--mint-deep);}
+  .toggle.lav input:checked{background:var(--lavender-deep);}
+  .toggle.sky input:checked{background:var(--sky-deep);}
+
+  /* frequency table */
+  .ftab-wrap{overflow-x:auto;}
+  table.ftab{border-collapse:separate; border-spacing:0; width:100%; min-width:360px; font-size:15px;}
+  table.ftab th{
+    font-family:"Jua",sans-serif; font-weight:400; font-size:15px; color:var(--accent-ink);
+    background:var(--accent-softer); padding:10px 8px; border-bottom:2px solid var(--accent-soft);
+  }
+  table.ftab th:first-child{border-radius:12px 0 0 0;} table.ftab th:last-child{border-radius:0 12px 0 0;}
+  table.ftab td{padding:9px 8px; text-align:center; border-bottom:1px solid var(--line); font-weight:600;}
+  table.ftab td.cls{font-weight:700; white-space:nowrap;}
+  table.ftab td.cls .sm{font-size:12px; color:var(--muted); font-weight:600; margin:0 2px;}
+  table.ftab td.f{font-size:17px; font-weight:800; color:var(--sky-ink);}
+  table.ftab td.tally{font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif; color:var(--muted); letter-spacing:1px; white-space:nowrap;}
+  table.ftab td.rel{color:var(--lavender-ink); font-weight:700;}
+  table.ftab tr.max td{background:#fff7fa;}
+  table.ftab tr.max td.f{color:var(--accent-ink);}
+  table.ftab tr.max td.cls::after{content:"최다"; font-size:10.5px; font-weight:800; color:#fff; background:var(--accent); border-radius:999px; padding:2px 7px; margin-left:6px; vertical-align:middle;}
+  table.ftab tr.sum td{font-family:"Jua",sans-serif; font-weight:400; font-size:15.5px; background:#faf7fb; border-bottom:none; border-top:2px solid var(--line);}
+  table.ftab tr.sum td.f{color:var(--ink);}
+  table.ftab tr.zero td{color:var(--faint);}
+  .tab-title{font-family:"Jua",sans-serif; font-size:16px; text-align:center; margin:4px 0 8px;}
+  .tab-title .u{font-family:"Pretendard"; font-weight:600; color:var(--muted); font-size:13px;}
+
+  /* charts */
+  .chartwrap{background:#fdfbfd; border:1.5px solid var(--line); border-radius:16px; padding:8px 6px 4px; margin-top:4px; position:relative; overflow-x:auto;}
+  svg{display:block; width:100%; min-width:560px; height:auto;}
+  .tip{
+    position:absolute; pointer-events:none; display:none;
+    background:#4a4458; color:#fff; font-size:13px; font-weight:700; border-radius:9px; padding:7px 11px;
+    box-shadow:0 4px 12px rgba(0,0,0,.18); white-space:nowrap; z-index:5; transform:translate(-50%,-115%);
+  }
+  .tip small{display:block; font-weight:500; opacity:.8; font-size:11.5px;}
+
+  /* facts */
+  .facts{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px;}
+  @media (max-width:640px){ .facts{grid-template-columns:1fr 1fr;} }
+  .fact{border-radius:13px; padding:10px 12px; border:1.5px solid var(--line); background:#fdfbfd;}
+  .fact .k{font-size:12px; font-weight:800; color:var(--muted);}
+  .fact .v{font-size:18px; font-weight:800; margin-top:3px; line-height:1.3;}
+  .fact.a{border-color:#f7cfdf; background:#fff7fa;} .fact.a .v{color:var(--accent-ink);}
+  .fact.b{border-color:#bfe8d4; background:#f4fbf8;} .fact.b .v{color:var(--mint-ink);}
+  .fact.c{border-color:#d9c9f5; background:#f9f6ff;} .fact.c .v{color:var(--lavender-ink);}
+  .fact.d{border-color:#c9def7; background:#f3f8ff;} .fact.d .v{color:var(--sky-ink);}
+  .talk{
+    margin-top:12px; border-radius:12px; padding:11px 14px;
+    background:var(--warn-soft); font-size:13.5px; color:#7a5c0d; line-height:1.6;
+  }
+  .talk b{color:#5e4606;}
+
+  footer{font-size:12.5px; color:var(--faint); text-align:center; margin-top:26px; line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1><span class="mark">📊</span>통그래프<span class="badge">중1 통계</span></h1>
+    <a class="home" href="index.html">← 피어라 매직!</a>
+  </header>
+  <div class="tagline">자료를 넣고 버튼을 누르면 <b>도수분포표 → 히스토그램 → 도수분포다각형</b>이 차례로 만들어져요.</div>
+
+  <!-- ===== 1. data ===== -->
+  <section class="card" id="dataPanel">
+    <h2><span class="num">1</span>자료 준비하기 <span class="sub">변량을 쉼표·띄어쓰기·줄바꿈으로 구분해 입력</span></h2>
+    <div class="opts" style="margin-top:0; margin-bottom:10px">
+      <label style="flex:1">제목
+        <input type="text" id="titleInput" placeholder="예) 우리 반의 수면시간" maxlength="40" style="flex:1; min-width:150px">
+      </label>
+    </div>
+    <div class="samples" id="samples"></div>
+    <textarea id="dataInput" placeholder="예) 30.4, 29.8, 29.2, 24.0, 22.7 …  (표에서 복사해 붙여 넣어도 돼요)"></textarea>
+    <div class="opts">
+      <label>변량의 단위 <input type="text" id="unitLabel" placeholder="℃, dB, 시간 …" maxlength="8" style="width:90px"></label>
+      <label>도수의 단위 <input type="text" id="freqLabel" placeholder="명, 일, 곳 …" maxlength="8" style="width:80px"></label>
+      <span class="grow"></span>
+      <button class="btn small" onclick="applyData()">자료 적용</button>
+    </div>
+    <div class="notice" id="notice"></div>
+    <div class="count" id="dataCount"></div>
+    <div id="chipsBox"></div>
+  </section>
+
+  <!-- ===== 2. classes ===== -->
+  <section class="card" id="classPanel">
+    <h2><span class="num">2</span>계급 정하기 <span class="sub">계급의 크기는 모두 같게, 계급의 개수는 5~15개 정도</span></h2>
+    <div id="classBody"><div class="empty">먼저 위에서 자료를 적용해 주세요.</div></div>
+  </section>
+
+  <!-- ===== 3. buttons ===== -->
+  <section class="card" id="makePanel">
+    <h2><span class="num">3</span>버튼을 눌러 만들어 보세요 <span class="sub">다시 누르면 숨겨져요</span></h2>
+    <div class="actions">
+      <button class="act tab" id="btnTab" disabled onclick="togglePanel('tab')"><span class="ic">📋</span>도수분포표<small>계급별로 개수 세기</small><span class="state">만들기</span></button>
+      <button class="act hist" id="btnHist" disabled onclick="togglePanel('hist')"><span class="ic">📊</span>히스토그램<small>도수를 직사각형으로</small><span class="state">그리기</span></button>
+      <button class="act poly" id="btnPoly" disabled onclick="togglePanel('poly')"><span class="ic">📈</span>도수분포다각형<small>계급의 중앙 점을 이어서</small><span class="state">그리기</span></button>
+    </div>
+  </section>
+
+  <!-- ===== table ===== -->
+  <section class="card panel tab" id="panelTab">
+    <h2><span class="ic">📋</span>도수분포표</h2>
+    <div class="tools">
+      <label class="toggle"><input type="checkbox" id="optTally" onchange="renderTable()">正 표시로 세기</label>
+      <label class="toggle lav"><input type="checkbox" id="optRel" onchange="renderTable()">상대도수 열</label>
+      <span class="sp"></span>
+      <button class="btn small ghost" onclick="copyTable()">표 복사</button>
+    </div>
+    <div id="tabBody"></div>
+    <div class="facts" id="facts"></div>
+    <div class="talk" id="tabTalk"></div>
+  </section>
+
+  <!-- ===== histogram ===== -->
+  <section class="card panel hist" id="panelHist">
+    <h2><span class="ic">📊</span>히스토그램</h2>
+    <div class="tools">
+      <label class="toggle sky"><input type="checkbox" id="optHistVal" checked onchange="renderCharts()">도수 표시</label>
+      <label class="toggle sky"><input type="checkbox" id="optHistGrid" checked onchange="renderCharts()">눈금선</label>
+      <span class="sp"></span>
+      <button class="btn small sky" onclick="savePNG('hist')">PNG 저장</button>
+    </div>
+    <div class="chartwrap" id="histWrap"></div>
+    <div class="talk" id="histTalk"></div>
+  </section>
+
+  <!-- ===== polygon ===== -->
+  <section class="card panel poly" id="panelPoly">
+    <h2><span class="ic">📈</span>도수분포다각형</h2>
+    <div class="tools">
+      <label class="toggle lav"><input type="checkbox" id="optOverlay" checked onchange="renderCharts()">히스토그램 위에 겹쳐 그리기</label>
+      <label class="toggle lav"><input type="checkbox" id="optPolyVal" onchange="renderCharts()">도수 표시</label>
+      <span class="sp"></span>
+      <button class="btn small lav" onclick="savePNG('poly')">PNG 저장</button>
+    </div>
+    <div class="chartwrap" id="polyWrap"></div>
+    <div class="talk" id="polyTalk"></div>
+  </section>
+
+  <footer>
+    계급: 변량을 일정한 간격으로 나눈 구간 · 계급의 크기: 구간의 너비 · 도수: 각 계급에 속하는 변량의 개수<br>
+    히스토그램은 직사각형이 서로 붙어 있고, 도수분포다각형은 양 끝에 도수가 0인 계급을 하나씩 더해 선분으로 이어요.
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ================= samples (교과서 자료) ================= */
+const SAMPLES = [
+  { name:"9월 서울의 하루 최고 기온", unit:"℃", funit:"일", start:22, width:2,
+    data:[30.4,29.8,29.2,24.0,22.7,26.3,28.1,29.5,30.8,28.4,26.4,27.5,26.4,27.9,28.3,29.9,29.4,32.5,29.6,24.6,25.6,24.7,22.2,24.2,25.2,25.4,28.0,26.1,26.5,27.7] },
+  { name:"지역 44곳의 환경 소음도", unit:"dB", funit:"곳", start:45, width:5,
+    data:[57,56,55,54,56,55,51,58,54,54,53,56,56,57,52,55,54,57,65,52,58,55,54,55,54,46,57,56,52,54,48,49,60,55,48,51,45,52,58,56,63,48,51,56] },
+  { name:"32가지 간식의 100 g당 열량", unit:"kcal", funit:"가지", start:100, width:50,
+    data:[311.8,141,274,225,151,369,159,324,312,296,270,254,383,184.6,279,205,291,204,344,296,360.7,299,104,275,100.4,114,265,233,267,271,258.3,313.7] },
+  { name:"우리 반의 수면시간 (예시)", unit:"시간", funit:"명", start:4, width:1,
+    data:[7.5,6.8,8.3,7,6.5,7.2,5.7,8,6.3,7.8,7.5,6,9.2,7,6.7,8.5,7.3,5.5,7.7,6.8,8.2,7.1,6.4,7.6,4.8,7,8.8,6.9,7.4,6.2] },
+];
+
+/* ================= state ================= */
+let data = [];          // raw
+let sorted = [];
+let unitLabel = "", freqLabel = "", plotTitle = "";
+let cls = null;         // {start, width, n, edges[], freq[], total}
+let open = {tab:false, hist:false, poly:false};
+
+const $ = id => document.getElementById(id);
+const COLOR = { hist:"#8fbdf0", histEdge:"#4f86c6", histMax:"#f09ec2", histMaxEdge:"#c85a8e", poly:"#7a5fc0", polyPt:"#9d7fd8" };
+
+/* ================= helpers ================= */
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmt(x){ if(!Number.isFinite(x)) return "-"; return String(Math.round(x*1000)/1000); }
+function decimalsOf(arr){
+  let d=0;
+  arr.forEach(v=>{ const s=String(v); const i=s.indexOf("."); if(i>=0) d=Math.max(d,s.length-i-1); });
+  return Math.min(d,3);
+}
+function showNotice(msg,bad){ const n=$("notice"); n.textContent=msg; n.className="notice show"+(bad?" bad":""); }
+function hideNotice(){ $("notice").className="notice"; }
+function unitTxt(u){ return u ? " "+u : ""; }
+function classLabel(i, full){
+  // full: "22 이상 ~ 24 미만" / short: "24 ~ 26"
+  const a=fmt(cls.edges[i]), b=fmt(cls.edges[i+1]);
+  const u=unitLabel ? esc(unitLabel) : "";
+  if(full) return `${a}<span class="sm">${u} 이상</span> ~ ${b}<span class="sm">${u} 미만</span>`;
+  return `${a} ~ ${b}`;
+}
+function classText(i){ return `${fmt(cls.edges[i])}${unitTxt(unitLabel)} 이상 ${fmt(cls.edges[i+1])}${unitTxt(unitLabel)} 미만`; }
+
+/* ================= samples UI ================= */
+SAMPLES.forEach(s=>{
+  const b=document.createElement("button");
+  b.textContent="예시: "+s.name;
+  b.onclick=()=>{
+    $("dataInput").value=s.data.join(", ");
+    $("unitLabel").value=s.unit; $("freqLabel").value=s.funit; $("titleInput").value=s.name;
+    applyData({start:s.start, width:s.width});
+  };
+  $("samples").appendChild(b);
+});
+
+/* ================= 1. apply data ================= */
+function applyData(preset){
+  hideNotice();
+  const raw=$("dataInput").value;
+  const toks=raw.split(/[\s,;|]+/).filter(t=>t!=="");
+  const nums=[], bad=[];
+  toks.forEach(t=>{ const v=Number(t.replace(/[^\d.\-]/g,"")); if(t.replace(/[^\d.\-]/g,"")!=="" && Number.isFinite(v)) nums.push(v); else bad.push(t); });
+  if(nums.length<2){ showNotice("변량을 2개 이상 입력해 주세요.", true); return; }
+  if(bad.length) showNotice("숫자가 아닌 항목은 건너뛰었어요: "+bad.slice(0,6).join(", ")+(bad.length>6?" …":""));
+  data=nums; sorted=[...nums].sort((a,b)=>a-b);
+  unitLabel=$("unitLabel").value.trim(); freqLabel=$("freqLabel").value.trim(); plotTitle=$("titleInput").value.trim();
+
+  const min=sorted[0], max=sorted[sorted.length-1];
+  $("dataCount").innerHTML=`변량 <b>${data.length}</b>개 · 최솟값 <b>${fmt(min)}${esc(unitTxt(unitLabel))}</b> · 최댓값 <b>${fmt(max)}${esc(unitTxt(unitLabel))}</b> · 범위(최댓값−최솟값) <b>${fmt(max-min)}</b>`;
+  $("chipsBox").innerHTML=`<div class="chips-label">크기순으로 나열한 변량</div><div class="chips">`+
+    sorted.map((v,i)=>`<span class="chip${i===0?" lo":""}${i===sorted.length-1?" hi":""}">${fmt(v)}</span>`).join("")+`</div>`;
+
+  buildClassUI(preset);
+  ["btnTab","btnHist","btnPoly"].forEach(id=>$(id).disabled=false);
+  computeClasses();
+  renderAll();
+}
+
+/* ================= 2. classes ================= */
+function niceWidth(range, target){
+  if(range<=0) return 1;
+  const raw=range/target;
+  const p=Math.pow(10, Math.floor(Math.log10(raw)));
+  const cands=[1,2,2.5,5,10].map(m=>m*p);
+  for(const c of cands){ if(c>=raw) return +c.toPrecision(6); }
+  return cands[cands.length-1];
+}
+function suggest(){
+  const min=sorted[0], max=sorted[sorted.length-1];
+  const w=niceWidth(max-min, 7);
+  const start=+(Math.floor(min/w+1e-9)*w).toPrecision(8);
+  return {start:+start.toFixed(3), width:w};
+}
+function buildClassUI(preset){
+  const s=preset||suggest();
+  $("classBody").innerHTML=`
+    <div class="cls-grid">
+      <div class="field">
+        <span class="k">계급의 시작값 (첫 계급의 '이상')</span>
+        <div class="stepper">
+          <button onclick="stepStart(-1)">−</button>
+          <input type="number" id="clsStart" value="${s.start}" step="any" oninput="onClassChange()">
+          <button onclick="stepStart(1)">＋</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="k">계급의 크기 (구간의 너비)</span>
+        <div class="stepper">
+          <button onclick="stepWidth(-1)">−</button>
+          <input type="number" id="clsWidth" value="${s.width}" step="any" min="0" oninput="onClassChange()">
+          <button onclick="stepWidth(1)">＋</button>
+        </div>
+      </div>
+      <div class="field full">
+        <span class="k">&nbsp;</span>
+        <button class="btn small ghost" onclick="applySuggest()">✨ 추천값으로</button>
+      </div>
+    </div>
+    <div class="preview" id="clsPreview"></div>
+    <div class="range-bar" id="rangeBar"></div>`;
+}
+function stepStart(d){ const w=+$("clsWidth").value||1; $("clsStart").value=+((+$("clsStart").value)+d*w).toFixed(3); onClassChange(); }
+function stepWidth(d){
+  const w=+$("clsWidth").value||1;
+  const dec=decimalsOf(sorted);
+  const unit = w>=10 ? 5 : w>=2 ? 1 : dec>0 ? Math.pow(10,-dec) : 1;
+  let nw=+(w+d*unit).toFixed(3); if(nw<=0) nw=unit;
+  $("clsWidth").value=nw; onClassChange();
+}
+function applySuggest(){ const s=suggest(); $("clsStart").value=s.start; $("clsWidth").value=s.width; onClassChange(); }
+function onClassChange(){ computeClasses(); renderAll(); }
+
+function computeClasses(){
+  const start=+$("clsStart").value, width=+$("clsWidth").value;
+  const min=sorted[0], max=sorted[sorted.length-1];
+  const pv=$("clsPreview");
+  cls=null;
+  if(!Number.isFinite(start)||!Number.isFinite(width)||width<=0){ pv.innerHTML=`<span class="warn">계급의 크기는 0보다 큰 수여야 해요.</span>`; $("rangeBar").innerHTML=""; return; }
+  if(start>min+1e-9){ pv.innerHTML=`<span class="warn">시작값 ${fmt(start)}이(가) 최솟값 ${fmt(min)}보다 커요.</span> 가장 작은 변량이 어느 계급에도 들어가지 못해요. 시작값을 ${fmt(min)} 이하로 낮춰 주세요.`; $("rangeBar").innerHTML=""; return; }
+  const n=Math.floor((max-start)/width+1e-9)+1;
+  if(n>60){ pv.innerHTML=`<span class="warn">계급이 ${n}개나 돼요.</span> 계급의 크기를 더 크게 해 주세요.`; $("rangeBar").innerHTML=""; return; }
+  const edges=[]; for(let i=0;i<=n;i++) edges.push(+(start+i*width).toFixed(6));
+  const freq=new Array(n).fill(0);
+  data.forEach(v=>{ let i=Math.floor((v-start)/width+1e-9); if(i>=n) i=n-1; if(i<0) i=0; freq[i]++; });
+  cls={start,width,n,edges,freq,total:data.length};
+
+  let verdict = (n>=5&&n<=15) ? `<span class="ok">계급 ${n}개 — 적당해요 (5~15개)</span>` : `<span class="warn">계급 ${n}개 — ${n<5?"너무 적어서 분포를 알아보기 어려워요":"너무 많아요"} (5~15개가 적당)</span>`;
+  const empties=freq.filter(f=>f===0).length;
+  pv.innerHTML=`<b>${fmt(start)}</b>부터 크기 <b>${fmt(width)}</b>씩 → ${verdict}<br>
+    첫 계급 <b>${classText(0)}</b>, 마지막 계급 <b>${classText(n-1)}</b>${empties?`<br><span class="warn">도수가 0인 계급이 ${empties}개 있어요.</span> 그래도 표에는 빠뜨리지 않고 적어요.`:""}`;
+  // range bar
+  const lo=edges[0], hi=edges[n], span=hi-lo;
+  $("rangeBar").innerHTML = edges.slice(0,n).map((e,i)=>`<div class="seg" style="left:${(e-lo)/span*100}%; width:${width/span*100}%"></div>`).join("")+
+    sorted.map(v=>`<div class="pt" style="left:${(v-lo)/span*100}%"></div>`).join("");
+}
+
+/* ================= 3. toggle panels ================= */
+function togglePanel(which){
+  if(!cls) return;
+  open[which]=!open[which];
+  renderAll();
+  if(open[which]) setTimeout(()=>$("panel"+which[0].toUpperCase()+which.slice(1)).scrollIntoView({behavior:"smooth", block:"start"}),60);
+}
+function renderAll(){
+  ["tab","hist","poly"].forEach(k=>{
+    const btn=$("btn"+k[0].toUpperCase()+k.slice(1));
+    const panel=$("panel"+k[0].toUpperCase()+k.slice(1));
+    btn.classList.toggle("off", open[k]);
+    btn.querySelector(".state").textContent = open[k] ? "숨기기" : (k==="tab"?"만들기":"그리기");
+    panel.classList.toggle("show", !!(open[k]&&cls));
+  });
+  if(!cls) return;
+  if(open.tab) renderTable();
+  renderCharts();
+}
+
+/* ================= table ================= */
+function tally(n){
+  const full=Math.floor(n/5), rest=n%5;
+  const partial=["","一","丅","下","止"][rest];   // 正의 획을 하나씩 더하는 순서
+  return "正".repeat(full)+partial;
+}
+function renderTable(){
+  if(!cls) return;
+  const showTally=$("optTally").checked, showRel=$("optRel").checked;
+  const maxF=Math.max(...cls.freq);
+  const fu=freqLabel?esc(freqLabel):"";
+  let html=`<div class="tab-title">${plotTitle?esc(plotTitle):"도수분포표"} <span class="u">(계급의 크기: ${fmt(cls.width)}${esc(unitTxt(unitLabel))})</span></div>
+  <div class="ftab-wrap"><table class="ftab"><thead><tr>
+    <th>계급${unitLabel?"("+esc(unitLabel)+")":""}</th>${showTally?"<th>세기</th>":""}<th>도수${fu?"("+fu+")":""}</th>${showRel?"<th>상대도수</th>":""}
+  </tr></thead><tbody>`;
+  for(let i=0;i<cls.n;i++){
+    const f=cls.freq[i];
+    html+=`<tr class="${f===maxF?"max":""}${f===0?" zero":""}">
+      <td class="cls">${classLabel(i, i===0)}</td>
+      ${showTally?`<td class="tally">${tally(f)||"·"}</td>`:""}
+      <td class="f">${f}</td>
+      ${showRel?`<td class="rel">${(f/cls.total).toFixed(2)}</td>`:""}
+    </tr>`;
+  }
+  html+=`<tr class="sum"><td class="cls" style="text-align:center">합계</td>${showTally?"<td></td>":""}<td class="f">${cls.total}</td>${showRel?`<td class="rel">1</td>`:""}</tr></tbody></table></div>`;
+  $("tabBody").innerHTML=html;
+
+  // facts
+  const maxIdx=cls.freq.indexOf(maxF);
+  const minF=Math.min(...cls.freq);
+  $("facts").innerHTML=`
+    <div class="fact a"><div class="k">도수가 가장 큰 계급</div><div class="v">${fmt(cls.edges[maxIdx])} ~ ${fmt(cls.edges[maxIdx+1])}<br><span style="font-size:13px">도수 ${maxF}${fu}</span></div></div>
+    <div class="fact d"><div class="k">계급의 개수</div><div class="v">${cls.n}개</div></div>
+    <div class="fact c"><div class="k">계급의 크기</div><div class="v">${fmt(cls.width)}${esc(unitTxt(unitLabel))}</div></div>
+    <div class="fact b"><div class="k">도수의 합계</div><div class="v">${cls.total}${fu}</div></div>`;
+  // talk
+  const above=cls.freq.slice(maxIdx).reduce((a,b)=>a+b,0);
+  const lowSum=cls.freq[0]+(cls.n>1?cls.freq[1]:0);
+  $("tabTalk").innerHTML=`<b>해석해 보기</b> · ${classText(maxIdx)}인 계급의 도수가 ${maxF}${fu}으로 가장 커요. `+
+    `${fmt(cls.edges[maxIdx])}${esc(unitTxt(unitLabel))} 이상인 변량은 모두 ${above}${fu}, ${fmt(cls.edges[Math.min(2,cls.n)])}${esc(unitTxt(unitLabel))} 미만인 변량은 ${lowSum}${fu}이에요. `+
+    `도수의 합계 ${cls.total}이(가) 자료 전체의 개수와 같은지 꼭 확인!`;
+}
+function copyTable(){
+  if(!cls) return;
+  const showRel=$("optRel").checked;
+  let lines=[`계급(${unitLabel||""})\t도수(${freqLabel||""})${showRel?"\t상대도수":""}`];
+  for(let i=0;i<cls.n;i++) lines.push(`${fmt(cls.edges[i])} 이상 ~ ${fmt(cls.edges[i+1])} 미만\t${cls.freq[i]}${showRel?"\t"+(cls.freq[i]/cls.total).toFixed(2):""}`);
+  lines.push(`합계\t${cls.total}${showRel?"\t1":""}`);
+  navigator.clipboard?.writeText(lines.join("\n")).then(()=>showFlash("표를 복사했어요. 한글·엑셀에 붙여 넣어 보세요."));
+}
+function showFlash(msg){ showNotice(msg); setTimeout(hideNotice,2500); }
+
+/* ================= charts (SVG) ================= */
+function chartSVG(kind){
+  // kind: 'hist' | 'poly'
+  const W=760, H=400, ML=58, MR=28, MT=52, MB=64;
+  const pw=W-ML-MR, ph=H-MT-MB;
+  const n=cls.n;
+  const overlay = kind==="poly" && $("optOverlay").checked;
+  const showBars = kind==="hist" || overlay;
+  const showPoly = kind==="poly";
+  const showVal = kind==="hist" ? $("optHistVal").checked : $("optPolyVal").checked;
+  const showGrid = kind==="hist" ? $("optHistGrid").checked : true;
+
+  // polygon needs one extra (zero) class on each side
+  const extra = showPoly ? 1 : 0;
+  const slots = n + 2*extra;
+  const bw = pw/slots;
+  const maxF=Math.max(...cls.freq);
+  // y scale: nice step
+  let yStep = maxF<=5?1 : maxF<=10?2 : maxF<=25?5 : maxF<=50?10 : Math.ceil(maxF/8/10)*10;
+  const yMax = Math.max(yStep, Math.ceil(maxF/yStep)*yStep);
+  const y = f => MT + ph - f/yMax*ph;
+  const xEdge = i => ML + (i+extra)*bw;     // i in 0..n
+  const xMid  = i => ML + (i+extra+0.5)*bw; // class i center
+
+  const font = `font-family="Pretendard, -apple-system, Malgun Gothic, sans-serif"`;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" data-kind="${kind}">
+  <rect x="0" y="0" width="${W}" height="${H}" fill="#fdfbfd"/>`;
+  // title
+  const title = plotTitle ? esc(plotTitle) : (kind==="hist"?"히스토그램":"도수분포다각형");
+  s+=`<text x="${W/2}" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#4a4458" ${font}>${title}</text>`;
+  // grid + y axis
+  for(let v=0; v<=yMax+1e-9; v+=yStep){
+    const yy=y(v);
+    if(showGrid && v>0) s+=`<line x1="${ML}" y1="${yy}" x2="${W-MR}" y2="${yy}" stroke="#ece5ef" stroke-width="1"/>`;
+    s+=`<line x1="${ML-4}" y1="${yy}" x2="${ML}" y2="${yy}" stroke="#8b8499" stroke-width="1.2"/>`;
+    s+=`<text x="${ML-9}" y="${yy+4}" text-anchor="end" font-size="12.5" fill="#6f6880" ${font}>${v}</text>`;
+  }
+  // axes
+  s+=`<line x1="${ML}" y1="${MT-6}" x2="${ML}" y2="${MT+ph}" stroke="#8b8499" stroke-width="1.4"/>`;
+  s+=`<line x1="${ML}" y1="${MT+ph}" x2="${W-MR}" y2="${MT+ph}" stroke="#8b8499" stroke-width="1.4"/>`;
+  s+=`<text x="${ML-4}" y="${MT-14}" text-anchor="end" font-size="12" fill="#6f6880" ${font}>(${esc(freqLabel||"도수")})</text>`;
+  s+=`<text x="${W-MR}" y="${MT+ph+38}" text-anchor="end" font-size="12" fill="#6f6880" ${font}>(${esc(unitLabel||"계급")})</text>`;
+  // bars
+  if(showBars){
+    for(let i=0;i<n;i++){
+      const f=cls.freq[i]; if(f===0) continue;
+      const isMax = kind==="hist" && f===maxF;
+      const fill = overlay ? "#dbe9fa" : (isMax?COLOR.histMax:COLOR.hist);
+      const stroke = overlay ? "#b9d0ee" : (isMax?COLOR.histMaxEdge:COLOR.histEdge);
+      s+=`<rect class="bar" data-i="${i}" x="${xEdge(i)}" y="${y(f)}" width="${bw}" height="${MT+ph-y(f)}" fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>`;
+      if(showVal && kind==="hist") s+=`<text x="${xMid(i)}" y="${y(f)-6}" text-anchor="middle" font-size="13" font-weight="800" fill="${isMax?"#b2437c":"#3d74b8"}" ${font}>${f}</text>`;
+    }
+    // hover targets (full column) for tooltip
+    for(let i=0;i<n;i++) s+=`<rect class="hit" data-i="${i}" x="${xEdge(i)}" y="${MT}" width="${bw}" height="${ph}" fill="transparent"/>`;
+  }
+  // polygon
+  if(showPoly){
+    const pts=[[xMid(-1),y(0)]];
+    for(let i=0;i<n;i++) pts.push([xMid(i),y(cls.freq[i])]);
+    pts.push([xMid(n),y(0)]);
+    s+=`<polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="${COLOR.poly}" stroke-width="2.4" stroke-linejoin="round"/>`;
+    pts.forEach((p,k)=>{
+      const end = k===0||k===pts.length-1;
+      s+=`<circle cx="${p[0]}" cy="${p[1]}" r="${end?4:5}" fill="${end?"#fff":COLOR.polyPt}" stroke="${COLOR.poly}" stroke-width="2"/>`;
+      if(showVal && !end) s+=`<text x="${p[0]}" y="${p[1]-11}" text-anchor="middle" font-size="13" font-weight="800" fill="#7a5fc0" ${font}>${cls.freq[k-1]}</text>`;
+    });
+    // dashed midpoint guides to axis
+    for(let i=0;i<n;i++) s+=`<line x1="${xMid(i)}" y1="${MT+ph}" x2="${xMid(i)}" y2="${MT+ph+5}" stroke="#9d7fd8" stroke-width="1"/>`;
+    for(let i=0;i<n;i++) s+=`<rect class="hit" data-i="${i}" x="${xEdge(i)}" y="${MT}" width="${bw}" height="${ph}" fill="transparent"/>`;
+  }
+  // x tick labels at class boundaries
+  const dense = n>12;
+  for(let i=0;i<=n;i++){
+    const xx=xEdge(i);
+    s+=`<line x1="${xx}" y1="${MT+ph}" x2="${xx}" y2="${MT+ph+5}" stroke="#8b8499" stroke-width="1.2"/>`;
+    if(!dense || i%2===0 || i===n) s+=`<text x="${xx}" y="${MT+ph+20}" text-anchor="middle" font-size="12.5" fill="#6f6880" ${font}>${fmt(cls.edges[i])}</text>`;
+  }
+  if(showPoly){
+    // ghost class labels for the zero classes
+    s+=`<text x="${xMid(-1)}" y="${MT+ph+20}" text-anchor="middle" font-size="11" fill="#c8c1d2" ${font}>${fmt(cls.edges[0]-cls.width)}</text>`;
+    s+=`<text x="${xEdge(n)+bw}" y="${MT+ph+20}" text-anchor="middle" font-size="11" fill="#c8c1d2" ${font}>${fmt(cls.edges[n]+cls.width)}</text>`;
+  }
+  s+=`</svg>`;
+  return s;
+}
+function attachTips(wrap){
+  let tip=wrap.querySelector(".tip");
+  if(!tip){ tip=document.createElement("div"); tip.className="tip"; wrap.appendChild(tip); }
+  wrap.querySelectorAll(".hit").forEach(h=>{
+    const i=+h.dataset.i;
+    const show=e=>{
+      const r=wrap.getBoundingClientRect();
+      const px=(e.touches?e.touches[0].clientX:e.clientX)-r.left, py=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+      tip.innerHTML=`${classText(i)}<small>도수 ${cls.freq[i]}${esc(freqLabel)} · 상대도수 ${(cls.freq[i]/cls.total).toFixed(2)}</small>`;
+      tip.style.left=px+"px"; tip.style.top=(py-6)+"px"; tip.style.display="block";
+    };
+    h.addEventListener("mousemove",show); h.addEventListener("touchstart",show,{passive:true});
+    h.addEventListener("mouseleave",()=>tip.style.display="none"); h.addEventListener("touchend",()=>setTimeout(()=>tip.style.display="none",1200));
+  });
+}
+function renderCharts(){
+  if(!cls) return;
+  const fu=esc(freqLabel);
+  const maxF=Math.max(...cls.freq), maxIdx=cls.freq.indexOf(maxF);
+  if(open.hist){
+    $("histWrap").innerHTML=chartSVG("hist"); attachTips($("histWrap"));
+    $("histTalk").innerHTML=`<b>히스토그램</b> · 가로축에 계급, 세로축에 도수를 잡고 각 계급의 도수를 높이로 하는 직사각형을 서로 붙여 그려요. `+
+      `가장 높은 직사각형은 <b>${classText(maxIdx)}</b>(도수 ${maxF}${fu}). 직사각형의 넓이는 도수에 정비례하므로 넓이의 합은 (계급의 크기)×(도수의 합계) = ${fmt(cls.width)}×${cls.total} = <b>${fmt(cls.width*cls.total)}</b>이에요.`;
+  }
+  if(open.poly){
+    $("polyWrap").innerHTML=chartSVG("poly"); attachTips($("polyWrap"));
+    $("polyTalk").innerHTML=`<b>도수분포다각형</b> · 히스토그램에서 각 직사각형 윗변의 중앙에 점을 찍고, 양 끝에는 도수가 0인 계급을 하나씩 더해 점을 찍은 뒤 선분으로 이어요. `+
+      `하얀 점이 도수 0인 양 끝의 계급이에요. 다각형과 가로축으로 둘러싸인 넓이는 히스토그램의 직사각형 넓이의 합(<b>${fmt(cls.width*cls.total)}</b>)과 같아요.`;
+  }
+}
+
+/* ================= PNG ================= */
+function savePNG(kind){
+  const wrap = kind==="hist" ? $("histWrap") : $("polyWrap");
+  const svg = wrap.querySelector("svg"); if(!svg) return;
+  const scale=2;
+  const xml=new XMLSerializer().serializeToString(svg);
+  const blob=new Blob([xml],{type:"image/svg+xml;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement("canvas"); c.width=760*scale; c.height=400*scale;
+    const ctx=c.getContext("2d"); ctx.scale(scale,scale); ctx.drawImage(img,0,0,760,400);
+    URL.revokeObjectURL(url);
+    const a=document.createElement("a");
+    const name=(plotTitle||(kind==="hist"?"히스토그램":"도수분포다각형")).replace(/[\\/:*?"<>|]/g,"_");
+    a.download=`${name}_${kind==="hist"?"히스토그램":"도수분포다각형"}.png`;
+    a.href=c.toDataURL("image/png"); a.click();
+    showFlash("PNG 이미지를 저장했어요.");
+  };
+  img.onerror=()=>showFlash("이미지 저장에 실패했어요. 화면 캡처를 이용해 주세요.");
+  img.src=url;
+}
+
+/* ================= keyboard ================= */
+$("dataInput").addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter") applyData(); });
+</script>
+</body>
+</html>
