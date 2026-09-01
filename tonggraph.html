@@ -160,13 +160,18 @@
   /* 줄기와 잎 그림 */
   .stemctl{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--muted); flex-wrap:wrap; justify-content:flex-end;}
   .stemctl .seg button{padding:5px 10px; font-size:12.5px;}
-  .stem-cap{font-size:13px; color:var(--muted); font-weight:600; text-align:right; width:100%; max-width:640px; margin:-4px 0 6px;}
-  table.stem{border-collapse:collapse; font-size:17px; min-width:300px; max-width:100%;}
+  .stemctl .lbl{display:inline-flex; align-items:center; gap:6px;}
+  .stemctl .sel{font-family:inherit; font-size:12.5px; font-weight:700; color:var(--accent-ink); background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 8px; cursor:pointer;}
+  .stemctl .sel:focus{outline:none; border-color:var(--accent);}
+  .stem-cap{font-size:13px; color:var(--muted); font-weight:600; text-align:right; margin:-4px 0 6px; max-width:100%;}
+  .tblwrap{max-width:100%; overflow-x:auto;}
+  .tblwrap > table, .tblwrap > .stem-cap{margin-left:auto; margin-right:auto;}
+  table.stem{border-collapse:collapse; table-layout:fixed; font-size:17px; max-width:100%;}
   table.stem th{background:var(--sky); font-weight:700; border:1.5px solid #cfd8e3; padding:8px 14px; text-align:center; height:42px;}
   table.stem th.la{color:var(--a);} table.stem th.lb{color:var(--b);}
   table.stem td{border:1.5px solid #cfd8e3; padding:6px 14px; height:44px; white-space:nowrap;}
-  table.stem td.st{text-align:center; font-weight:800; color:var(--sky-ink); width:1%; min-width:64px; background:#f7fbff; white-space:nowrap;}
-  table.stem td.lf{text-align:left; letter-spacing:0; font-variant-numeric:tabular-nums; min-width:220px;}
+  table.stem td.st{text-align:center; font-weight:800; color:var(--sky-ink); background:#f7fbff; white-space:nowrap;}
+  table.stem td.lf{text-align:left; letter-spacing:0; font-variant-numeric:tabular-nums; overflow:hidden;}
   table.stem td.lf.left{text-align:right;}
   table.stem td.lf.a{color:var(--a);} table.stem td.lf.b{color:var(--b);}
   table.stem td.lf span{display:inline-block; width:1.35em; text-align:center; font-weight:600;}
@@ -275,8 +280,7 @@
   .dt-summary .na{color:var(--a);} .dt-summary .nb{color:var(--b);}
 
   /* ===== frequency table ===== */
-  table.ft{border-collapse:collapse; width:100%; max-width:640px; font-size:17px;}
-  table.ft.two{max-width:760px;}
+  table.ft{border-collapse:collapse; table-layout:fixed; max-width:100%; font-size:17px;}
   table.ft th, table.ft td{border:1.5px solid #cfd8e3; padding:10px 12px; text-align:center; height:46px;}
   table.ft th{background:var(--sky); font-weight:700;}
   table.ft th.sub{font-size:14.5px; height:36px; padding:4px 8px; white-space:nowrap;}
@@ -286,7 +290,6 @@
   table.ft td.cls .sm{font-size:13px; color:var(--muted); margin:0 2px;}
   table.ft td.f{font-weight:800; color:var(--sky-ink);}
   table.ft td.f.b{color:var(--b);}
-  table.ft td.tally{font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif; color:var(--muted); letter-spacing:1px;}
   table.ft td.rel{color:var(--lavender-ink); font-weight:700;}
   table.ft tr.sum td{background:var(--sky); font-weight:700;}
   table.ft tr.zero td{color:var(--faint);}
@@ -501,11 +504,11 @@
       <div class="prow urow"><span class="k">변량의 단위</span><input type="text" id="unitLabel" maxlength="8" placeholder="예) ℃, dB, 시간"></div>
       <div class="prow urow"><span class="k">도수의 단위</span><input type="text" id="freqLabel" maxlength="8" placeholder="예) 명, 일, 곳"></div>
       <div class="opt-title">도수분포표</div>
-      <label class="toggle ans prow" title="끄면 도수·상대도수 칸이 비워져요"><input type="checkbox" id="optAns" onchange="render()">답 표시</label>
-      <label class="toggle prow" title="새 자료를 만들거나 불러올 때 답을 보여 줄지 정해요 (이 기기에 기억됨)"><input type="checkbox" id="optAnsDefault" onchange="savePref()">처음부터 답 표시 <small>(기본값)</small></label>
-      <label class="toggle prow"><input type="checkbox" id="optRel" onchange="render()">상대도수 열</label>
+      <input type="checkbox" id="optAns" hidden onchange="render()"><input type="checkbox" id="optAnsDefault" hidden onchange="savePref()">
+      <div class="prow urow" title="빈칸: 도수·상대도수 칸을 비워 두어 학생이 채워 보게 해요 · 완성: 값이 채워진 표"><span class="k">표</span><span class="seg" id="ansSeg"><button onclick="setAns(false)">빈칸</button><button onclick="setAns(true)">완성</button></span></div>
+      <div class="prow urow" title="새 자료를 만들거나 불러올 때 표를 어떤 상태로 열지 정해요 (이 기기에 기억됨)"><span class="k">새 자료를 열 때</span><span class="seg" id="ansDefSeg"><button onclick="setAnsDefault(false)">빈칸</button><button onclick="setAnsDefault(true)">완성</button></span></div>
+      <label class="toggle prow"><input type="checkbox" id="optRel" onchange="render()">상대도수 보기</label>
       <div class="prow urow"><span class="k">상대도수 자릿수</span><span class="seg"><button id="dec2" class="on" onclick="setDec(2)">소수 둘째</button><button id="dec3" onclick="setDec(3)">셋째</button></span></div>
-      <label class="toggle prow"><input type="checkbox" id="optTally" onchange="render()">正 표시 열 <small>(자료 하나)</small></label>
       <label class="toggle prow"><input type="checkbox" id="optMax" onchange="render()">최다 계급 강조 <small>(자료 하나)</small></label>
       <div class="opt-title">그래프</div>
       <label class="toggle prow"><input type="checkbox" id="optHistVal" checked onchange="render()">값 표시</label>
@@ -582,14 +585,19 @@ let grouped = false;   // 두 자료 히스토그램: 나란히(그룹형) 보�
 let source = null;
 const PREF_KEY="tonggraph.prefs";
 function loadPref(){
-  try{ const p=JSON.parse(localStorage.getItem(PREF_KEY)||"{}"); $("optAnsDefault").checked=!!p.ansDefault; $("optAns").checked=!!p.ansDefault;
+  try{ const p=JSON.parse(localStorage.getItem(PREF_KEY)||"{}"); $("optAnsDefault").checked=!!p.ansDefault; $("optAns").checked=!!p.ansDefault; syncAnsSeg();
     if(p.fit){ fitMode=true; $("zbFit").classList.add("on"); queueFit(); } else if(p.zoom){ applyZoom(p.zoom); } }catch(e){}
 }
 function savePref(quiet){
   try{ localStorage.setItem(PREF_KEY, JSON.stringify({ansDefault:$("optAnsDefault").checked, fit:fitMode, zoom:zoomLevel})); }catch(e){}
-  if(!quiet) toast(`답 표시 기본값을 '${$("optAnsDefault").checked?"켜짐":"꺼짐"}'으로 저장했어요.`);
+  if(!quiet) toast(`새 자료를 열 때 표를 '${$("optAnsDefault").checked?"완성":"빈칸"}' 상태로 보여 줘요.`);
 }
-function applyAnsDefault(){ $("optAns").checked=$("optAnsDefault").checked; }                                 // {book,page,item,name} 불러온 교과서 자료 출처
+function applyAnsDefault(){ $("optAns").checked=$("optAnsDefault").checked; syncAnsSeg(); }
+function syncAnsSeg(){   // 설정 패널의 표(빈칸/완성) 선택 표시를 체크박스 상태에 맞춤
+  [["ansSeg","optAns"],["ansDefSeg","optAnsDefault"]].forEach(([seg,id])=>{ const on=$(id).checked; const b=$(seg).children; b[0].classList.toggle("on",!on); b[1].classList.toggle("on",on); });
+}
+function setAns(on){ $("optAns").checked=on; syncAnsSeg(); render(); }
+function setAnsDefault(on){ $("optAnsDefault").checked=on; syncAnsSeg(); savePref(); }                                 // {book,page,item,name} 불러온 교과서 자료 출처
 function renderSource(){
   const html = source ? `<span class="bk">📖 ${esc(source.book)} <b>${source.page}쪽</b> · <b>${esc(source.item)}</b></span><button class="x" onclick="source=null; renderSource()" title="출처 표시 지우기">×</button>` : "";
   ["src-result","src-data"].forEach(id=>{ const el=$(id); el.innerHTML=html; el.classList.toggle("show", !!source); });
@@ -654,7 +662,7 @@ function snapshot(){
   $("dtBody").querySelectorAll("input").forEach(inp=>{ const t=inp.value.trim(); if(t!=="") raw[+inp.dataset.s].push({i:+inp.dataset.i, v:t}); });
   return { v:1, savedAt:new Date().toISOString(), two, title:title(), unit:unit(), funit:funit(), heads:{...heads}, names:[$("nameA").value,$("nameB").value],
     raw, mode, manualTouched, manual:JSON.parse(JSON.stringify(manual)), clsUser, yAxis, selected:{...selected}, stem:{...stem},
-    opts:{rel:$("optRel").checked, tally:$("optTally").checked, max:$("optMax").checked, val:$("optHistVal").checked, grid:$("optGrid").checked},
+    opts:{rel:$("optRel").checked, max:$("optMax").checked, val:$("optHistVal").checked, grid:$("optGrid").checked},
     sz:JSON.parse(JSON.stringify(SZ)), source };
 }
 function snapKind(sn){
@@ -683,7 +691,7 @@ function applySnapshot(sn){
   manual=sn.manual||manual; manualTouched=!!sn.manualTouched; clsUser=sn.clsUser||null; yAxis=sn.yAxis||"freq";
   if(sn.selected) selected={...selected, ...sn.selected};
   if(sn.stem) stem={...stem, ...sn.stem};
-  if(sn.opts){ $("optRel").checked=!!sn.opts.rel; $("optTally").checked=!!sn.opts.tally; $("optMax").checked=!!sn.opts.max; $("optHistVal").checked=sn.opts.val!==false; $("optGrid").checked=sn.opts.grid!==false; }
+  if(sn.opts){ $("optRel").checked=!!sn.opts.rel; $("optMax").checked=!!sn.opts.max; $("optHistVal").checked=sn.opts.val!==false; $("optGrid").checked=sn.opts.grid!==false; }
   source = sn.source || null; renderSource(); applyAnsDefault();
   if(sn.sz){ ["hist","poly"].forEach(k=>{ if(sn.sz[k]){ SZ[k]={...sn.sz[k]}; $("sz-w-"+k).value=SZ[k].w; $("sz-h-"+k).value=SZ[k].h; } }); }
   syncData(); mode=sn.mode||mode; if(mode==="data" && !hasData()) mode="manual";
@@ -1056,8 +1064,9 @@ function stemCaption(u){
 }
 function stemCtlHTML(){
   const u=stemUnit();
-  const seg=(val,lab,leaf)=>{ const ok=stemUnitOK(val); return `<button class="${u===val?"on":""}" ${ok?"":"disabled"} onclick="stem.unit=${val}; render()" title="${ok?`줄기: ${lab} · 잎: ${leaf}`:(val<1?"소수가 있는 자료에서만 고를 수 있어요":"이 자료에는 너무 큰 자리예요 (줄기가 모두 0이 돼요)")}">${lab}</button>`; };
-  return `줄기의 자릿수 <span class="seg">${seg(0.1,"일의 자리 이상","소수 첫째 자리")}${seg(1,"십의 자리 이상","일의 자리")}${seg(10,"백의 자리 이상","십의 자리")}${seg(100,"천의 자리 이상","백의 자리")}</span>`
+  // 자리 선택은 드롭다운으로 (칸이 좁아도 한 줄에 들어가도록). 자료에 맞지 않는 자리는 고를 수 없음
+  const opt=(val,lab,leaf)=>{ const ok=stemUnitOK(val); return `<option value="${val}" ${u===val?"selected":""} ${ok?"":"disabled"}>${lab} (잎: ${leaf})</option>`; };
+  return `<label class="lbl">줄기의 자릿수 <select class="sel" onchange="stem.unit=+this.value; render()" title="줄기로 삼을 자리 — 그 아래 자리가 잎이 돼요">${opt(0.1,"일의 자리 이상","소수 첫째 자리")}${opt(1,"십의 자리 이상","일의 자리")}${opt(10,"백의 자리 이상","십의 자리")}${opt(100,"천의 자리 이상","백의 자리")}</select></label>`
     + (hasSub(u)?` 아랫자리 <span class="seg" title="잎 자리보다 작은 자리(소수점 아래)는 잎이 한 자리가 되도록 반올림하거나 버려요"><button class="${stem.round?"on":""}" onclick="stem.round=true; render()">반올림</button><button class="${stem.round?"":"on"}" onclick="stem.round=false; render()">버림</button></span>`:"")
     + ` <span class="seg"><button class="${stem.sortLeaves?"on":""}" onclick="stem.sortLeaves=true; render()">크기순</button><button class="${stem.sortLeaves?"":"on"}" onclick="stem.sortLeaves=false; render()">입력순</button></span>`;
 }
@@ -1066,7 +1075,9 @@ function stemHTML(){
   const u=stemUnit(), rows=stemRows(u), ans=$("optAns").checked;
   const prob=stemProblem(rows); if(prob) return `${titleBox()}<div class="hint stem-warn">${prob}</div>`;
   const leafTxt=a=>a.map(l=>`<span>${l}</span>`).join("");
-  let h=`${titleBox()}<div class="stem-cap">${esc(stemCaption(u))}</div><table class="stem">`;
+  const maxL=Math.max(1,...rows.map(r=>Math.max(r.leaves[0].length, r.leaves[1].length)));
+  const wLeaf=Math.max(180, maxL*25+40), wStem=76, wTot=wStem+wLeaf*(two?2:1);
+  let h=`${titleBox()}<div class="tblwrap"><div class="stem-cap" style="width:${wTot}px">${esc(stemCaption(u))}</div><table class="stem" style="width:${wTot}px"><colgroup>${two?`<col style="width:${wLeaf}px"><col style="width:${wStem}px"><col style="width:${wLeaf}px">`:`<col style="width:${wStem}px"><col style="width:${wLeaf}px">`}</colgroup>`;
   if(two) h+=`<tr><th class="la">잎 (${esc(nameA())})</th><th>줄기</th><th class="lb">잎 (${esc(nameB())})</th></tr>`;
   else h+=`<tr><th>줄기</th><th>잎</th></tr>`;
   rows.forEach(r=>{
@@ -1074,9 +1085,9 @@ function stemHTML(){
     if(two) h+=`<tr class="${empty?"empty":""}"><td class="lf left a ${ans?"":"hid"}">${ans?leafTxt([...r.leaves[0]].reverse()):""}</td><td class="st">${r.label}</td><td class="lf b ${ans?"":"hid"}">${ans?leafTxt(r.leaves[1]):""}</td></tr>`;
     else h+=`<tr class="${empty?"empty":""}"><td class="st">${r.label}</td><td class="lf ${ans?"":"hid"}">${ans?leafTxt(r.leaves[0]):""}</td></tr>`;
   });
-  h+=`</table>`;
+  h+=`</table></div>`;
   const notes=[];
-  if(!ans) notes.push(`답 표시가 꺼져 있어요. 학생들이 먼저 그려 본 뒤 '답 표시'를 켜 주세요.`);
+  if(!ans) notes.push(`빈칸 그림이에요. 학생들이 먼저 그려 본 뒤 설정에서 표를 '완성'으로 바꿔 주세요.`);
   if(hasSub(u)){
     const all=[...data[0],...(two?data[1]:[])], ex=all.find(v=>Math.abs(v/u-Math.round(v/u))>1e-9), {st,lf}=stemSplit(ex,u);
     notes.push(`잎은 한 자리 숫자만 쓰므로 그 아래 자리는 ${stem.round?"반올림":"버림"}했어요. 예: ${fmt(ex)} → ${st}|${lf}`);
@@ -1143,6 +1154,7 @@ function nSer(){ return two ? 2 : 1; }
 function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2200); }
 function clsHead(){ const u=unit(); return heads.cls || ("계급"+(u?"("+u+")":"")); }
 function freqHead(){ const u=funit(); return heads.freq || ("도수"+(u?"("+u+")":"")); }
+function textW(str, font){ const c=textW._c||(textW._c=document.createElement("canvas").getContext("2d")); c.font=font||"600 17px Pretendard, -apple-system, Malgun Gothic, sans-serif"; return c.measureText(str).width; }
 function classLabel(i, full){
   const a=fmt(cls.edges[i]), b=fmt(cls.edges[i+1]), u=esc(unit());
   if(full) return `${a}<span class="sm">${u} 이상</span> ~ ${b}<span class="sm">${u} 미만</span>`;
@@ -1313,7 +1325,6 @@ function setFreq(s, i, el){
   tb.querySelectorAll("[data-sum]").forEach(x=>x.textContent=cls.total[+x.dataset.sum]);
   tb.querySelectorAll("[data-rel]").forEach(x=>{ const [ss,k]=x.dataset.rel.split(":").map(Number); x.textContent=rel(cls.freq[ss][k],cls.total[ss]); });
   tb.querySelectorAll("[data-relsum]").forEach(x=>{ const ss=+x.dataset.relsum; x.outerHTML=relSumCell(ss); });
-  tb.querySelectorAll("[data-tally]").forEach(x=>{ const k=+x.dataset.tally; x.textContent=tally(cls.freq[0][k])||"·"; });
   renderCharts();
 }
 function freqKey(e, s, i){
@@ -1364,7 +1375,13 @@ function toggleResult(k){
   else if(!selected[k]) selected[k]=true;
   showView("result"); render(); queueFit();
 }
+function fitPane(k, nOn, minW){   // 표 칸의 너비를 표 폭에 맞춤 — 나란히 볼 때 표가 자리를 덜 차지하도록
+  const pane=$("pane-"+k), t=$("body-"+k).querySelector("table");
+  if(t && nOn>1){ pane.style.flex="0 0 auto"; pane.style.width=Math.max(minW, parseInt(t.style.width)+28)+"px"; }
+  else { pane.style.flex=""; pane.style.width=""; }
+}
 function render(){
+  syncAnsSeg();
   if(view!=="result") return;
   const err=computeClasses();
   $("tools-result").innerHTML=toolsHTML();
@@ -1373,12 +1390,12 @@ function render(){
   const on=KEYS.filter(k=>selected[k] && !(both&&k==="poly"));
   $("panes").classList.toggle("single", on.length<=1);
   KEYS.forEach(k=>$("pane-"+k).classList.toggle("on", selected[k] && !(both&&k==="poly")));
-  if(selected.stem){ $("stemctl").innerHTML=stemCtlHTML(); $("body-stem").innerHTML=stemHTML(); }
+  if(selected.stem){ $("stemctl").innerHTML=stemCtlHTML(); $("body-stem").innerHTML=stemHTML(); fitPane("stem", on.length, 380); }
   $("histName").textContent = both ? "📊 히스토그램 + 📈 도수분포다각형" : (two ? "📊 히스토그램 (자료별)" : "📊 히스토그램");
   if(!on.length){ $("panes").classList.add("single"); $("pane-tab").classList.add("on"); $("body-tab").innerHTML=`<div class="hint">왼쪽 메뉴에서 줄기와 잎 그림 · 도수분포표 · 히스토그램 · 도수분포다각형을 골라 주세요. 여러 개를 함께 고르면 나란히 보여요.</div>`; return; }
   if(!cls){ ["tab","hist","poly"].forEach(k=>$("body-"+k).innerHTML=""); return; }
   if(!(selected.tab||selected.hist||selected.poly)){ placeSource(); queueFit(); return; }
-  if(selected.tab) $("body-tab").innerHTML=tableHTML();
+  if(selected.tab){ $("body-tab").innerHTML=tableHTML(); fitPane("tab", on.length, 300); }
   renderCharts(); placeSource(); queueFit();
 }
 function grpHTML(){
@@ -1418,7 +1435,6 @@ function renderCharts(){
 }
 
 /* ================= table ================= */
-function tally(n){ return "正".repeat(Math.floor(n/5))+["","一","丅","下","止"][n%5]; }
 function titleBox(){
   return `<div class="ft-title"><input class="tin" type="text" maxlength="40" value="${esc(title())}" placeholder="제목을 입력하세요" oninput="setTitle(this)" title="제목을 바꿀 수 있어요"></div>`;
 }
@@ -1432,16 +1448,19 @@ function tableHTML(){
   const ansOn=$("optAns").checked || (man && cls.total[0]+cls.total[1]===0);   // 직접 입력 중(아직 도수 없음)이면 항상 보임
   const ans = ansOn || man;          // 도수 칸: 주어진 표(직접 입력)는 항상 보임, 원자료 표는 답 표시에 따름
   const ansRel = ansOn;              // 상대도수 칸: 답 표시에 따름
-  const showTally=$("optTally").checked && !two, hi=$("optMax").checked && !two;
+  const hi=$("optMax").checked && !two;
   const maxF=Math.max(...cls.freq[0]);
   const hdCls=`<input class="hd" type="text" maxlength="20" value="${esc(heads.cls)}" placeholder="${esc(clsHead())}" oninput="setHead('cls',this)" title="머리글을 바꿀 수 있어요">`;
   const hdFreq=`<input class="hd" type="text" maxlength="20" value="${esc(heads.freq)}" placeholder="${esc(freqHead())}" oninput="setHead('freq',this)" title="머리글을 바꿀 수 있어요">`;
-  let h=`${titleBox()}<table class="ft ${two?"two":""}"><thead>`;
+  const nNum=(two?2:1)*(showRel?2:1), wNum=two?96:110;
+  const u=unit(); const labW=Math.max(textW(`${fmt(cls.edges[0])}${u} 이상 ~ ${fmt(cls.edges[1])}${u} 미만`,"500 15px Pretendard, sans-serif"), ...Array.from({length:cls.n},(_,i)=>textW(`${fmt(cls.edges[i])} ~ ${fmt(cls.edges[i+1])}`)), textW(clsHead(),"700 17px Pretendard, sans-serif"));
+  const wCls=Math.max(150, Math.ceil(labW)+34);
+  let h=`${titleBox()}<div class="tblwrap"><table class="ft ${two?"two":""}" style="width:${wCls+nNum*wNum}px"><colgroup><col style="width:${wCls}px">${`<col style="width:${wNum}px">`.repeat(nNum)}</colgroup><thead>`;
   if(two){
     h+=`<tr><th rowspan="2">${hdCls}</th><th colspan="2">${hdFreq}</th>${showRel?`<th colspan="2">상대도수</th>`:""}</tr>
         <tr><th class="sub sa"><input class="hd nm" type="text" maxlength="20" value="${esc($("nameA").value)}" placeholder="자료1" oninput="setName(0,this)" title="자료 이름을 바꿀 수 있어요"></th><th class="sub sb"><input class="hd nm" type="text" maxlength="20" value="${esc($("nameB").value)}" placeholder="자료2" oninput="setName(1,this)" title="자료 이름을 바꿀 수 있어요"></th>${showRel?`<th class="sub sa" data-nm="0">${esc(nameA())}</th><th class="sub sb" data-nm="1">${esc(nameB())}</th>`:""}</tr>`;
   } else {
-    h+=`<tr><th>${hdCls}</th>${showTally?"<th>세기</th>":""}<th>${hdFreq}</th>${showRel?"<th>상대도수</th>":""}</tr>`;
+    h+=`<tr><th>${hdCls}</th><th>${hdFreq}</th>${showRel?"<th>상대도수</th>":""}</tr>`;
   }
   h+=`</thead><tbody>`;
   const fcell=(s,i)=>{
@@ -1454,12 +1473,12 @@ function tableHTML(){
   for(let i=0;i<cls.n;i++){
     const f=cls.freq[0][i];
     h+=`<tr class="${!man&&!two&&f===0?"zero":""}" ${!man&&hi&&f===maxF?'style="background:#fff7fa"':""}>
-      <td class="cls">${classLabel(i,i===0)}</td>${showTally?`<td class="tally" data-tally="${i}">${ans?(tally(f)||"·"):""}</td>`:""}
+      <td class="cls">${classLabel(i,i===0)}</td>
       ${fcell(0,i)}${two?fcell(1,i):""}
       ${showRel?`<td class="rel ${ansRel?"":"hid"}" data-rel="0:${i}">${ansRel?rel(f,cls.total[0]):""}</td>`:""}${showRel&&two?`<td class="rel ${ansRel?"":"hid"}" data-rel="1:${i}">${ansRel?rel(cls.freq[1][i],cls.total[1]):""}</td>`:""}</tr>`;
   }
-  h+=`<tr class="sum"><td>합계</td>${showTally?"<td></td>":""}<td data-sum="0">${cls.total[0]}</td>${two?`<td data-sum="1">${cls.total[1]}</td>`:""}${showRel?(ansRel?relSumCell(0):`<td class="rel hid"></td>`):""}${showRel&&two?(ansRel?relSumCell(1):`<td class="rel hid"></td>`):""}</tr></tbody></table>`;
-  if(!ansOn) h+=`<div class="dt-help">답 표시가 꺼져 있어요${man?" (주어진 도수는 보이고 상대도수만 가려요)":""}. 학생들이 먼저 풀어 본 뒤 '답 표시'를 켜 주세요.</div>`;
+  h+=`<tr class="sum"><td>합계</td><td data-sum="0">${cls.total[0]}</td>${two?`<td data-sum="1">${cls.total[1]}</td>`:""}${showRel?(ansRel?relSumCell(0):`<td class="rel hid"></td>`):""}${showRel&&two?(ansRel?relSumCell(1):`<td class="rel hid"></td>`):""}</tr></tbody></table></div>`;
+  if(!ansOn) h+=`<div class="dt-help">빈칸 표예요${man?" (주어진 도수는 보이고 상대도수만 비워요)":""}. 학생들이 먼저 채워 본 뒤 설정에서 표를 '완성'으로 바꿔 주세요.</div>`;
   else if(man) h+=`<div class="dt-help">각 계급의 도수를 직접 입력하세요 · Enter로 다음 칸${two?" · ←→로 옆 자료":""} · 위의 시작값·계급의 크기·계급의 개수로 계급을 정해요</div>`;
   return h;
 }
@@ -1644,9 +1663,9 @@ function attachTips(wrap){
 
 /* ================= table → SVG ================= */
 function tableSVG(){
-  const showRel=$("optRel").checked, showTally=$("optTally").checked && !two;
+  const showRel=$("optRel").checked;
   const font=`font-family="Pretendard, -apple-system, Malgun Gothic, sans-serif"`;
-  const cols=[{w:250}]; if(showTally) cols.push({w:140}); cols.push({w:two?120:150}); if(two) cols.push({w:120});
+  const cols=[{w:250}]; cols.push({w:two?120:150}); if(two) cols.push({w:120});
   if(showRel){ cols.push({w:two?120:130}); if(two) cols.push({w:120}); }
   const rowH=46, headH=two?84:52, pad=28, titleH=title()?44:0;
   const tw=cols.reduce((a,c)=>a+c.w,0), W=tw+pad*2, H=titleH+headH+rowH*(cls.n+1)+pad*2;
@@ -1662,19 +1681,19 @@ function tableSVG(){
     if(showRel){ let ra=cw(), rb=cw(); s+=cell(x,y,ra+rb,headH/2,"#d6ebff","상대도수",{bold:true});
       s+=cell(x,y+headH/2,ra,headH/2,"#d6ebff",esc(nameA()),{bold:true,color:"#3d74b8",size:14}); s+=cell(x+ra,y+headH/2,rb,headH/2,"#d6ebff",esc(nameB()),{bold:true,color:"#b2437c",size:14}); }
   } else {
-    const hs=[clsHead()]; if(showTally) hs.push("세기"); hs.push(freqHead()); if(showRel) hs.push("상대도수");
+    const hs=[clsHead()]; hs.push(freqHead()); if(showRel) hs.push("상대도수");
     hs.forEach(hh=>{ const w=cw(); s+=cell(x,y,w,headH,"#d6ebff",esc(hh),{bold:true}); x+=w; });
   }
   y+=headH;
   const row=(vals,fill,bold)=>{ x=pad; ci=0; vals.forEach(v=>{ const w=cw(); s+=cell(x,y,w,rowH,fill,v.t,{bold:bold||v.b,color:v.c}); x+=w; }); y+=rowH; };
   for(let i=0;i<cls.n;i++){
     const lab = i===0 ? `${fmt(cls.edges[0])}<tspan font-size="11" fill="#8b8499"> 이상</tspan> ~ ${fmt(cls.edges[1])}<tspan font-size="11" fill="#8b8499"> 미만</tspan>` : `${fmt(cls.edges[i])} ~ ${fmt(cls.edges[i+1])}`;
-    const v=[{t:lab}]; if(showTally) v.push({t:tally(cls.freq[0][i])||"·",c:"#8b8499"});
+    const v=[{t:lab}];
     v.push({t:cls.freq[0][i],b:true,c:"#3d74b8"}); if(two) v.push({t:cls.freq[1][i],b:true,c:"#b2437c"});
     if(showRel){ v.push({t:rel(cls.freq[0][i],cls.total[0]),b:true,c:"#7a5fc0"}); if(two) v.push({t:rel(cls.freq[1][i],cls.total[1]),b:true,c:"#7a5fc0"}); }
     row(v,"#fff");
   }
-  const sm=[{t:"합계"}]; if(showTally) sm.push({t:""}); sm.push({t:cls.total[0]}); if(two) sm.push({t:cls.total[1]}); if(showRel){ sm.push({t:relSum(0)}); if(two) sm.push({t:relSum(1)}); }
+  const sm=[{t:"합계"}]; sm.push({t:cls.total[0]}); if(two) sm.push({t:cls.total[1]}); if(showRel){ sm.push({t:relSum(0)}); if(two) sm.push({t:relSum(1)}); }
   row(sm,"#d6ebff",true);
   return {svg:s+"</svg>", W, H};
 }
