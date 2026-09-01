@@ -115,6 +115,13 @@
   .opt-title{font-family:"Jua",sans-serif; font-size:14px; color:var(--accent-ink); margin:14px 0 6px; padding-bottom:4px; border-bottom:1px dashed var(--line);}
   .opt-title:first-child{margin-top:2px;}
   .rp .prow{padding:7px 0;}
+  .rp .urow{justify-content:space-between; gap:8px;}
+  .rp .urow .k{font-size:13.5px; font-weight:700; color:var(--muted);}
+  .rp .urow input[type=text]{font-family:inherit; font-size:14px; color:var(--ink); width:130px; border:1.5px solid var(--line); border-radius:8px; padding:6px 9px; background:#fff;}
+  .rp .urow input[type=text]:focus{outline:none; border-color:var(--accent);}
+  .rp .urow .seg button{padding:5px 10px; font-size:12.5px;}
+  .opt-help{font-size:12.5px; color:var(--faint); line-height:1.6; margin-top:16px; padding-top:10px; border-top:1px dashed var(--line);}
+  .opt-help b{color:var(--muted);}
   .rp .szrow{gap:6px;}
   .rp .szrow input{width:58px;}
   /* 계급 설정 도구를 세로로 정렬 */
@@ -331,17 +338,6 @@
   .hint{color:var(--faint); font-size:15px; text-align:center; padding:80px 0;}
 
   /* ===== settings ===== */
-  .settings{max-width:520px; margin:0 auto;}
-  .srow{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 4px; border-bottom:1px solid var(--line);}
-  .srow:last-child{border-bottom:none;}
-  .srow .k{font-size:15px; font-weight:700;}
-  .srow .k small{display:block; font-size:12px; font-weight:500; color:var(--muted); margin-top:2px;}
-  .srow input[type=text]{font-family:inherit; font-size:15px; color:var(--ink); width:200px; max-width:50vw; border:1.5px solid var(--line); border-radius:9px; padding:8px 10px; background:#fff;}
-  .srow input[type=text]:focus{outline:none; border-color:var(--accent);}
-  .set-head{display:flex; align-items:center; justify-content:flex-start; gap:10px; margin-bottom:6px; padding-bottom:10px; border-bottom:1.5px solid var(--line);}
-  .set-head .side-x{font-size:18px;}
-  .shead{font-family:"Jua",sans-serif; font-size:16px; color:var(--accent-ink); margin:18px 0 4px;}
-  .shead:first-child{margin-top:0;}
 
   /* ===== modal ===== */
   .modal{position:fixed; inset:0; background:rgba(74,68,88,.35); display:none; align-items:center; justify-content:center; z-index:30; padding:16px;}
@@ -417,7 +413,6 @@
       <button id="nav-hist" onclick="toggleResult('hist')"><span class="i">📊</span><span class="t">히스토그램</span><span class="chk">✓</span></button>
       <button id="nav-poly" onclick="toggleResult('poly')"><span class="i">📈</span><span class="t">도수분포다각형</span><span class="chk">✓</span></button>
       <div class="menu-sep"></div>
-      <button id="nav-set" onclick="go('set')"><span class="i">⚙️</span><span class="t">설정</span></button>
       <button id="nav-reset" onclick="resetAll()"><span class="i">↺</span><span class="t">처음부터 다시하기</span></button>
     </nav>
     <div class="side-foot">여러 결과를 함께 고르면 나란히 보여요</div>
@@ -434,7 +429,7 @@
       <div class="tb-right" id="tbRight">
         <button class="tb-btn" id="tbStat" onclick="toggleRP('popStat')" title="기초 통계량 · 대푯값"><span class="i">∑</span>통계값</button>
         <button class="tb-btn" id="tbCls" onclick="toggleRP('popCls')" title="계급 설정"><span class="i">📐</span>계급 설정</button>
-        <button class="tb-btn" id="tbOpt" onclick="toggleRP('popOpt')" title="표·그래프 옵션"><span class="i">🎛️</span>옵션</button>
+        <button class="tb-btn" id="tbOpt" onclick="toggleRP('popOpt')" title="단위 · 표 · 그래프 설정"><span class="i">⚙️</span>설정</button>
         <button class="tb-btn" onclick="saveCurrent()" title="내 자료함에 저장"><span class="i">💾</span>저장</button>
       </div>
     </div>
@@ -485,20 +480,6 @@
     </div>
   </section>
 
-  <!-- ===== 설정 ===== -->
-  <section class="view" id="view-set">
-    <div class="settings">
-      <div class="set-head"><span class="shead" style="margin:0">⚙️ 설정</span><button class="side-x" onclick="closeSettings()" title="설정 닫기">✕</button></div>
-      <input type="hidden" id="titleInput" value="">
-      <div class="shead">단위</div>
-      <div class="srow"><div class="k">변량의 단위<small>계급 표기와 가로축 이름에 붙어요 (예: ℃, dB, 시간)</small></div><input type="text" id="unitLabel" maxlength="8" placeholder="예) ℃"></div>
-      <div class="srow"><div class="k">도수의 단위<small>도수와 세로축 이름에 붙어요 (예: 명, 일, 곳)</small></div><input type="text" id="freqLabel" maxlength="8" placeholder="예) 명"></div>
-      <div class="shead">도수분포표</div>
-      <div class="srow"><div class="k">답 표시 기본값<small>새 자료를 만들거나 불러올 때 도수·상대도수 칸을 보여 줄지 정해요 (이 기기에 기억됨)</small></div><label class="toggle ans"><input type="checkbox" id="optAnsDefault" onchange="savePref()"></label></div>
-      <div class="srow"><div class="k">상대도수 소수 자릿수<small>표·그래프·복사에 모두 적용</small></div><span class="seg"><button id="dec2" class="on" onclick="setDec(2)">둘째 자리</button><button id="dec3" onclick="setDec(3)">셋째 자리</button></span></div>
-      <div class="dt-help" style="margin-top:18px">답 표시·상대도수 열·값 표시·눈금선·그래프 크기는 상단 <b>옵션</b>에서, 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요. 평균·중앙값·최빈값은 상단 <b>통계값</b> 버튼을 눌러 확인해요. 제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요.</div>
-    </div>
-  </section>
 
     </div></div>
   </div>
@@ -513,11 +494,17 @@
     <div class="rp-body"><div class="tools" id="tools-result"></div><div class="err" id="err-result"></div></div>
   </aside>
   <aside class="rp" id="popOpt" data-btn="tbOpt">
-    <div class="side-head"><span class="rp-head">🎛️ 옵션 <small>표 · 그래프</small></span><button class="side-x" onclick="toggleRP('popOpt',false)" title="옵션 닫기">✕</button></div>
+    <div class="side-head"><span class="rp-head">⚙️ 설정 <small>단위 · 표 · 그래프</small></span><button class="side-x" onclick="toggleRP('popOpt',false)" title="설정 닫기">✕</button></div>
     <div class="rp-body">
-      <div class="opt-title">표</div>
+      <input type="hidden" id="titleInput" value="">
+      <div class="opt-title">단위</div>
+      <div class="prow urow"><span class="k">변량의 단위</span><input type="text" id="unitLabel" maxlength="8" placeholder="예) ℃, dB, 시간"></div>
+      <div class="prow urow"><span class="k">도수의 단위</span><input type="text" id="freqLabel" maxlength="8" placeholder="예) 명, 일, 곳"></div>
+      <div class="opt-title">도수분포표</div>
       <label class="toggle ans prow" title="끄면 도수·상대도수 칸이 비워져요"><input type="checkbox" id="optAns" onchange="render()">답 표시</label>
+      <label class="toggle prow" title="새 자료를 만들거나 불러올 때 답을 보여 줄지 정해요 (이 기기에 기억됨)"><input type="checkbox" id="optAnsDefault" onchange="savePref()">처음부터 답 표시 <small>(기본값)</small></label>
       <label class="toggle prow"><input type="checkbox" id="optRel" onchange="render()">상대도수 열</label>
+      <div class="prow urow"><span class="k">상대도수 자릿수</span><span class="seg"><button id="dec2" class="on" onclick="setDec(2)">소수 둘째</button><button id="dec3" onclick="setDec(3)">셋째</button></span></div>
       <label class="toggle prow"><input type="checkbox" id="optTally" onchange="render()">正 표시 열 <small>(자료 하나)</small></label>
       <label class="toggle prow"><input type="checkbox" id="optMax" onchange="render()">최다 계급 강조 <small>(자료 하나)</small></label>
       <div class="opt-title">그래프</div>
@@ -525,6 +512,7 @@
       <label class="toggle prow"><input type="checkbox" id="optGrid" checked onchange="render()">눈금선</label>
       <div class="prow szrow">크기 &nbsp;너비 <input type="number" id="sz-w-hist" value="760" min="300" max="1600" step="20" onchange="setSize('hist')"> 높이 <input type="number" id="sz-h-hist" value="400" min="200" max="1200" step="20" onchange="setSize('hist')"><button class="tbtn" onclick="resetSize('hist')" title="기본 크기로">↺</button>
         <input type="hidden" id="sz-w-poly" value="760"><input type="hidden" id="sz-h-poly" value="400"></div>
+      <div class="opt-help">제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요. 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요.</div>
     </div>
   </aside>
 </div>
@@ -608,7 +596,7 @@ function renderSource(){
   $("dtHelp").style.display = source ? "none" : "";
   placeSource();
 }
-function placeSource(){ const el=$("src-result"); el.classList.toggle("show", !!source && view!=="set"); }
+function placeSource(){ const el=$("src-result"); el.classList.toggle("show", !!source); }
 const NAMES = { stem:"줄기와 잎 그림", tab:"도수분포표", hist:"히스토그램", poly:"도수분포다각형" };
 const KEYS = ["stem","tab","hist","poly"];
 function anySel(){ return KEYS.some(k=>selected[k]); }
@@ -1163,7 +1151,6 @@ function classLabel(i, full){
 function classText(i){ const u=unit()?" "+unit():""; return `${fmt(cls.edges[i])}${u} 이상 ${fmt(cls.edges[i+1])}${u} 미만`; }
 function titleHTML(){
   if(view==="data") return "자료 입력"+(two?" <q>두 자료</q>":"");
-  if(view==="set") return "설정";
   const on=KEYS.filter(k=>selected[k]);
   return on.length ? on.map(k=>NAMES[k]).join(" · ") : "결과 선택";
 }
@@ -1350,15 +1337,14 @@ function resetSize(kind){ SZ.hist={w:760,h:400}; SZ.poly={w:760,h:400}; ["hist",
 
 /* ================= navigation ================= */
 function showView(v){
-  if(v!==view && view!=="set") prevView=view;
+  if(v!==view) prevView=view;
   view=v;
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on", el.id==="view-"+v));
   $("nav-data").classList.toggle("on", v==="data");
-  $("nav-set").classList.toggle("on", v==="set");
   KEYS.forEach(k=>$("nav-"+k).classList.toggle("on", v==="result" && selected[k]));
   $("viewTitle").innerHTML=titleHTML();
-  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden"; $("tbStat").style.visibility = v==="set" ? "hidden" : "";
-  if(v==="set") closeRP(); else if(v!=="result") closeRP(["popCls","popOpt"]);
+  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden";
+  if(v!=="result") closeRP(["popCls","popOpt"]);
   placeSource();
   if(window.innerWidth<=900) $("app").classList.add("collapsed");
 }
@@ -1372,8 +1358,6 @@ function goData(){   // 자료 입력 메뉴: 다른 화면이면 자료 입력�
   }
   go("data");
 }
-function closeSettings(){ go(prevView==="result" && !anySel() ? "data" : prevView); }
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && view==="set") closeSettings(); });
 function queueFit(){ clearTimeout(queueFit._t); queueFit._t=setTimeout(fitToScreen,60); }
 function toggleResult(k){
   if(view==="result") selected[k]=!selected[k];
@@ -1728,7 +1712,7 @@ addRows(MIN_ROWS); syncData(); loadPref();
 try{ if(localStorage.getItem("tonggraph.side")==="c" || window.innerWidth<=900) $("app").classList.add("collapsed"); }catch(e){}
 $("tbCls").style.visibility="hidden"; $("tbOpt").style.visibility="hidden";
 ["unitLabel","freqLabel","titleInput","nameA","nameB"].forEach(id=>$(id).addEventListener("input",()=>{ if(id==="nameA"||id==="nameB") syncData(); if(view==="result") render(); }));
-document.querySelectorAll("#view-set input[type=checkbox]").forEach(c=>c.addEventListener("change",()=>{ if(view==="result") render(); }));
+document.querySelectorAll("#popOpt input[type=checkbox]").forEach(c=>c.addEventListener("change",()=>{ if(view==="result") render(); }));
 </script>
 </body>
 </html>
