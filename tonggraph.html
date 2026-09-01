@@ -129,6 +129,46 @@
   .rp .tools .tbtn{justify-content:center;}
   .rp .tools input[type=number]{width:80px;}
   .rp .err{margin-top:8px;}
+  /* 통계값 패널 */
+  .stat-sub{font-size:12.5px; color:var(--muted); font-weight:600; line-height:1.5; margin:2px 0 8px;}
+  .stat-hint{font-size:13px; color:var(--muted); background:#faf7fb; border-radius:10px; padding:12px 12px; line-height:1.6;}
+  .stat-tb{width:100%; border-collapse:collapse; margin-top:2px;}
+  .stat-tb th{font-size:12.5px; font-weight:800; color:var(--muted); padding:2px 4px 6px; text-align:right; white-space:nowrap;}
+  .stat-tb th.na{color:var(--a);} .stat-tb th.nb{color:var(--b);}
+  .stat-tb td{padding:4px 2px; vertical-align:middle;}
+  .stat-tb td.k{width:1%; white-space:nowrap;}
+  .stat-btn{font-family:inherit; font-size:13.5px; font-weight:800; color:var(--accent-ink); background:var(--accent-softer); border:1.5px solid var(--accent-soft); border-radius:999px; padding:6px 12px; cursor:pointer; min-width:76px; transition:background .15s;}
+  .stat-btn:hover{background:var(--accent-soft);}
+  .stat-btn.on{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .stat-v{font-size:17px; font-weight:800; color:var(--ink); text-align:right; padding-right:6px; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .stat-tb.two .stat-v{font-size:15px; padding-right:2px;}
+  .stat-v.hid{color:var(--faint); font-weight:600;}
+  .stat-v.na{color:var(--a);} .stat-v.nb{color:var(--b);}
+  .stat-v small{font-size:11.5px; font-weight:600; color:var(--muted); display:block; white-space:normal; line-height:1.35; margin-top:1px;}
+  .stat-row{display:flex; gap:6px; margin:10px 0 0; flex-wrap:wrap;}
+  .stat-row .tbtn{flex:1; justify-content:center; padding:6px 6px; font-size:12px; white-space:nowrap;}
+  .stat-sorted{margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.7; word-break:keep-all;}
+  .stat-sorted b{color:var(--ink);}
+  .stat-sorted .mid{background:var(--lemon); border-radius:4px; padding:0 3px; color:var(--ink); font-weight:800;}
+  /* 줄기와 잎 그림 */
+  .stemctl{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--muted); flex-wrap:wrap; justify-content:flex-end;}
+  .stemctl .seg button{padding:5px 10px; font-size:12.5px;}
+  .stem-cap{font-size:13px; color:var(--muted); font-weight:600; text-align:right; width:100%; max-width:640px; margin:-4px 0 6px;}
+  table.stem{border-collapse:collapse; font-size:17px; min-width:300px; max-width:100%;}
+  table.stem th{background:var(--sky); font-weight:700; border:1.5px solid #cfd8e3; padding:8px 14px; text-align:center; height:42px;}
+  table.stem th.la{color:var(--a);} table.stem th.lb{color:var(--b);}
+  table.stem td{border:1.5px solid #cfd8e3; padding:6px 14px; height:44px; white-space:nowrap;}
+  table.stem td.st{text-align:center; font-weight:800; color:var(--sky-ink); width:1%; min-width:64px; background:#f7fbff; white-space:nowrap;}
+  table.stem td.lf{text-align:left; letter-spacing:0; font-variant-numeric:tabular-nums; min-width:220px;}
+  table.stem td.lf.left{text-align:right;}
+  table.stem td.lf.a{color:var(--a);} table.stem td.lf.b{color:var(--b);}
+  table.stem td.lf span{display:inline-block; width:1.35em; text-align:center; font-weight:600;}
+  table.stem td.lf.hid{color:var(--faint);}
+  table.stem tr.empty td.lf{color:var(--faint);}
+  .stem-foot{font-size:13px; color:var(--muted); margin-top:10px; text-align:center; line-height:1.6;}
+  .stem-foot b{color:#9c2c4c; font-weight:800;}
+  .hint.stem-warn{max-width:640px; font-size:15px; line-height:1.8; background:var(--bad-soft); color:var(--ink); border-radius:12px; padding:22px 24px; margin-top:6px;}
+  .hint.stem-warn b{color:#9c2c4c; font-weight:800; font-size:16.5px;}
   .app.rp-open ~ .zoombar{right:314px;}
   @media (max-width:900px){
     .rp{position:fixed; right:0; top:0;}
@@ -365,13 +405,14 @@
   <aside class="side" id="side">
     <div class="side-head"><a class="brand" href="index.html" title="피어라 매직! 홈"><span class="dot"></span>통그래프 <small>중학교용</small></a><button class="side-x" onclick="toggleSide()" title="메뉴 접기">✕</button></div>
     <nav class="menu">
-      <button id="nav-data" class="on" onclick="go('data')"><span class="i">✏️</span><span class="t">자료 입력</span></button>
+      <button id="nav-data" class="on" onclick="goData()"><span class="i">✏️</span><span class="t">자료 입력</span></button>
       <button id="nav-load" onclick="toggleAcc()"><span class="i">📂</span><span class="t">자료 불러오기</span><span class="caret" id="accCaret">▸</span></button>
       <div class="acc" id="acc">
         <div class="acc-sec"><button class="acc-h" onclick="toggleAccSec('accBook')"><span class="caret">▾</span>비상교육 <small>240~253쪽</small></button><div class="acc-list" id="accBook"></div></div>
         <div class="acc-sec"><div class="acc-hrow"><button class="acc-h" onclick="toggleAccSec('accMine')"><span class="caret">▾</span>내 자료함 <small id="accMineN"></small></button><button class="acc-gear" onclick="openLoad(); setLoadTab('mine')" title="내 자료함 관리 · 엑셀 가져오기/내보내기">⚙</button></div><div class="acc-list" id="accMine"></div></div>
       </div>
       <div class="menu-sep"></div>
+      <button id="nav-stem" onclick="toggleResult('stem')"><span class="i">🌿</span><span class="t">줄기와 잎 그림</span><span class="chk">✓</span></button>
       <button id="nav-tab" onclick="toggleResult('tab')"><span class="i">📋</span><span class="t">도수분포표</span><span class="chk">✓</span></button>
       <button id="nav-hist" onclick="toggleResult('hist')"><span class="i">📊</span><span class="t">히스토그램</span><span class="chk">✓</span></button>
       <button id="nav-poly" onclick="toggleResult('poly')"><span class="i">📈</span><span class="t">도수분포다각형</span><span class="chk">✓</span></button>
@@ -391,6 +432,7 @@
         <div class="srcbadge" id="src-result"></div>
       </div>
       <div class="tb-right" id="tbRight">
+        <button class="tb-btn" id="tbStat" onclick="toggleRP('popStat')" title="기초 통계량 · 대푯값"><span class="i">∑</span>통계값</button>
         <button class="tb-btn" id="tbCls" onclick="toggleRP('popCls')" title="계급 설정"><span class="i">📐</span>계급 설정</button>
         <button class="tb-btn" id="tbOpt" onclick="toggleRP('popOpt')" title="표·그래프 옵션"><span class="i">🎛️</span>옵션</button>
         <button class="tb-btn" onclick="saveCurrent()" title="내 자료함에 저장"><span class="i">💾</span>저장</button>
@@ -417,13 +459,17 @@
         <tfoot><tr class="sum"><td class="no">개수</td><td id="dtCountA">0</td><td id="dtCountB" style="display:none">0</td></tr></tfoot>
       </table></div>
       <div class="dt-summary" id="dtSummary"></div>
-      <div class="dt-help">한 칸에 변량 하나씩 · Enter로 다음 칸(마지막 칸에서는 행 추가) · 빈 칸에서 Backspace 또는 행 끝의 ×로 행 삭제 · 여러 값을 붙여 넣으면 자동으로 채워져요</div>
+      <div class="dt-help" id="dtHelp">한 칸에 변량 하나씩 · Enter로 다음 칸(마지막 칸에서는 행 추가) · 빈 칸에서 Backspace 또는 행 끝의 ×로 행 삭제 · 여러 값을 붙여 넣으면 자동으로 채워져요</div>
     </div>
   </section>
 
   <!-- ===== 결과 ===== -->
   <section class="view" id="view-result">
     <div class="panes" id="panes">
+      <div class="pane" id="pane-stem">
+        <div class="pane-head"><span class="nm">🌿 줄기와 잎 그림</span><span class="acts"><span class="stemctl" id="stemctl"></span><button class="ib" onclick="copyStem()" title="줄기와 잎 그림 복사 (한글·엑셀에 붙여넣기)">⧉</button><button class="ib" onclick="savePNG('stem')" title="PNG로 저장">🖼️</button></span></div>
+        <div class="center" id="body-stem"></div>
+      </div>
       <div class="pane" id="pane-tab">
         <div class="pane-head"><span class="nm">📋 도수분포표</span><span class="acts"><button class="ib" onclick="copyTable()" title="표 복사 (한글·엑셀에 붙여넣기)">⧉</button><button class="ib" onclick="openPaste()" title="표 붙여넣기">📥</button><button class="ib" onclick="savePNG('tab')" title="PNG로 저장">🖼️</button></span></div>
         <div class="center" id="body-tab"></div>
@@ -450,7 +496,7 @@
       <div class="shead">도수분포표</div>
       <div class="srow"><div class="k">답 표시 기본값<small>새 자료를 만들거나 불러올 때 도수·상대도수 칸을 보여 줄지 정해요 (이 기기에 기억됨)</small></div><label class="toggle ans"><input type="checkbox" id="optAnsDefault" onchange="savePref()"></label></div>
       <div class="srow"><div class="k">상대도수 소수 자릿수<small>표·그래프·복사에 모두 적용</small></div><span class="seg"><button id="dec2" class="on" onclick="setDec(2)">둘째 자리</button><button id="dec3" onclick="setDec(3)">셋째 자리</button></span></div>
-      <div class="dt-help" style="margin-top:18px">답 표시·상대도수 열·값 표시·눈금선·그래프 크기는 상단 <b>옵션</b>에서, 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요. 제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요.</div>
+      <div class="dt-help" style="margin-top:18px">답 표시·상대도수 열·값 표시·눈금선·그래프 크기는 상단 <b>옵션</b>에서, 계급·두 자료·세로축은 <b>계급 설정</b>에서 바꿔요. 평균·중앙값·최빈값은 상단 <b>통계값</b> 버튼을 눌러 확인해요. 제목·표 머리글·자료 이름은 표 위에서 바로 고칠 수 있어요.</div>
     </div>
   </section>
 
@@ -458,6 +504,10 @@
   </div>
 
   <!-- ===== 오른쪽 패널: 계급 설정 · 옵션 (왼쪽 메뉴처럼 열고 닫음) ===== -->
+  <aside class="rp" id="popStat" data-btn="tbStat">
+    <div class="side-head"><span class="rp-head">∑ 통계값 <small>대푯값 · 최댓값 · 최솟값</small></span><button class="side-x" onclick="toggleRP('popStat',false)" title="통계값 닫기">✕</button></div>
+    <div class="rp-body" id="statBody"></div>
+  </aside>
   <aside class="rp" id="popCls" data-btn="tbCls">
     <div class="side-head"><span class="rp-head">📐 계급 설정 <small>계급 · 두 자료 · 세로축</small></span><button class="side-x" onclick="toggleRP('popCls',false)" title="계급 설정 닫기">✕</button></div>
     <div class="rp-body"><div class="tools" id="tools-result"></div><div class="err" id="err-result"></div></div>
@@ -536,7 +586,8 @@ let mode = "manual", manualTouched = false;        // "data" | "manual"
 let manual = {start:0, width:10, n:5, freq:[[0,0,0,0,0],[0,0,0,0,0]]};
 let yAxis = "freq";                                // "freq" | "rel"  (그래프 세로축)
 let view = "data", prevView = "data";
-let selected = {tab:true, hist:false, poly:false};
+let selected = {stem:false, tab:true, hist:false, poly:false};
+let stem = {unit:null, sortLeaves:true, round:true};  // 줄기와 잎 그림: 잎 자리(null=자동), 잎 크기순 정렬, 아랫자리 반올림(false=버림)
 let heads = {cls:"", freq:""};
 const SZ = { hist:{w:760,h:400}, poly:{w:760,h:400} };
 let grouped = false;   // 두 자료 히스토그램: 나란히(그룹형) 보기
@@ -554,10 +605,13 @@ function applyAnsDefault(){ $("optAns").checked=$("optAnsDefault").checked; }   
 function renderSource(){
   const html = source ? `<span class="bk">📖 ${esc(source.book)} <b>${source.page}쪽</b> · <b>${esc(source.item)}</b></span><button class="x" onclick="source=null; renderSource()" title="출처 표시 지우기">×</button>` : "";
   ["src-result","src-data"].forEach(id=>{ const el=$(id); el.innerHTML=html; el.classList.toggle("show", !!source); });
+  $("dtHelp").style.display = source ? "none" : "";
   placeSource();
 }
 function placeSource(){ const el=$("src-result"); el.classList.toggle("show", !!source && view!=="set"); }
-const NAMES = { tab:"도수분포표", hist:"히스토그램", poly:"도수분포다각형" };
+const NAMES = { stem:"줄기와 잎 그림", tab:"도수분포표", hist:"히스토그램", poly:"도수분포다각형" };
+const KEYS = ["stem","tab","hist","poly"];
+function anySel(){ return KEYS.some(k=>selected[k]); }
 const SER = [
   { bar:"#8fbdf0", edge:"#4f86c6", line:"#3d74b8", pt:"#6fa8e6", ink:"#3d74b8", max:"#f09ec2", maxEdge:"#c85a8e" },
   { bar:"#f4a8c8", edge:"#c85a8e", line:"#b2437c", pt:"#e484ac", ink:"#b2437c", max:"#f09ec2", maxEdge:"#c85a8e" },
@@ -611,7 +665,7 @@ function snapshot(){
   const raw=[[],[]];
   $("dtBody").querySelectorAll("input").forEach(inp=>{ const t=inp.value.trim(); if(t!=="") raw[+inp.dataset.s].push({i:+inp.dataset.i, v:t}); });
   return { v:1, savedAt:new Date().toISOString(), two, title:title(), unit:unit(), funit:funit(), heads:{...heads}, names:[$("nameA").value,$("nameB").value],
-    raw, mode, manualTouched, manual:JSON.parse(JSON.stringify(manual)), clsUser, yAxis, selected:{...selected},
+    raw, mode, manualTouched, manual:JSON.parse(JSON.stringify(manual)), clsUser, yAxis, selected:{...selected}, stem:{...stem},
     opts:{rel:$("optRel").checked, tally:$("optTally").checked, max:$("optMax").checked, val:$("optHistVal").checked, grid:$("optGrid").checked},
     sz:JSON.parse(JSON.stringify(SZ)), source };
 }
@@ -636,10 +690,11 @@ function applySnapshot(sn){
   $("nameA").value=(sn.names&&sn.names[0])||"자료1"; $("nameB").value=(sn.names&&sn.names[1])||"자료2";
   $("dtBody").innerHTML=""; addRows(MIN_ROWS);
   const maxI=Math.max(-1, ...sn.raw[0].map(x=>x.i), ...sn.raw[1].map(x=>x.i));
-  if(maxI+1>=MIN_ROWS) addRows(maxI+2-MIN_ROWS);
+  if(maxI+1>MIN_ROWS) addRows(maxI+1-MIN_ROWS);
   sn.raw.forEach((arr,s)=>arr.forEach(x=>{ const r=$("dtBody").children[x.i]; if(r) r.querySelector(`input[data-s="${s}"]`).value=x.v; }));
   manual=sn.manual||manual; manualTouched=!!sn.manualTouched; clsUser=sn.clsUser||null; yAxis=sn.yAxis||"freq";
   if(sn.selected) selected={...selected, ...sn.selected};
+  if(sn.stem) stem={...stem, ...sn.stem};
   if(sn.opts){ $("optRel").checked=!!sn.opts.rel; $("optTally").checked=!!sn.opts.tally; $("optMax").checked=!!sn.opts.max; $("optHistVal").checked=sn.opts.val!==false; $("optGrid").checked=sn.opts.grid!==false; }
   source = sn.source || null; renderSource(); applyAnsDefault();
   if(sn.sz){ ["hist","poly"].forEach(k=>{ if(sn.sz[k]){ SZ[k]={...sn.sz[k]}; $("sz-w-"+k).value=SZ[k].w; $("sz-h-"+k).value=SZ[k].h; } }); }
@@ -839,7 +894,7 @@ function loadDataset(i){
   $("nameA").value = d.names ? d.names[0] : "자료1"; $("nameB").value = d.names ? d.names[1] : "자료2";
   $("dtBody").innerHTML=""; addRows(MIN_ROWS);
   if(d.type==="raw"){
-    if(d.data.length>MIN_ROWS) addRows(d.data.length-MIN_ROWS+1);
+    if(d.data.length>MIN_ROWS) addRows(d.data.length-MIN_ROWS);
     d.data.forEach((v,k)=>{ $("dtBody").children[k].querySelector('input[data-s="0"]').value=v; });
     manualTouched=false; clsUser=d.cls?{...d.cls}:null; syncData(); mode="data";
     closeLoad(); go("data"); focusRow(0,0);
@@ -874,16 +929,17 @@ function toggleSide(){ $("app").classList.toggle("collapsed"); try{ localStorage
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeRP(); });
 /* 오른쪽 패널(계급 설정·옵션): 왼쪽 메뉴처럼 열고 닫음. 한 번에 하나만 열리고, 열린 채로 표·그래프를 바로 바꿔 볼 수 있어요 */
 function toggleRP(id, force){
-  const el=$(id), open = (typeof force==="boolean") ? force : !el.classList.contains("show");
-  document.querySelectorAll(".rp").forEach(x=>{ x.classList.remove("show"); $(x.dataset.btn).classList.remove("on"); });
+  const el=$(id), isOpen=el.classList.contains("show"), open = (typeof force==="boolean") ? force : !isOpen;
   if(open){
+    document.querySelectorAll(".rp").forEach(x=>{ x.classList.remove("show"); $(x.dataset.btn).classList.remove("on"); });
     el.classList.add("show"); $(el.dataset.btn).classList.add("on");
-    if(id==="popCls" && view!=="result"){ if(!(selected.tab||selected.hist||selected.poly)) selected.tab=true; showView("result"); render(); }
-  }
-  $("app").classList.toggle("rp-open", open);
+    if(id==="popCls" && view!=="result"){ if(!anySel()) selected.tab=true; showView("result"); render(); }
+    if(id==="popStat") renderStat();
+  } else { el.classList.remove("show"); $(el.dataset.btn).classList.remove("on"); }
+  $("app").classList.toggle("rp-open", !!document.querySelector(".rp.show"));
   queueFit();
 }
-function closeRP(){ if($("app").classList.contains("rp-open")) toggleRP("popOpt", false); }
+function closeRP(ids){ document.querySelectorAll(".rp.show").forEach(x=>{ if(!ids || ids.includes(x.id)) toggleRP(x.id,false); }); }
 
 /* ================= 화면 배율 (화면 맞춤) ================= */
 let fitMode = false, zoomLevel = 1;
@@ -910,6 +966,169 @@ function fitToScreen(){
   main.style.maxWidth = "";
 }
 window.addEventListener("resize", ()=>{ clearTimeout(fitToScreen._t); fitToScreen._t=setTimeout(fitToScreen,120); });
+
+/* ================= 통계값 (대푯값) ================= */
+let statShown = {};      // 버튼을 눌러 공개한 항목
+let statSorted = false;  // 정렬한 자료 보기
+function statsOf(arr){
+  const n=arr.length; if(!n) return null;
+  const so=[...arr].sort((a,b)=>a-b), sum=so.reduce((a,b)=>a+b,0);
+  const mean=sum/n, median = n%2 ? so[(n-1)/2] : (so[n/2-1]+so[n/2])/2;
+  const cnt=new Map(); so.forEach(v=>cnt.set(v,(cnt.get(v)||0)+1));
+  const mx=Math.max(...cnt.values()); const modes = mx===1 ? [] : [...cnt.entries()].filter(([,c])=>c===mx).map(([v])=>v);
+  return {n, sum, mean, median, modes, modeCount:mx, min:so[0], max:so[n-1], range:so[n-1]-so[0], sorted:so};
+}
+function fmtMean(x){ const r=Math.round(x*100)/100; return String(r); }
+function statText(k, st){
+  const u=unit();
+  if(!st) return {v:"—", sub:""};
+  switch(k){
+    case "n": return {v:st.n+"개", sub:""};
+    case "mean": return {v:(Math.abs(st.mean-Math.round(st.mean*100)/100)>1e-9?"≈ ":"")+fmtMean(st.mean)+(u?" "+u:""), sub:`${fmt(st.sum)} ÷ ${st.n}`};
+    case "median": return {v:fmt(st.median)+(u?" "+u:""), sub: st.n%2 ? `${st.n}개 중 ${(st.n+1)/2}번째 값` : `${st.n/2}번째·${st.n/2+1}번째 값의 평균 (${fmt(st.sorted[st.n/2-1])}+${fmt(st.sorted[st.n/2])})÷2`};
+    case "mode": return st.modes.length ? {v:st.modes.map(fmt).join(", ")+(u?" "+u:""), sub:`${st.modeCount}번씩 나타남`+(st.modes.length>1?` · 최빈값 ${st.modes.length}개`:"")} : {v:"없음", sub:"모든 변량이 한 번씩만 나타나요"};
+    case "max": return {v:fmt(st.max)+(u?" "+u:""), sub:""};
+    case "min": return {v:fmt(st.min)+(u?" "+u:""), sub:""};
+    case "range": return {v:fmt(st.range)+(u?" "+u:""), sub:`${fmt(st.max)} − ${fmt(st.min)}`};
+  }
+}
+const STAT_KEYS=[["n","개수"],["mean","평균"],["median","중앙값"],["mode","최빈값"],["max","최댓값"],["min","최솟값"],["range","범위"]];
+function renderStat(){
+  const body=$("statBody"); if(!body) return;
+  const series = two ? [0,1] : [0];
+  const sts = series.map(s=>statsOf(data[s]));
+  if(!sts.some(x=>x)){ body.innerHTML=`<div class="stat-sub">자료 입력 화면에서 변량을 입력하면 평균·중앙값·최빈값 등을 구할 수 있어요.</div><div class="stat-hint">도수분포표만 직접 입력한 경우에는 변량을 알 수 없어 통계값을 구하지 않아요.</div>`; return; }
+  let h=`<div class="stat-sub">항목을 누르면 값이 나타나요. 학생들이 먼저 구해 본 뒤 눌러 확인해 보세요.</div><table class="stat-tb ${two?"two":""}">`;
+  if(two) h+=`<tr><th></th><th class="na">${esc(nameA())}</th><th class="nb">${esc(nameB())}</th></tr>`;
+  STAT_KEYS.forEach(([k,nm])=>{
+    const on=!!statShown[k];
+    h+=`<tr><td class="k"><button class="stat-btn ${on?"on":""}" onclick="toggleStat('${k}')">${nm}</button></td>`;
+    series.forEach((s,idx)=>{ const t=statText(k, sts[idx]); h+=`<td class="stat-v ${on?"":"hid"} ${two?(s?"nb":"na"):""}">${on?esc(t.v)+(t.sub&&!two?`<small>${esc(t.sub)}</small>`:""):"—"}</td>`; });
+    h+=`</tr>`;
+  });
+  h+=`</table><div class="stat-row"><button class="tbtn" onclick="allStat(true)">모두 보기</button><button class="tbtn" onclick="allStat(false)">모두 숨기기</button><button class="tbtn ${statSorted?"on":""}" onclick="statSorted=!statSorted; renderStat()">크기순 자료</button></div>`;
+  if(statSorted){
+    series.forEach((s,idx)=>{ const st=sts[idx]; if(!st) return;
+      const n=st.n, mids = n%2 ? [(n-1)/2] : [n/2-1, n/2];
+      h+=`<div class="stat-sorted">${two?`<b class="${s?"nb":"na"}">${esc(s?nameB():nameA())}</b> `:""}작은 값부터: ${st.sorted.map((v,i)=>mids.includes(i)?`<span class="mid">${fmt(v)}</span>`:fmt(v)).join(", ")}</div>`;
+    });
+  }
+  body.innerHTML=h;
+}
+function toggleStat(k){ statShown[k]=!statShown[k]; renderStat(); }
+function allStat(on){ STAT_KEYS.forEach(([k])=>statShown[k]=on); renderStat(); }
+
+/* ================= 줄기와 잎 그림 =================
+   캐나다 통계청(Statistics Canada) 안내를 따른다: 잎은 항상 한 자리 숫자, 줄기는 그 앞의 자리 전부,
+   잎 자리 아래에 숫자가 더 있으면 반올림(또는 버림), 잎은 작은 수부터 정렬. (줄기 나누기는 우리 교육과정 밖이라 넣지 않고, 잎이 몰리면 안내 문구만 보여 준다) */
+function stemUnitOK(u){   // 자료에 맞는 잎 자리인지: 정수 자료에 소수 자리는 X, 모든 줄기가 0이 되는 큰 자리도 X
+  const all=[...data[0],...(two?data[1]:[])]; if(!all.length) return true;
+  if(u<1 && all.every(v=>Number.isInteger(v))) return false;
+  return Math.max(...all) >= 10*u;
+}
+function stemUnit(){
+  if(stem.unit && stemUnitOK(stem.unit)) return stem.unit;
+  const all=[...data[0],...(two?data[1]:[])]; if(!all.length) return 1;
+  // 자동: 가장 작은 자리(정수 자료는 일의 자리, 소수 자료는 소수 첫째 자리)를 잎으로 삼되, 줄기가 40개를 넘으면 한 자리씩 올린다
+  const cands=(all.every(v=>Number.isInteger(v)) ? [1,10,100,1000] : [0.1,1,10,100,1000]);
+  const lo=Math.min(...all), hi=Math.max(...all);
+  for(const u of cands){ if(Math.floor(hi/(10*u)+1e-9)-Math.floor(lo/(10*u)+1e-9)+1 <= 40) return u; }
+  return cands[cands.length-1];
+}
+function stemSplit(v,u){   // 잎 자리 단위로 정수화(반올림 또는 버림)한 뒤 줄기·잎으로 나눔. 예: u=1, 311.8 → 312 → 줄기 31, 잎 2
+  const q = stem.round ? Math.round(v/u) : Math.floor(v/u+1e-9);
+  const st=Math.floor(q/10); return {st, lf:q-st*10, q};
+}
+function hasSub(u){ const all=[...data[0],...(two?data[1]:[])]; return all.some(v=>Math.abs(v/u-Math.round(v/u))>1e-9); }   // 잎 자리 아래에 숫자가 더 있는 자료가 있는지
+function stemRows(u){
+  const series = two ? [0,1] : [0];
+  const rows=new Map(); let lo=Infinity, hi=-Infinity;
+  series.forEach(s=>data[s].forEach(v=>{ const {st,lf}=stemSplit(v,u); if(!rows.has(st)) rows.set(st,[[],[]]); rows.get(st)[s].push(lf); lo=Math.min(lo,st); hi=Math.max(hi,st); }));
+  if(!Number.isFinite(lo)) return [];
+  const out=[];
+  for(let st=lo; st<=hi; st++){ const r=rows.get(st)||[[],[]]; out.push({st, label:String(st), leaves:r.map(a=>stem.sortLeaves?[...a].sort((x,y)=>x-y):a)}); }
+  return out;
+}
+function stemProblem(rows){   // 줄기와 잎 그림이 알맞지 않은 자료면 안내 문구를, 괜찮으면 null (교과서 242쪽 탐구 2)
+  if(!rows.length) return null;
+  const maxL=Math.max(0,...rows.map(r=>Math.max(r.leaves[0].length, r.leaves[1].length)));
+  const emptyN=rows.filter(r=>!r.leaves[0].length && !r.leaves[1].length).length;
+  if(maxL>=12) return `<b>잎이 너무 많아 자료를 한눈에 파악하기 어려워요.</b><br>자료의 개수가 많을 때는 줄기와 잎 그림 대신 도수분포표나 히스토그램으로 나타내는 것이 좋아요.`;
+  if(rows.length>=15 && emptyN>=rows.length*0.4) return `<b>줄기가 많고 빈 줄기도 많아 분포를 알아보기 어려워요.</b><br>값의 범위가 넓을 때는 줄기와 잎 그림 대신 계급을 나눈 도수분포표로 나타내는 것이 좋아요.`;
+  if(rows.length>60) return `<b>줄기가 ${rows.length}개나 되어 그리기 어려워요.</b><br>위에서 '줄기의 자릿수'를 더 큰 자리로 바꿔 보세요.`;
+  return null;
+}
+function josa(n){ return "2459".includes(String(n).slice(-1)) ? "는" : "은"; }   // 이·사·오·구 → 는
+function stemCaption(u){
+  const all=[...data[0],...(two?data[1]:[])]; if(!all.length) return "";
+  const so=[...all].sort((a,b)=>a-b), uu=unit();
+  const v = so[0];   // 읽는 방법은 최솟값으로 보여 준다 (교과서 방식)
+  const {st,lf,q}=stemSplit(v,u);
+  return `(${st}|${lf}${josa(lf)} ${fmt(q*u)}${uu?" "+uu:""})`;
+}
+function stemCtlHTML(){
+  const u=stemUnit();
+  const seg=(val,lab,leaf)=>{ const ok=stemUnitOK(val); return `<button class="${u===val?"on":""}" ${ok?"":"disabled"} onclick="stem.unit=${val}; render()" title="${ok?`줄기: ${lab} · 잎: ${leaf}`:(val<1?"소수가 있는 자료에서만 고를 수 있어요":"이 자료에는 너무 큰 자리예요 (줄기가 모두 0이 돼요)")}">${lab}</button>`; };
+  return `줄기의 자릿수 <span class="seg">${seg(0.1,"일의 자리 이상","소수 첫째 자리")}${seg(1,"십의 자리 이상","일의 자리")}${seg(10,"백의 자리 이상","십의 자리")}${seg(100,"천의 자리 이상","백의 자리")}</span>`
+    + (hasSub(u)?` 아랫자리 <span class="seg" title="잎 자리보다 작은 자리(소수점 아래)는 잎이 한 자리가 되도록 반올림하거나 버려요"><button class="${stem.round?"on":""}" onclick="stem.round=true; render()">반올림</button><button class="${stem.round?"":"on"}" onclick="stem.round=false; render()">버림</button></span>`:"")
+    + ` <span class="seg"><button class="${stem.sortLeaves?"on":""}" onclick="stem.sortLeaves=true; render()">크기순</button><button class="${stem.sortLeaves?"":"on"}" onclick="stem.sortLeaves=false; render()">입력순</button></span>`;
+}
+function stemHTML(){
+  if(!hasData()) return `<div class="hint">자료 입력 화면에서 변량을 입력하면 줄기와 잎 그림이 그려져요. (도수분포표만 직접 입력한 경우에는 그릴 수 없어요)</div>`;
+  const u=stemUnit(), rows=stemRows(u), ans=$("optAns").checked;
+  const prob=stemProblem(rows); if(prob) return `${titleBox()}<div class="hint stem-warn">${prob}</div>`;
+  const leafTxt=a=>a.map(l=>`<span>${l}</span>`).join("");
+  let h=`${titleBox()}<div class="stem-cap">${esc(stemCaption(u))}</div><table class="stem">`;
+  if(two) h+=`<tr><th class="la">잎 (${esc(nameA())})</th><th>줄기</th><th class="lb">잎 (${esc(nameB())})</th></tr>`;
+  else h+=`<tr><th>줄기</th><th>잎</th></tr>`;
+  rows.forEach(r=>{
+    const empty=!r.leaves[0].length && !r.leaves[1].length;
+    if(two) h+=`<tr class="${empty?"empty":""}"><td class="lf left a ${ans?"":"hid"}">${ans?leafTxt([...r.leaves[0]].reverse()):""}</td><td class="st">${r.label}</td><td class="lf b ${ans?"":"hid"}">${ans?leafTxt(r.leaves[1]):""}</td></tr>`;
+    else h+=`<tr class="${empty?"empty":""}"><td class="st">${r.label}</td><td class="lf ${ans?"":"hid"}">${ans?leafTxt(r.leaves[0]):""}</td></tr>`;
+  });
+  h+=`</table>`;
+  const notes=[];
+  if(!ans) notes.push(`답 표시가 꺼져 있어요. 학생들이 먼저 그려 본 뒤 '답 표시'를 켜 주세요.`);
+  if(hasSub(u)){
+    const all=[...data[0],...(two?data[1]:[])], ex=all.find(v=>Math.abs(v/u-Math.round(v/u))>1e-9), {st,lf}=stemSplit(ex,u);
+    notes.push(`잎은 한 자리 숫자만 쓰므로 그 아래 자리는 ${stem.round?"반올림":"버림"}했어요. 예: ${fmt(ex)} → ${st}|${lf}`);
+  }
+  if(two) notes.push(`두 자료를 한 줄기에 양쪽으로 그렸어요. 왼쪽 잎은 줄기에서 멀어질수록 커져요.`);
+  if(notes.length) h+=`<div class="stem-foot">${notes.join("<br>")}</div>`;
+  return h;
+}
+function copyStem(){
+  if(!hasData()){ toast("변량을 먼저 입력해 주세요."); return; }
+  const u=stemUnit(), rows=stemRows(u);
+  if(stemProblem(rows)){ toast("이 자료는 줄기와 잎 그림으로 나타내기 알맞지 않아요."); return; }
+  let lines=[]; if(title()) lines.push(title()); lines.push(stemCaption(u));
+  if(two){ lines.push(`잎(${nameA()})\t줄기\t잎(${nameB()})`); rows.forEach(r=>lines.push(`${[...r.leaves[0]].reverse().join(" ")}\t${r.label}\t${r.leaves[1].join(" ")}`)); }
+  else { lines.push("줄기\t잎"); rows.forEach(r=>lines.push(`${r.label}\t${r.leaves[0].join(" ")}`)); }
+  navigator.clipboard.writeText(lines.join("\n")).then(()=>toast("줄기와 잎 그림을 복사했어요. 한글·엑셀에 붙여 넣어 보세요.")).catch(()=>toast("복사에 실패했어요."));
+}
+function stemSVG(){
+  const font=`font-family="Pretendard, -apple-system, Malgun Gothic, sans-serif"`;
+  const u=stemUnit(), rows=stemRows(u), ans=$("optAns").checked;
+  const maxL=Math.max(1,...rows.map(r=>Math.max(r.leaves[0].length, r.leaves[1].length)));
+  const lw=Math.max(240, maxL*24+30), sw=90, rowH=44, headH=46, pad=28, titleH=title()?44:0, capH=26;
+  const W=pad*2+sw+lw*(two?2:1), H=pad*2+titleH+capH+headH+rowH*rows.length;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  if(title()) s+=`<text x="${W/2}" y="${pad+18}" text-anchor="middle" font-size="18" font-weight="800" fill="#4a4458" ${font}>${esc(title())}</text>`;
+  s+=`<text x="${W-pad}" y="${pad+titleH+16}" text-anchor="end" font-size="13" fill="#8b8499" ${font}>${esc(stemCaption(u))}</text>`;
+  const cell=(x,y,w,h,fill,txt,opt={})=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="#cfd8e3" stroke-width="1.5"/>`+(txt!==""?`<text x="${opt.anchor==="start"?x+14:opt.anchor==="end"?x+w-14:x+w/2}" y="${y+h/2+6}" text-anchor="${opt.anchor||"middle"}" font-size="${opt.size||16}" font-weight="${opt.bold?800:600}" fill="${opt.color||"#4a4458"}" ${font}>${txt}</text>`:"");
+  let y=pad+titleH+capH, x=pad;
+  const leafSpan=a=>a.join("  ");   // en space: SVG에서 공백이 뭉개지지 않게
+  if(two){ s+=cell(x,y,lw,headH,"#d6ebff",`잎 (${esc(nameA())})`,{bold:true,color:"#3d74b8"}); s+=cell(x+lw,y,sw,headH,"#d6ebff","줄기",{bold:true}); s+=cell(x+lw+sw,y,lw,headH,"#d6ebff",`잎 (${esc(nameB())})`,{bold:true,color:"#b2437c"}); }
+  else { s+=cell(x,y,sw,headH,"#d6ebff","줄기",{bold:true}); s+=cell(x+sw,y,lw,headH,"#d6ebff","잎",{bold:true}); }
+  y+=headH;
+  rows.forEach(r=>{
+    x=pad;
+    if(two){ s+=cell(x,y,lw,rowH,"#fff",ans?leafSpan([...r.leaves[0]].reverse()):"",{anchor:"end",color:"#3d74b8"}); s+=cell(x+lw,y,sw,rowH,"#f7fbff",r.label,{bold:true,color:"#3d74b8"}); s+=cell(x+lw+sw,y,lw,rowH,"#fff",ans?leafSpan(r.leaves[1]):"",{anchor:"start",color:"#b2437c"}); }
+    else { s+=cell(x,y,sw,rowH,"#f7fbff",r.label,{bold:true,color:"#3d74b8"}); s+=cell(x+sw,y,lw,rowH,"#fff",ans?leafSpan(r.leaves[0]):"",{anchor:"start"}); }
+    y+=rowH;
+  });
+  return {svg:s+"</svg>", W, H};
+}
 
 /* ================= helpers ================= */
 function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -945,7 +1164,7 @@ function classText(i){ const u=unit()?" "+unit():""; return `${fmt(cls.edges[i])
 function titleHTML(){
   if(view==="data") return "자료 입력"+(two?" <q>두 자료</q>":"");
   if(view==="set") return "설정";
-  const on=["tab","hist","poly"].filter(k=>selected[k]);
+  const on=KEYS.filter(k=>selected[k]);
   return on.length ? on.map(k=>NAMES[k]).join(" · ") : "결과 선택";
 }
 
@@ -1031,6 +1250,7 @@ function syncData(){
   const has = hasData();
   if(has && mode==="manual" && !manualTouched) mode="data";
   if(!has) mode="manual";
+  if($("popStat").classList.contains("show")) renderStat();
 }
 function hasData(){ return data[0].length>=2 || (two && data[1].length>=2); }
 function allSorted(){ const a=two ? [...data[0],...data[1]] : [...data[0]]; return a.sort((x,y)=>x-y); }
@@ -1135,14 +1355,24 @@ function showView(v){
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on", el.id==="view-"+v));
   $("nav-data").classList.toggle("on", v==="data");
   $("nav-set").classList.toggle("on", v==="set");
-  ["tab","hist","poly"].forEach(k=>$("nav-"+k).classList.toggle("on", v==="result" && selected[k]));
+  KEYS.forEach(k=>$("nav-"+k).classList.toggle("on", v==="result" && selected[k]));
   $("viewTitle").innerHTML=titleHTML();
-  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden"; if(v!=="result") closeRP();
+  $("tbCls").style.visibility = v==="result" ? "" : "hidden"; $("tbOpt").style.visibility = v==="result" ? "" : "hidden"; $("tbStat").style.visibility = v==="set" ? "hidden" : "";
+  if(v==="set") closeRP(); else if(v!=="result") closeRP(["popCls","popOpt"]);
   placeSource();
   if(window.innerWidth<=900) $("app").classList.add("collapsed");
 }
 function go(v){ showView(v); render(); queueFit(); }
-function closeSettings(){ go(prevView==="result" && !(selected.tab||selected.hist||selected.poly) ? "data" : prevView); }
+function goData(){   // 자료 입력 메뉴: 다른 화면이면 자료 입력으로, 이미 자료 입력 화면에 자료가 있으면 새 자료 입력을 제안
+  if(view==="data" && (data[0].length||data[1].length)){
+    if(confirm(source ? "불러온 자료를 지우고 새 자료를 입력할까요?" : "지금 입력된 자료를 지우고 새 자료를 입력할까요?")){
+      $("dtBody").innerHTML=""; addRows(MIN_ROWS); clsUser=null; manualTouched=false; source=null; renderSource(); syncData(); $("titleInput").value=""; $("unitLabel").value=""; $("freqLabel").value=""; heads={cls:"",freq:""}; render(); focusRow(0,0); toast("새 자료를 입력하세요.");
+    }
+    return;
+  }
+  go("data");
+}
+function closeSettings(){ go(prevView==="result" && !anySel() ? "data" : prevView); }
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && view==="set") closeSettings(); });
 function queueFit(){ clearTimeout(queueFit._t); queueFit._t=setTimeout(fitToScreen,60); }
 function toggleResult(k){
@@ -1156,12 +1386,14 @@ function render(){
   $("tools-result").innerHTML=toolsHTML();
   const e=$("err-result"); e.textContent=err; e.className="err"+(err?" show":"");
   const both = selected.hist && selected.poly && !two;       // 두 자료일 때는 히스토그램(자료별)과 다각형(겹침)을 따로 보여 줌
-  const on=["tab","hist","poly"].filter(k=>selected[k] && !(both&&k==="poly"));
+  const on=KEYS.filter(k=>selected[k] && !(both&&k==="poly"));
   $("panes").classList.toggle("single", on.length<=1);
-  ["tab","hist","poly"].forEach(k=>$("pane-"+k).classList.toggle("on", selected[k] && !(both&&k==="poly")));
+  KEYS.forEach(k=>$("pane-"+k).classList.toggle("on", selected[k] && !(both&&k==="poly")));
+  if(selected.stem){ $("stemctl").innerHTML=stemCtlHTML(); $("body-stem").innerHTML=stemHTML(); }
   $("histName").textContent = both ? "📊 히스토그램 + 📈 도수분포다각형" : (two ? "📊 히스토그램 (자료별)" : "📊 히스토그램");
-  if(!on.length){ $("panes").classList.add("single"); $("pane-tab").classList.add("on"); $("body-tab").innerHTML=`<div class="hint">위 메뉴에서 도수분포표 · 히스토그램 · 도수분포다각형을 골라 주세요. 여러 개를 함께 고르면 나란히 보여요.</div>`; return; }
+  if(!on.length){ $("panes").classList.add("single"); $("pane-tab").classList.add("on"); $("body-tab").innerHTML=`<div class="hint">왼쪽 메뉴에서 줄기와 잎 그림 · 도수분포표 · 히스토그램 · 도수분포다각형을 골라 주세요. 여러 개를 함께 고르면 나란히 보여요.</div>`; return; }
   if(!cls){ ["tab","hist","poly"].forEach(k=>$("body-"+k).innerHTML=""); return; }
+  if(!(selected.tab||selected.hist||selected.poly)){ placeSource(); queueFit(); return; }
   if(selected.tab) $("body-tab").innerHTML=tableHTML();
   renderCharts(); placeSource(); queueFit();
 }
@@ -1327,15 +1559,24 @@ function chartSVG(kind, withTitle, only){
   const maxV=Math.max(...allSeries.flatMap(s=>vals[s]), 0);            // 두 자료는 같은 눈금으로 비교
   let yStep, yMax;
   if(yAxis==="rel"){ yStep = maxV<=0.2?0.05 : maxV<=0.5?0.1 : 0.2; yMax=Math.max(yStep, Math.ceil(maxV/yStep-1e-9)*yStep); }
-  else { yStep = maxV<=5?1 : maxV<=10?2 : maxV<=25?5 : maxV<=50?10 : Math.ceil(maxV/8/10)*10; yMax=Math.max(yStep, Math.ceil(maxV/yStep)*yStep); }
+  else { yStep = maxV<=5?1 : maxV<=20?2 : maxV<=50?5 : maxV<=100?10 : Math.ceil(maxV/8/10)*10; yMax=Math.max(yStep, Math.ceil(maxV/yStep)*yStep); }
   const y=v=>MT+ph-v/yMax*ph, xEdge=i=>ML+(i+extra)*bw, xMid=i=>ML+(i+extra+0.5)*bw;
   const font=`font-family="Pretendard, -apple-system, Malgun Gothic, sans-serif"`;
   let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="width:${W}px"><rect width="${W}" height="${H}" fill="#fff"/>`;
   if(withTitle) s+=`<text x="${W/2}" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#4a4458" ${font}>${esc(title()||NAMES[kind])}${series.length===1&&two?` — ${esc(only?nameB():nameA())}`:""}</text>`;
-  for(let v=0; v<=yMax+1e-9; v+=yStep){
-    const yy=y(v);
-    if(showGrid&&v>0) s+=`<line x1="${ML}" y1="${yy}" x2="${W-MR}" y2="${yy}" stroke="#ece5ef"/>`;
-    s+=`<line x1="${ML-4}" y1="${yy}" x2="${ML}" y2="${yy}" stroke="#8b8499" stroke-width="1.2"/><text x="${ML-9}" y="${yy+4}" text-anchor="end" font-size="12.5" fill="#6f6880" ${font}>${yAxis==="rel"?(+v.toFixed(2)).toString():v}</text>`;
+  // 교과서처럼 모눈 전체를 그린다: 가로선은 도수 1(작은 눈금)마다, 세로선은 계급의 경계마다
+  const yMinor = yAxis==="rel" ? yStep/5 : (yStep<=5 ? 1 : yStep/5);
+  if(showGrid){
+    for(let v=yMinor; v<=yMax+1e-9; v+=yMinor){
+      const yy=y(v), major=Math.abs(v/yStep-Math.round(v/yStep))<1e-6;
+      s+=`<line x1="${ML}" y1="${yy}" x2="${W-MR}" y2="${yy}" stroke="${major?"#d5cbdd":"#e9e2ee"}" stroke-width="${major?1:0.9}"/>`;
+    }
+    for(let i=-extra;i<=n+extra;i++){ const xx=ML+(i+extra)*bw; s+=`<line x1="${xx}" y1="${MT}" x2="${xx}" y2="${MT+ph}" stroke="#e1d9e7" stroke-width="0.9"/>`; }
+  }
+  for(let v=0; v<=yMax+1e-9; v+=yMinor){
+    const yy=y(v), major=Math.abs(v/yStep-Math.round(v/yStep))<1e-6;
+    s+=`<line x1="${ML-(major?5:3)}" y1="${yy}" x2="${ML}" y2="${yy}" stroke="#8b8499" stroke-width="${major?1.2:1}"/>`;
+    if(major) s+=`<text x="${ML-9}" y="${yy+4}" text-anchor="end" font-size="12.5" fill="#6f6880" ${font}>${yAxis==="rel"?(+v.toFixed(2)).toString():Math.round(v)}</text>`;
   }
   s+=`<line x1="${ML}" y1="${MT-6}" x2="${ML}" y2="${MT+ph}" stroke="#8b8499" stroke-width="1.4"/><line x1="${ML}" y1="${MT+ph}" x2="${W-MR}" y2="${MT+ph}" stroke="#8b8499" stroke-width="1.4"/>`;
   const yLabel = yAxis==="rel" ? "(상대도수)" : (heads.freq ? heads.freq : "("+(funit()||"도수")+")");
@@ -1456,9 +1697,10 @@ function tableSVG(){
 
 /* ================= PNG ================= */
 function savePNG(kind){
-  if(!cls) return;
+  if(!cls && kind!=="stem") return;
   let xml, W=760, H=400;
-  if(kind==="tab"){ const t=tableSVG(); xml=t.svg; W=t.W; H=t.H; }
+  if(kind==="stem"){ if(!hasData()){ toast("변량을 먼저 입력해 주세요."); return; } if(stemProblem(stemRows(stemUnit()))){ toast("이 자료는 줄기와 잎 그림으로 나타내기 알맞지 않아요."); return; } const t=stemSVG(); xml=t.svg; W=t.W; H=t.H; }
+  else if(kind==="tab"){ const t=tableSVG(); xml=t.svg; W=t.W; H=t.H; }
   else if(kind==="hist" && two){
     if(!(cls.total[0]+cls.total[1])){ toast("도수를 먼저 입력해 주세요."); return; }
     const w1=SZ.hist.w, h1=SZ.hist.h+28; W=w1*2+20; H=h1;
