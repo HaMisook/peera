@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한 꼭짓점 접기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 배치: 왼쪽에 조작판, 오른쪽에 접는 판. 좁은 화면에서는 접는 판이 위, 조작판이 아래. */
+:root{
+  --paper:#f4f6f8; --panel:#ffffff; --ink:#18253a; --muted:#5d6b80; --line:#d5dbe3;
+  --face:#3f8f9b; --glue:#e2603f; --ok:#2f7d4f; --flat:#8a6a12; --over:#c23b3b;
+  --display:"Gowun Dodum","Noto Sans KR",sans-serif;
+  --body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111821; --panel:#1a232f; --ink:#e8edf3; --muted:#9aa7b8; --line:#31404f;
+    --face:#58b3bf; --glue:#ff8a66; --ok:#6fcf97; --flat:#e2c15a; --over:#ff7b7b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111821; --panel:#1a232f; --ink:#e8edf3; --muted:#9aa7b8; --line:#31404f;
+  --face:#58b3bf; --glue:#ff8a66; --ok:#6fcf97; --flat:#e2c15a; --over:#ff7b7b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 28px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+h1{font-family:var(--display);font-size:1.7rem;margin:0;font-weight:400;text-wrap:balance}
+header p{margin:0;color:var(--muted)}
+.main{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:18px}
+.group{display:flex;flex-direction:column;gap:8px}
+.label{font-weight:700;font-size:.95rem}
+.choices{display:grid;gap:8px}
+.choices.shape{grid-template-columns:1fr 1fr}
+.choices.count{grid-template-columns:repeat(4,1fr)}
+button.pick{font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:10px 6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+button.pick svg{width:22px;height:22px;flex:none}
+button.pick svg polygon{fill:none;stroke:currentColor;stroke-width:1.6}
+button.pick[aria-pressed="true"]{border-color:var(--face);background:var(--face);color:#fff;font-weight:700}
+button.pick:focus-visible,input:focus-visible,a:focus-visible,button.link:focus-visible{outline:3px solid var(--glue);outline-offset:2px}
+.slider{display:flex;align-items:center;gap:10px}
+.slider span{color:var(--muted);font-size:.9rem;flex:none}
+input[type=range]{flex:1;accent-color:var(--face);height:32px}
+input[type=range]:disabled{opacity:.4}
+.check{display:flex;align-items:center;gap:8px}
+.check input{width:20px;height:20px;accent-color:var(--face)}
+.sum{font-variant-numeric:tabular-nums;font-size:1.1rem;font-weight:700;min-height:1.6em}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+canvas{width:100%;height:auto;aspect-ratio:4/3;display:block;touch-action:none;cursor:grab;border-radius:6px}
+canvas:active{cursor:grabbing}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-weight:700;border:1.5px solid currentColor}
+.pill.fold{color:var(--muted)} .pill.ok{color:var(--ok)} .pill.flat{color:var(--flat)} .pill.over{color:var(--over)}
+.hint{color:var(--muted);font-size:.9rem}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:8px;text-align:center}
+th{font-weight:700;background:var(--paper)}
+td.none{color:var(--line)}
+td .m{font-weight:700}
+td .m.ok{color:var(--ok)} td .m.flat{color:var(--flat)} td .m.over{color:var(--over)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--muted);font-size:.9rem}
+.legend b.ok{color:var(--ok)} .legend b.flat{color:var(--flat)} .legend b.over{color:var(--over)}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.card canvas{aspect-ratio:1/1;border-radius:6px;background:var(--panel)}
+.card .nm{font-family:var(--display);font-size:1.15rem}
+.card .ds{color:var(--muted);font-size:.88rem}
+.empty{color:var(--muted);margin:0}
+.count{font-weight:400;color:var(--muted);margin-left:6px}
+button.link{font:inherit;background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px 0;align-self:flex-start}
+footer{color:var(--muted);font-size:.9rem}
+footer a{color:var(--face)}
+a.home{color:var(--muted);text-decoration:none;font-size:.9rem;align-self:flex-start}
+a.home:hover{text-decoration:underline}
+@media (max-width:760px){
+  .main{grid-template-columns:1fr}
+  .stage{order:-1}
+  h1{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home" href="index.html">← 피어라 매직!</a>
+  <header>
+    <h1>한 꼭짓점 접기</h1>
+    <p>정다각형 조각을 한 점에 모아 접어 봅니다.</p>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="조작판">
+      <div class="group">
+        <div class="label" id="lb-shape">면의 모양</div>
+        <div class="choices shape" role="group" aria-labelledby="lb-shape" id="shapes"></div>
+      </div>
+      <div class="group">
+        <div class="label" id="lb-count">한 꼭짓점에 모을 개수</div>
+        <div class="choices count" role="group" aria-labelledby="lb-count" id="counts"></div>
+      </div>
+      <div class="group">
+        <label class="label" for="fold">접기</label>
+        <div class="slider"><span>펼침</span><input type="range" id="fold" min="0" max="100" value="0" step="1"><span>접음</span></div>
+      </div>
+      <div class="group">
+        <label class="check" for="showsum"><input type="checkbox" id="showsum"> 모인 각의 크기의 합 확인하기</label>
+        <div class="sum" id="sum" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="접는 판">
+      <canvas id="cv" width="800" height="600" aria-label="한 꼭짓점에 모인 정다각형 조각"></canvas>
+      <div class="status">
+        <span class="pill fold" id="pill">펼친 상태</span>
+        <span class="hint">화면을 끌면 돌려 볼 수 있습니다.</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="log" aria-label="해 본 조합">
+    <div class="label">해 본 조합</div>
+    <div class="tablebox">
+      <table id="logtable"></table>
+    </div>
+    <div class="legend">
+      <span><b class="ok">접힘</b> 빈틈이 닫혀 뾰족한 꼭짓점이 됨</span>
+      <span><b class="flat">평평</b> 빈틈이 없어 접어 올릴 수 없음</span>
+      <span><b class="over">겹침</b> 조각이 서로 겹쳐 한 점에 모을 수 없음</span>
+    </div>
+    <button class="link" id="reset" type="button">해 본 조합 지우기</button>
+  </section>
+
+  <section class="log" aria-label="찾은 정다면체">
+    <div class="label">찾은 정다면체<span class="count" id="found"></span></div>
+    <p class="empty" id="empty">끝까지 접어 꼭짓점이 만들어지면, 그 꼭짓점으로 이루어진 정다면체가 여기에 모입니다.</p>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <footer>
+    정다면체가 전개도에서 접히는 모습은 <a href="https://www.geogebra.org/m/ataepftv" target="_blank" rel="noopener">정다면체의 전개도 접고 펼치기(GeoGebra)</a>에서 볼 수 있습니다.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var SHAPES=[{k:3,name:"정삼각형"},{k:4,name:"정사각형"},{k:5,name:"정오각형"},{k:6,name:"정육각형"}];
+  var COUNTS=[3,4,5,6];
+  var EPS=1e-9;
+  var st={k:3,n:3,t:0,yaw:-0.5,el:0.95,show:false,log:{}};
+
+  var cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+  var foldEl=document.getElementById("fold"),pill=document.getElementById("pill"),sumEl=document.getElementById("sum");
+
+  function interior(k){return Math.PI-2*Math.PI/k;}
+  function deg(k){return Math.round(180-360/k);}
+  function kind(k,n){var s=n*interior(k);return s<2*Math.PI-1e-6?"ok":(s>2*Math.PI+1e-6?"over":"flat");}
+
+  // ----- 조작판 만들기
+  function polySvg(k){
+    var pts=[];for(var i=0;i<k;i++){var a=-Math.PI/2+i*2*Math.PI/k;pts.push((12+9*Math.cos(a)).toFixed(1)+","+(12.5+9*Math.sin(a)).toFixed(1));}
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="'+pts.join(" ")+'"/></svg>';
+  }
+  var shapesEl=document.getElementById("shapes"),countsEl=document.getElementById("counts");
+  SHAPES.forEach(function(s){
+    var b=document.createElement("button");b.type="button";b.className="pick";b.id="shape-"+s.k;
+    b.innerHTML=polySvg(s.k)+"<span>"+s.name+"</span>";
+    b.addEventListener("click",function(){st.k=s.k;st.t=0;sync();});
+    shapesEl.appendChild(b);
+  });
+  COUNTS.forEach(function(n){
+    var b=document.createElement("button");b.type="button";b.className="pick";b.id="count-"+n;
+    b.textContent=n+"개";
+    b.addEventListener("click",function(){st.n=n;st.t=0;sync();});
+    countsEl.appendChild(b);
+  });
+  foldEl.addEventListener("input",function(){st.t=foldEl.value/100;sync(true);});
+  document.getElementById("showsum").addEventListener("change",function(e){st.show=e.target.checked;sync(true);});
+  document.getElementById("reset").addEventListener("click",function(){st.log={};sync(true);});
+
+  // ----- 기하
+  function add(a,b){return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];}
+  function sc(a,c){return [a[0]*c,a[1]*c,a[2]*c];}
+  function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+  function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+  function norm(a){var l=Math.sqrt(dot(a,a))||1;return sc(a,1/l);}
+
+  function build(){
+    var k=st.k,n=st.n,al=interior(k),kd=kind(k,n);
+    var t=kd==="ok"?st.t:0;
+    var beta=kd==="ok"?al+t*(2*Math.PI/n-al):al;
+    var s2=(1-Math.cos(al))/(1-Math.cos(beta));
+    var sp=Math.sqrt(Math.min(1,Math.max(0,s2))),cp=Math.sqrt(Math.max(0,1-sp*sp));
+    var e=[];
+    for(var i=0;i<=n;i++){
+      var th=kd==="over"?(Math.PI/2+i*beta):(Math.PI/2+(i-n/2)*beta);
+      e.push([sp*Math.cos(th),sp*Math.sin(th),-cp]);
+    }
+    var faces=[],ext=2*Math.PI/k;
+    for(var f=0;f<n;f++){
+      var u=e[f],w=e[f+1];
+      var v=norm(add(w,sc(u,-dot(u,w))));
+      var p=[0,0,0],pts=[p];
+      for(var j=0;j<k-1;j++){
+        p=add(p,add(sc(u,Math.cos(j*ext)),sc(v,Math.sin(j*ext))));
+        pts.push(p);
+      }
+      faces.push({idx:f,pts:pts,nrm:norm(cross(u,v)),over:kd==="over"&&(f+1)*al>2*Math.PI+1e-6});
+    }
+    return {faces:faces,e:e,kd:kd,t:t};
+  }
+
+  // ----- 그리기
+  function css(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+  function proj(p,W,H,scale){
+    var cy=Math.cos(st.yaw),sy=Math.sin(st.yaw);
+    var x=p[0]*cy-p[1]*sy,y=p[0]*sy+p[1]*cy,z=p[2];
+    var se=Math.sin(st.el),ce=Math.cos(st.el);
+    return {x:W/2+x*scale,y:H*0.46-(y*se+z*ce)*scale,d:y*ce-z*se};
+  }
+  function fit(){
+    var r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+    var w=Math.max(200,Math.round(r.width*dpr)),h=Math.max(150,Math.round(r.width*0.75*dpr));
+    if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
+  }
+  function draw(){
+    fit();
+    var W=cv.width,H=cv.height,m=build();
+    var ext=[0,0,0,1,1.414,1.618,2][st.k];
+    var scale=Math.min(W,H)*0.4/ext,lw=Math.max(1.5,W/420);
+    ctx.clearRect(0,0,W,H);
+    var cFace=css("--face"),cInk=css("--ink"),cGlue=css("--glue"),cOver=css("--over"),cPanel=css("--panel");
+    var L=norm([0.3,-0.5,0.8]);
+    var items=m.faces.map(function(f){
+      var q=f.pts.map(function(p){return proj(p,W,H,scale);});
+      var d=q.reduce(function(a,b){return a+b.d;},0)/q.length;
+      return {q:q,d:d,f:f};
+    }).sort(function(a,b){return b.d-a.d;});
+    items.forEach(function(it){
+      ctx.beginPath();
+      it.q.forEach(function(p,i){if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});
+      ctx.closePath();
+      ctx.globalAlpha=it.f.over?0.55:0.9;
+      ctx.fillStyle=it.f.over?cOver:cFace;ctx.fill();
+      var sh=1-Math.abs(dot(it.f.nrm,L));
+      ctx.globalAlpha=0.28*sh;ctx.fillStyle="#000";ctx.fill();
+      if(it.f.idx%2===1){ctx.globalAlpha=0.22;ctx.fillStyle="#fff";ctx.fill();}
+      ctx.globalAlpha=1;ctx.lineJoin="round";ctx.lineWidth=lw*3.2;ctx.strokeStyle=cPanel;ctx.stroke();
+      ctx.lineWidth=lw*1.6;ctx.strokeStyle=cInk;ctx.stroke();
+    });
+    // 맞붙일 두 변
+    if(m.kd==="ok"){
+      var o=proj([0,0,0],W,H,scale);
+      [m.e[0],m.e[m.e.length-1]].forEach(function(v){
+        var p=proj(v,W,H,scale);
+        ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(p.x,p.y);
+        ctx.lineWidth=lw*3.6;ctx.lineCap="round";ctx.strokeStyle=cGlue;ctx.stroke();
+      });
+    }
+    var c=proj([0,0,0],W,H,scale);
+    ctx.beginPath();ctx.arc(c.x,c.y,lw*3,0,2*Math.PI);ctx.fillStyle=cInk;ctx.fill();
+    ctx.beginPath();ctx.arc(c.x,c.y,lw*1.4,0,2*Math.PI);ctx.fillStyle=cPanel;ctx.fill();
+    return m;
+  }
+
+  // ----- 찾은 정다면체
+  var PHI=(1+Math.sqrt(5))/2;
+  function cyc(a,b,c){var o=[];[1,-1].forEach(function(s){[1,-1].forEach(function(t){o.push([a,s*b,t*c],[t*c,a,s*b],[s*b,t*c,a]);});});return o;}
+  function cubeV(){var o=[];[1,-1].forEach(function(x){[1,-1].forEach(function(y){[1,-1].forEach(function(z){o.push([x,y,z]);});});});return o;}
+  var SOLIDS={
+    "3-3":{name:"정사면체",v:[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]]},
+    "3-4":{name:"정팔면체",v:[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]},
+    "3-5":{name:"정이십면체",v:cyc(0,1,PHI)},
+    "4-3":{name:"정육면체",v:cubeV()},
+    "5-3":{name:"정십이면체",v:cubeV().concat(cyc(0,1/PHI,PHI))}
+  };
+  function sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
+  function makeFaces(S){
+    var v=S.v.map(norm),faces=[],seen={},n=v.length;
+    for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)for(var k=j+1;k<n;k++){
+      var nm=cross(sub(v[j],v[i]),sub(v[k],v[i]));
+      if(dot(nm,nm)<1e-10)continue;
+      nm=norm(nm);var d=dot(nm,v[i]),pos=0,neg=0,mem=[];
+      for(var m=0;m<n;m++){var s=dot(nm,v[m])-d;if(s>1e-6)pos++;else if(s<-1e-6)neg++;else mem.push(m);}
+      if(pos&&neg)continue;
+      var key=mem.join(",");if(seen[key])continue;seen[key]=1;
+      if(pos)nm=sc(nm,-1);
+      var c=[0,0,0];mem.forEach(function(m){c=add(c,v[m]);});c=sc(c,1/mem.length);
+      var a=norm(sub(v[mem[0]],c)),b=cross(nm,a);
+      mem.sort(function(p,q){
+        var pp=sub(v[p],c),qq=sub(v[q],c);
+        return Math.atan2(dot(pp,b),dot(pp,a))-Math.atan2(dot(qq,b),dot(qq,a));
+      });
+      faces.push({idx:mem,n:nm});
+    }
+    S.v=v;S.f=faces;
+  }
+  Object.keys(SOLIDS).forEach(function(k){makeFaces(SOLIDS[k]);});
+
+  var shelfEl=document.getElementById("shelf"),shelfKey="",cards=[],g={yaw:0.6,el:1.05,drag:null};
+  var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function drawSolid(cvs,S){
+    var r=cvs.getBoundingClientRect(),dpr=window.devicePixelRatio||1,w=Math.max(80,Math.round(r.width*dpr));
+    if(cvs.width!==w||cvs.height!==w){cvs.width=w;cvs.height=w;}
+    var c=cvs.getContext("2d"),lw=Math.max(1.5,w/150);
+    c.clearRect(0,0,w,w);
+    var cFace=css("--face"),cInk=css("--ink");
+    var cy=Math.cos(g.yaw),sy=Math.sin(g.yaw),se=Math.sin(g.el),ce=Math.cos(g.el),R=w*0.4;
+    function rot(p){var x=p[0]*cy-p[1]*sy,y=p[0]*sy+p[1]*cy,z=p[2];return [x,y*se+z*ce,y*ce-z*se];}
+    S.f.forEach(function(f){
+      var dn=rot(f.n)[2];
+      if(dn>=0)return;
+      c.beginPath();
+      f.idx.forEach(function(m,i){var q=rot(S.v[m]),X=w/2+q[0]*R,Y=w/2-q[1]*R;if(i)c.lineTo(X,Y);else c.moveTo(X,Y);});
+      c.closePath();
+      c.globalAlpha=1;c.fillStyle=cFace;c.fill();
+      c.globalAlpha=0.4*(1+dn);c.fillStyle="#000";c.fill();
+      c.globalAlpha=1;c.lineJoin="round";c.lineWidth=lw*1.5;c.strokeStyle=cInk;c.stroke();
+    });
+  }
+  function drawShelf(){cards.forEach(function(cd){drawSolid(cd.cv,cd.S);});}
+  function renderShelf(){
+    var keys=Object.keys(st.log).filter(function(k){return st.log[k]==="ok"&&SOLIDS[k];});
+    var nk=keys.join("|");
+    if(nk===shelfKey)return;
+    shelfKey=nk;shelfEl.innerHTML="";cards=[];
+    document.getElementById("empty").hidden=keys.length>0;
+    document.getElementById("found").textContent=keys.length?keys.length+"가지":"";
+    keys.forEach(function(k){
+      var S=SOLIDS[k],p=k.split("-"),shape=SHAPES.filter(function(s){return s.k==p[0];})[0].name;
+      var card=document.createElement("div");card.className="card";
+      var cvs=document.createElement("canvas");cvs.width=300;cvs.height=300;cvs.style.touchAction="none";cvs.style.cursor="grab";
+      cvs.setAttribute("aria-label",S.name);
+      var nm=document.createElement("div");nm.className="nm";nm.textContent=S.name;
+      var ds=document.createElement("div");ds.className="ds";ds.textContent=shape+" "+S.f.length+"개, 한 꼭짓점에 "+p[1]+"개";
+      card.appendChild(cvs);card.appendChild(nm);card.appendChild(ds);shelfEl.appendChild(card);
+      cvs.addEventListener("pointerdown",function(e){g.drag={x:e.clientX,y:e.clientY};cvs.setPointerCapture(e.pointerId);});
+      cvs.addEventListener("pointermove",function(e){
+        if(!g.drag)return;
+        g.yaw+=(e.clientX-g.drag.x)*0.012;g.el=Math.min(Math.PI/2,Math.max(0.1,g.el+(e.clientY-g.drag.y)*0.01));
+        g.drag={x:e.clientX,y:e.clientY};drawShelf();
+      });
+      ["pointerup","pointercancel"].forEach(function(n){cvs.addEventListener(n,function(){g.drag=null;});});
+      cards.push({cv:cvs,S:S});
+    });
+    drawShelf();
+  }
+  function tick(){
+    if(cards.length&&!g.drag){g.yaw+=0.006;drawShelf();}
+    requestAnimationFrame(tick);
+  }
+  if(!still)requestAnimationFrame(tick);
+
+  // ----- 상태 표시
+  function renderLog(){
+    var h="<thead><tr><th>면의 모양</th>";
+    COUNTS.forEach(function(n){h+="<th>"+n+"개</th>";});
+    h+="</tr></thead><tbody>";
+    SHAPES.forEach(function(s){
+      h+="<tr><th>"+s.name+"</th>";
+      COUNTS.forEach(function(n){
+        var r=st.log[s.k+"-"+n];
+        if(!r)h+='<td class="none">·</td>';
+        else h+='<td><span class="m '+r+'">'+(r==="ok"?"접힘":r==="flat"?"평평":"겹침")+"</span></td>";
+      });
+      h+="</tr>";
+    });
+    document.getElementById("logtable").innerHTML=h+"</tbody>";
+  }
+  function sync(keepLog){
+    SHAPES.forEach(function(s){document.getElementById("shape-"+s.k).setAttribute("aria-pressed",String(s.k===st.k));});
+    COUNTS.forEach(function(n){document.getElementById("count-"+n).setAttribute("aria-pressed",String(n===st.n));});
+    var kd=kind(st.k,st.n);
+    foldEl.disabled=kd!=="ok";
+    if(kd!=="ok")st.t=0;
+    foldEl.value=Math.round(st.t*100);
+    var key=st.k+"-"+st.n;
+    if(kd==="ok"){
+      if(st.t>=0.999){pill.className="pill ok";pill.textContent="빈틈이 닫혀 뾰족한 꼭짓점이 되었습니다";st.log[key]="ok";}
+      else if(st.t>0){pill.className="pill fold";pill.textContent="접는 중";}
+      else{pill.className="pill fold";pill.textContent="펼친 상태. 주황색 두 변이 만날 때까지 접어 보세요";}
+    }else if(kd==="flat"){
+      pill.className="pill flat";pill.textContent="빈틈이 없습니다. 접어 올릴 수 없습니다";st.log[key]="flat";
+    }else{
+      pill.className="pill over";pill.textContent="조각이 서로 겹칩니다. 한 점에 모을 수 없습니다";st.log[key]="over";
+    }
+    sumEl.textContent=st.show?(deg(st.k)+"° × "+st.n+" = "+(deg(st.k)*st.n)+"°"):"";
+    renderLog();
+    renderShelf();
+    draw();
+  }
+
+  // ----- 돌려 보기
+  var drag=null;
+  cv.addEventListener("pointerdown",function(e){drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener("pointermove",function(e){
+    if(!drag)return;
+    st.yaw+=(e.clientX-drag.x)*0.01;
+    st.el=Math.min(Math.PI/2,Math.max(0.12,st.el+(e.clientY-drag.y)*0.008));
+    drag={x:e.clientX,y:e.clientY};draw();
+  });
+  ["pointerup","pointercancel"].forEach(function(n){cv.addEventListener(n,function(){drag=null;});});
+  cv.tabIndex=0;
+  cv.addEventListener("keydown",function(e){
+    var k=e.key;
+    if(k==="ArrowLeft")st.yaw-=0.1;else if(k==="ArrowRight")st.yaw+=0.1;
+    else if(k==="ArrowUp")st.el=Math.min(Math.PI/2,st.el+0.08);else if(k==="ArrowDown")st.el=Math.max(0.12,st.el-0.08);
+    else return;
+    e.preventDefault();draw();
+  });
+
+  window.addEventListener("resize",function(){draw();drawShelf();});
+  if(window.matchMedia)window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw);
+  new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+
+  // 처음 화면: 정삼각형 3개를 반쯤 접은 상태
+  st.t=0.5;
+  sync();
+})();
+</script>
+</body>
+</html>
