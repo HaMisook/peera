@@ -2,10 +2,13 @@
    - 화면 위에 떠 있는 창: 끌어서 옮기기, 오른쪽 아래 모서리로 크기 조절, 닫기
    - 나란히 놓기: 화면 옆(좁은 화면에서는 아래)에 붙이고 본 화면을 그만큼 줄임
    - 페이지를 옮겨도 남은 시간과 창 위치를 기억함
-   사용법: 각 html의 </body> 앞에  <script src="timer.js" defer></script>  한 줄 */
+   사용법: 각 html의 </body> 앞에  <script src="timer.js" defer></script>  한 줄
+   - 떠 있는 ⏱ 버튼 없이 쓰려면  <script src="timer.js" defer data-launch="off"></script>
+     로 넣고, 페이지의 버튼에서 peeraTimerOpen() 을 부르면 타이머가 열림 (메인 화면에서 사용) */
 (function () {
   if (window.__peeraTimer) return;
   window.__peeraTimer = true;
+  var NO_LAUNCH = !!(document.currentScript && document.currentScript.getAttribute("data-launch") === "off");
 
   var KEY = "peeraTimer";
   var S = { open: false, mode: "float", x: null, y: null, w: 260, h: 240, dw: 300, total: 300, remain: 300, endAt: 0, sound: true };
@@ -15,6 +18,7 @@
   var css =
     "#pt-launch{position:fixed;right:16px;bottom:84px;z-index:2147483000;min-width:52px;height:52px;padding:0 14px;border-radius:26px;border:none;cursor:pointer;" +
     "background:#9d7fd8;color:#fff;font:700 17px/1 system-ui,sans-serif;box-shadow:0 6px 18px rgba(80,60,140,.35);display:flex;align-items:center;justify-content:center;gap:6px;font-variant-numeric:tabular-nums}" +
+    "#pt-launch[hidden]{display:none}" +
     "#pt-launch:focus-visible,#pt-panel button:focus-visible{outline:3px solid #f09a6a;outline-offset:2px}" +
     "#pt-panel{position:fixed;z-index:2147483001;background:#fff;color:#4a4458;border:2px solid #9d7fd8;border-radius:16px;box-shadow:0 10px 30px rgba(80,60,140,.3);" +
     "display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif;box-sizing:border-box;touch-action:none;user-select:none;-webkit-user-select:none}" +
@@ -109,7 +113,7 @@
     bSnd.setAttribute("aria-pressed", String(S.sound));
     bDock.textContent = S.mode === "dock" ? "띄우기" : "나란히";
     launch.textContent = S.endAt ? "⏱ " + t : "⏱";
-    launch.hidden = S.open;
+    launch.hidden = S.open || NO_LAUNCH;
   }
   setInterval(function () { if (S.endAt && left() <= 0) finish(); render(); }, 250);
 
@@ -137,7 +141,9 @@
     }
     render();
   }
-  launch.addEventListener("click", function () { S.open = true; save(); layout(); });
+  function openTimer() { S.open = true; save(); layout(); }
+  launch.addEventListener("click", openTimer);
+  window.peeraTimerOpen = openTimer;
   bX.addEventListener("click", function () { S.open = false; clearDone(); save(); layout(); });
   bDock.addEventListener("click", function () { S.mode = S.mode === "dock" ? "float" : "dock"; save(); layout(); });
   window.addEventListener("resize", layout);
