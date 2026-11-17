@@ -1,5 +1,5 @@
 /* 피어라 매직! 수업 타이머
-   - 화면 위에 떠 있는 창: 끌어서 옮기기, 모서리(왼쪽 위·왼쪽 아래·오른쪽 아래)로 크기 조절, 닫기
+   - 화면 위에 떠 있는 창: 제목 줄이나 시간 숫자를 끌어서 옮기기, 모서리(왼쪽 위·왼쪽 아래·오른쪽 아래)로 크기 조절, 닫기
    - 크게/작게: 버튼 한 번으로 화면 가운데에 크게 띄우고, 다시 누르면 원래 크기와 자리로 돌아감
    - 나란히 놓기: 화면 옆(좁은 화면에서는 아래)에 붙이고 본 화면을 그만큼 줄임
    - 페이지를 옮겨도 남은 시간과 창 위치를 기억함
@@ -29,7 +29,7 @@
     "#pt-head i{flex:1;align-self:stretch}" +
     "#pt-panel button{font:inherit;color:inherit;cursor:pointer;border:1px solid #d9cdf3;background:#fff;border-radius:9px;min-height:34px;padding:0 9px;font-size:13px;font-weight:700}" +
     "#pt-panel button.pt-x{border-color:transparent;background:transparent;font-size:18px;padding:0 8px}" +
-    "#pt-face{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;container-type:size}" +
+    "#pt-face{cursor:move;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;container-type:size}" +
     "#pt-time{font-weight:800;font-variant-numeric:tabular-nums;line-height:1;font-size:48px;font-size:min(30cqw,78cqh)}" +
     "#pt-ctl{flex:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 8px 10px}" +
     "#pt-panel button.pt-go{background:#9d7fd8;border-color:#9d7fd8;color:#fff;min-width:74px}" +
@@ -38,7 +38,7 @@
     "#pt-bl{position:absolute;left:0;bottom:0;width:20px;height:20px;cursor:nesw-resize}" +
     "#pt-edge{position:absolute;left:0;top:0;bottom:0;width:12px;cursor:ew-resize;display:none}" +
     "#pt-panel.pt-dock{border-radius:0;box-shadow:none}" +
-    "#pt-panel.pt-dock #pt-grip,#pt-panel.pt-dock #pt-tl,#pt-panel.pt-dock #pt-bl{display:none}#pt-panel.pt-dock #pt-head{cursor:default;padding-left:12px}#pt-panel.pt-dock #pt-big{display:none}" +
+    "#pt-panel.pt-dock #pt-grip,#pt-panel.pt-dock #pt-tl,#pt-panel.pt-dock #pt-bl{display:none}#pt-panel.pt-dock #pt-head{cursor:default;padding-left:12px}#pt-panel.pt-dock #pt-face{cursor:default}#pt-panel.pt-dock #pt-big{display:none}" +
     "#pt-panel.pt-dock.pt-right{top:0;right:0;bottom:0;border-width:0 0 0 3px}#pt-panel.pt-dock.pt-right #pt-edge{display:block}" +
     "#pt-panel.pt-dock.pt-bottom{left:0;right:0;bottom:0;height:190px;border-width:3px 0 0 0}" +
     "#pt-panel.pt-done{background:#ffe1ec;border-color:#e484ac;animation:pt-blink 1s steps(2) 6}" +
@@ -117,7 +117,7 @@
     bSnd.textContent = S.sound ? "소리 켬" : "소리 끔";
     bSnd.setAttribute("aria-pressed", String(S.sound));
     bDock.textContent = S.mode === "dock" ? "띄우기" : "나란히";
-    bBig.textContent = S.big ? "작게" : "크게";
+    bBig.textContent = isBig() ? "작게" : "크게";
     launch.textContent = S.endAt ? "⏱ " + t : "⏱";
     launch.hidden = S.open || NO_LAUNCH;
   }
@@ -151,15 +151,22 @@
   launch.addEventListener("click", openTimer);
   window.peeraTimerOpen = openTimer;
   bX.addEventListener("click", function () { S.open = false; clearDone(); save(); layout(); });
-  bBig.addEventListener("click", function () {
+  // 크게/작게: 지금 창 크기를 보고 정함. 손으로 키워 둔 창도 "작게"를 누르면 작은 창으로 돌아감
+  function bigSize() {
     var vw = window.innerWidth, vh = window.innerHeight;
-    if (!S.big) {
+    return vw < 700 ? { w: vw - 8, h: Math.round(Math.min(vh * 0.6, 420)) }
+                    : { w: Math.round(Math.min(vw * 0.7, 1100)), h: Math.round(Math.min(vh * 0.7, 700)) };
+  }
+  function isBig() { var b = bigSize(); return S.w * S.h >= 0.5 * b.w * b.h; }
+  bBig.addEventListener("click", function () {
+    var vw = window.innerWidth, vh = window.innerHeight, b = bigSize();
+    if (!isBig()) {
       S.px = S.x; S.py = S.y; S.pw = S.w; S.ph = S.h;
-      S.w = Math.round(Math.min(vw * 0.7, 1100)); S.h = Math.round(Math.min(vh * 0.7, 700));
-      S.x = Math.round((vw - S.w) / 2); S.y = Math.round((vh - S.h) / 2);
-      S.big = true;
+      S.w = b.w; S.h = b.h; S.x = Math.round((vw - S.w) / 2); S.y = Math.round((vh - S.h) / 2);
     } else {
-      S.w = S.pw; S.h = S.ph; S.x = S.px; S.y = S.py; S.big = false;
+      var ok = S.pw * S.ph < 0.5 * b.w * b.h && S.px != null;   // 기억해 둔 작은 창이 있으면 그 자리로
+      S.w = ok ? S.pw : 260; S.h = ok ? S.ph : 240;
+      S.x = ok ? S.px : vw - S.w - 16; S.y = ok ? S.py : vh - S.h - 16;
     }
     save(); layout();
   });
@@ -189,6 +196,8 @@
       S.w = w; S.h = h;
     };
   }
+  // 제목 줄이 좁아도 옮길 수 있게 시간 숫자 부분을 끌어도 창이 움직임
+  dragger(face, function (dx, dy, o) { S.x = o.x + dx; S.y = o.y + dy; }, function () { return S.mode !== "dock"; });
   dragger(grip, resizer(1, 1));
   dragger(gTL, resizer(-1, -1));
   dragger(gBL, resizer(-1, 1));
