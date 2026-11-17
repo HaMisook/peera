@@ -78,7 +78,8 @@
     border-radius:999px; padding:9px 16px; border:1.5px solid var(--line); background:#fff; color:var(--muted);
   }
   .auth button.join{background:var(--pink-deep); border-color:var(--pink-deep); color:#fff; box-shadow:0 3px 10px rgba(228,132,172,.35);}
-  @media (max-width:760px){ .auth{display:none;} .nav-links a{padding:8px 10px; font-size:13.5px;} }
+  @media (max-width:760px){ .nav-links a{padding:8px 12px; font-size:14px;} }
+  @media (max-width:480px){ .logo .t2{display:none;} .logo .mark{width:38px; height:38px; font-size:19px;} }
 
   /* ========== hero ========== */
   .hero{
@@ -129,9 +130,17 @@
   }
   .hero.has-image .sym{display:none;}
   @media (max-width:760px){
-    .hero{margin:14px 12px 0; min-height:340px;}
-    .hero-inner{padding:36px 26px;}
-    .hero h1{font-size:33px;}
+    .hero{margin:12px 0 0; min-height:0; border-radius:22px;}
+    .hero-inner{padding:24px 22px 26px;}
+    .quest-badge{margin-bottom:12px; font-size:12.5px; padding:6px 13px;}
+    .hero h1{font-size:30px; margin-bottom:10px;}
+    .hero p{font-size:14.5px; margin-bottom:18px;}
+    .btn-big{font-size:16.5px; padding:12px 24px;}
+    /* 좁은 화면: 장식이 글자와 겹치지 않게 기호는 숨기고 원은 옅게 */
+    .sym{display:none;}
+    .shape{opacity:.4;}
+    .sec-head{margin:30px 0 16px;}
+    .sec-head h2{font-size:25px;}
   }
 
   /* ========== section head ========== */
@@ -141,8 +150,13 @@
   .sec-head .side{font-size:14px; color:var(--muted); margin-top:6px;}
 
   /* ========== grade cards ========== */
-  .grades{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-  @media (max-width:860px){ .grades{grid-template-columns:1fr;} }
+  .grades{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
+  .units{display:flex; flex-direction:column; gap:8px;}
+  /* 학년 카드가 하나뿐일 때: 넓은 화면에서는 단원을 여러 칸으로 */
+  @media (min-width:861px){
+    .gcard:only-child .units{display:grid; grid-template-columns:repeat(3,1fr);}
+    .gcard:only-child .tools{max-width:calc((100% - 16px)/3);}
+  }
   .gcard{
     background:var(--card); border-radius:var(--radius); overflow:hidden;
     box-shadow:var(--shadow); border:1px solid var(--line);
@@ -268,13 +282,12 @@
     </a>
     <div class="nav-links">
       <a href="#g1">중1</a>
+      <a href="#tools" class="board">통계 도구</a>
+      <!-- 중2·중3·전자칠판은 콘텐츠가 생기면 여기에 다시 추가
       <a href="#g2">중2</a>
       <a href="#g3">중3</a>
-      <a href="#" class="board" onclick="toast('전자칠판은 준비 중이에요!'); return false;">전자칠판</a>
-    </div>
-    <div class="auth">
-      <button onclick="toast('로그인은 준비 중이에요!')">로그인</button>
-      <button class="join" onclick="toast('가입은 준비 중이에요!')">가입</button>
+      <a href="#board" class="board">전자칠판</a>
+      -->
     </div>
   </nav>
 </header>
@@ -296,10 +309,9 @@
     <div class="hero-inner">
       <span class="quest-badge">🎮 오늘의 메인 퀘스트</span>
       <h1 class="disp">피어라,<br><span class="grad">수학의 마법!</span></h1>
-      <p>게임과 시뮬레이션으로 배우는 중학교 수학.<br>미션을 클리어하고 마법 배지를 모아 보세요!</p>
+      <p>게임과 시뮬레이션으로 배우는 중학교 수학.<br>직접 움직이고 실험하며 개념을 만나 보세요!</p>
       <div class="hero-btns">
         <button class="btn-big btn-start" onclick="location.href='#grades'">🚀 모험 시작하기</button>
-        <button class="btn-big btn-grade" onclick="location.href='#grades'">학년 선택</button>
       </div>
     </div>
   </section>
@@ -307,8 +319,8 @@
   <!-- ===== grade cards ===== -->
   <div class="sec-head" id="grades">
     <div class="eyebrow">퀘스트 선택</div>
-    <h2 class="disp">학년별 모험 맵</h2>
-    <div class="side">원하는 학년을 골라 미션을 시작해 보세요 · 2022 개정 교육과정</div>
+    <h2 class="disp">수학 모험 맵</h2>
+    <div class="side">단원을 골라 시작해 보세요 · 2022 개정 교육과정</div>
   </div>
 
   <div class="grades">
@@ -316,25 +328,26 @@
     <!-- 중1 -->
     <article class="gcard mint" id="g1">
       <div class="top">
-        <span class="gbadge">🌱 새싹 배지</span>
         <h3 class="disp">중1</h3>
         <div class="sub">새싹 탐험가</div>
         <span class="chara">🧭</span>
       </div>
       <div class="body">
-        <p class="desc">수와 연산, 도형의 기초를 게임처럼 탐험해요. 시뮬레이션으로 개념을 몸소 느껴 보세요!</p>
-        <a class="unit u5" href="polyhedron.html"><span class="dot"></span>5.2.2. 정다면체</a>
-        <a class="unit u6" href="daepyo.html"><span class="dot"></span>6.1.1. 대푯값</a>
-        <a class="unit u6" href="stem-leaf.html"><span class="dot"></span>6.2.1. 줄기와 잎 그림</a>
-        <div class="tools">
+        <p class="desc">도형과 통계를 시뮬레이션으로 직접 탐구해요.</p>
+        <div class="units">
+          <a class="unit u5" href="polyhedron.html"><span class="dot"></span>5.2.2. 정다면체</a>
+          <a class="unit u6" href="daepyo.html"><span class="dot"></span>6.1.1. 대푯값</a>
+          <a class="unit u6" href="stem-leaf.html"><span class="dot"></span>6.2.1. 줄기와 잎 그림</a>
+        </div>
+        <div class="tools" id="tools">
           <div class="tools-title">🧰 통계 도구</div>
           <a class="unit tool u6" href="tonggraph.html"><span class="dot"></span><span class="tool-txt">통그래프<span class="hint">도수분포표 · 히스토그램 · 상대도수</span></span></a>
         </div>
-        <button class="enter" onclick="toast('중1 모험 맵은 준비 중이에요!')">중1 입장하기</button>
       </div>
     </article>
 
-    <!-- 중2 -->
+    <!-- 중2·중3 카드는 콘텐츠가 생기면 아래 주석을 풀어 사용
+    [중2]
     <article class="gcard peach" id="g2">
       <div class="top">
         <span class="gbadge">🔥 불꽃 배지</span>
@@ -348,7 +361,7 @@
       </div>
     </article>
 
-    <!-- 중3 -->
+    [중3]
     <article class="gcard lavender" id="g3">
       <div class="top">
         <span class="gbadge">⭐ 별빛 배지</span>
@@ -361,9 +374,11 @@
         <button class="enter" onclick="toast('중3 모험 맵은 준비 중이에요!')">중3 입장하기</button>
       </div>
     </article>
+    -->
   </div>
 
-  <!-- ===== 전자칠판 배너 ===== -->
+  <!-- 전자칠판은 완성되면 아래 주석을 풀어 사용
+  [전자칠판 배너]
   <div class="board-banner">
     <span class="ic">🖍️</span>
     <div class="tx">
@@ -372,6 +387,8 @@
     </div>
     <button onclick="toast('전자칠판은 준비 중이에요!')">열어 보기</button>
   </div>
+
+  -->
 
 </div>
 
@@ -403,5 +420,6 @@
     toastTimer = setTimeout(()=>t.classList.remove("show"), 2000);
   }
 </script>
+<script src="timer.js" defer></script>
 </body>
 </html>

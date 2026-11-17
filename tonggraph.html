@@ -1733,5 +1733,6 @@ $("tbCls").style.visibility="hidden"; $("tbOpt").style.visibility="hidden";
 ["unitLabel","freqLabel","titleInput","nameA","nameB"].forEach(id=>$(id).addEventListener("input",()=>{ if(id==="nameA"||id==="nameB") syncData(); if(view==="result") render(); }));
 document.querySelectorAll("#popOpt input[type=checkbox]").forEach(c=>c.addEventListener("change",()=>{ if(view==="result") render(); }));
 </script>
+<script src="timer.js" defer></script>
 </body>
 </html>
