@@ -24,7 +24,7 @@
   .main{display:grid; grid-template-columns:290px 1fr; gap:14px; align-items:start;}
   .panel, .stage, .tray{background:var(--panel); border:1px solid var(--line); border-radius:16px;}
   .panel{padding:12px; display:flex; flex-direction:column; gap:12px;}
-  .tabs{display:grid; grid-template-columns:1fr 1fr; gap:6px;}
+  .tabs{display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;}
   .tabs button, .types button{
     font:inherit; font-size:14.5px; font-weight:700; color:var(--ink); cursor:pointer;
     border:1.5px solid var(--line); background:#fff; border-radius:11px; padding:9px 4px; min-height:42px;
@@ -104,12 +104,6 @@
   /* ───── 조건 자료: s = 변(이름, 길이 cm), a = 각(꼭짓점, 크기 °) ───── */
   function C(){ var v=[].slice.call(arguments), s=[], a=[]; for(var i=0;i<v.length;i+=2){ (v[i].length===2?s:a).push([v[i],v[i+1]]); } return {s:s,a:a}; }
   var SETS = [
-    {id:"m2", label:"미션 2 카드", groups:[
-      {name:"과제 카드 1", items:[C("AB",4,"BC",6,"B",50), C("AB",6,"BC",5,"A",40)]},
-      {name:"과제 카드 2", items:[C("AB",6,"CA",5,"B",100), C("BC",6,"CA",7,"C",35)]},
-      {name:"과제 카드 3", items:[C("AB",5,"BC",4,"B",105), C("CA",7,"AB",5,"C",60)]},
-      {name:"과제 카드 4", items:[C("BC",7,"CA",6,"B",45), C("CA",5,"AB",3,"A",75)]}
-    ]},
     {id:"m3q", label:"미션 3 문제", groups:[
       {name:"문제상황", items:[C("AB",4,"BC",5,"B",50), C("AB",4,"A",70,"B",50), C("AB",4,"BC",5,"A",50)]}
     ]},
