@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼각형 탐구판</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  /* 배치: 왼쪽에 조건 고르기, 오른쪽에 그림판과 찾은 삼각형. 좁은 화면에서는 그림판이 위. */
+  :root{
+    --ink:#4a4458; --muted:#8b8499; --bg:#fdf8f4; --line:#eadfd6; --panel:#fff;
+    --peach:#ffe4d1; --peach-deep:#f09a6a; --peach-soft:#fff5ee;
+    --rod:#9d7fd8; --t1:#e484ac; --t2:#6aa5e0; --ok:#3fa57c; --handle:#e5484d;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--ink); line-height:1.5;
+    font-family:"Pretendard","Pretendard Variable",-apple-system,system-ui,sans-serif;}
+  .page{max-width:1120px; margin:0 auto; padding:16px 16px 32px;}
+  header{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+  header a{color:var(--muted); text-decoration:none; font-size:14px; font-weight:600; padding:6px 10px; border-radius:999px; background:#fff; border:1px solid var(--line);}
+  h1{font-family:"Jua","Pretendard",sans-serif; font-weight:400; font-size:23px; margin:0;}
+  .main{display:grid; grid-template-columns:290px 1fr; gap:14px; align-items:start;}
+  .panel, .stage, .tray{background:var(--panel); border:1px solid var(--line); border-radius:16px;}
+  .panel{padding:12px; display:flex; flex-direction:column; gap:12px;}
+  .tabs{display:grid; grid-template-columns:1fr 1fr; gap:6px;}
+  .tabs button, .types button{
+    font:inherit; font-size:14.5px; font-weight:700; color:var(--ink); cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; border-radius:11px; padding:9px 4px; min-height:42px;
+  }
+  .tabs button[aria-pressed="true"], .types button[aria-pressed="true"]{background:var(--peach-deep); border-color:var(--peach-deep); color:#fff;}
+  .group{display:flex; flex-direction:column; gap:6px;}
+  .group h2{font-size:13px; font-weight:800; color:var(--muted); margin:2px 2px 0;}
+  .cond{
+    font:inherit; font-size:15.5px; color:var(--ink); cursor:pointer; text-align:left;
+    border:1.5px solid var(--line); background:#fff; border-radius:11px; padding:9px 10px; min-height:44px;
+  }
+  .cond[aria-pressed="true"]{border-color:var(--peach-deep); background:var(--peach-soft); font-weight:700;}
+  button:focus-visible, input:focus-visible, a:focus-visible, .h:focus-visible{outline:3px solid var(--rod); outline-offset:2px;}
+  .m{font-family:"Times New Roman","Nanum Myeongjo",serif; font-size:1.08em; font-style:normal; white-space:nowrap;}
+  .ov{text-decoration:overline;}
+  .types{display:flex; flex-direction:column; gap:6px;}
+  .types button{text-align:left; padding:9px 10px; font-weight:600;}
+  .slider{display:grid; grid-template-columns:52px 1fr 64px; align-items:center; gap:8px;}
+  .slider output{text-align:right; font-variant-numeric:tabular-nums; font-weight:700;}
+  input[type=range]{width:100%; height:32px; accent-color:var(--peach-deep);}
+  .right{display:flex; flex-direction:column; gap:12px; min-width:0;}
+  .stage{padding:10px 12px 8px;}
+  .bar{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:2px 2px 8px;}
+  .now{font-size:19px; font-weight:700; margin-right:auto;}
+  .bar button{
+    font:inherit; font-size:14px; font-weight:700; color:var(--ink); cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; border-radius:999px; padding:7px 14px; min-height:38px;
+  }
+  .bar button[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff;}
+  #svg{width:100%; height:auto; display:block; border-radius:10px; background:#fffdfb; touch-action:none; user-select:none; -webkit-user-select:none;}
+  .h{cursor:grab;} .h:active{cursor:grabbing;}
+  .tray{padding:12px;}
+  .tray h2{font-family:"Jua","Pretendard",sans-serif; font-weight:400; font-size:17px; margin:0 0 8px;}
+  .found{display:flex; flex-wrap:wrap; gap:10px; min-height:150px;}
+  .found figure{margin:0; border:1.5px solid var(--c); border-radius:12px; padding:6px 8px; width:230px; background:#fff;}
+  .found figcaption{font-weight:800; color:var(--c); font-size:15px;}
+  .found svg{width:100%; height:auto; display:block;}
+  @media (max-width:820px){
+    .main{grid-template-columns:1fr;}
+    .right{order:-1;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <a href="index.html">← 피어라 매직!</a>
+    <h1>삼각형 탐구판</h1>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="조건 고르기">
+      <div class="tabs" id="tabs"></div>
+      <div id="list"></div>
+    </section>
+
+    <div class="right">
+      <section class="stage">
+        <div class="bar">
+          <div class="now" id="now"></div>
+          <button type="button" id="btnCircle" aria-pressed="false">원 보기</button>
+          <button type="button" id="btnReset">다시 하기</button>
+        </div>
+        <svg id="svg" viewBox="0 0 760 470" role="img" aria-label="삼각형 그림판"></svg>
+      </section>
+      <section class="tray">
+        <h2>찾은 삼각형</h2>
+        <div class="found" id="found"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  /* ───── 조건 자료: s = 변(이름, 길이 cm), a = 각(꼭짓점, 크기 °) ───── */
+  function C(){ var v=[].slice.call(arguments), s=[], a=[]; for(var i=0;i<v.length;i+=2){ (v[i].length===2?s:a).push([v[i],v[i+1]]); } return {s:s,a:a}; }
+  var SETS = [
+    {id:"m2", label:"미션 2 카드", groups:[
+      {name:"과제 카드 1", items:[C("AB",4,"BC",6,"B",50), C("AB",6,"BC",5,"A",40)]},
+      {name:"과제 카드 2", items:[C("AB",6,"CA",5,"B",100), C("BC",6,"CA",7,"C",35)]},
+      {name:"과제 카드 3", items:[C("AB",5,"BC",4,"B",105), C("CA",7,"AB",5,"C",60)]},
+      {name:"과제 카드 4", items:[C("BC",7,"CA",6,"B",45), C("CA",5,"AB",3,"A",75)]}
+    ]},
+    {id:"m3q", label:"미션 3 문제", groups:[
+      {name:"문제상황", items:[C("AB",4,"BC",5,"B",50), C("AB",4,"A",70,"B",50), C("AB",4,"BC",5,"A",50)]}
+    ]},
+    {id:"m3", label:"미션 3 카드", groups:[
+      {name:"과제 카드 1", items:[C("CA",5,"AB",6,"C",65), C("AB",7,"CA",6,"B",40)]},
+      {name:"과제 카드 2", items:[C("CA",6,"AB",4,"C",70), C("BC",5,"CA",7,"B",80)]},
+      {name:"과제 카드 3", items:[C("BC",6,"CA",5,"B",50), C("AB",5,"BC",6,"A",55)]},
+      {name:"과제 카드 4", items:[C("CA",5,"AB",6,"C",50), C("AB",7,"BC",5,"A",65)]}
+    ]},
+    {id:"free", label:"자유 탐구"}
+  ];
+  var FREE = [
+    {key:"sas", item:C("AB",5,"BC",6,"B",50)},
+    {key:"ssa", item:C("AB",7,"BC",5,"A",40)},
+    {key:"asa", item:C("AB",5,"A",60,"B",50)}
+  ];
+
+  var RAD = Math.PI/180, COL = ["#e484ac","#6aa5e0"], MARK = ["①","②"];
+  var S = { set:0, g:0, i:0, free:0, circle:false, phi:0, al:0, be:0, found:[false,false] };
+  var $ = function(id){ return document.getElementById(id); };
+  var svg = $("svg"), view = null, drag = null;
+
+  /* ───── 조건 → 그림 모형 ───── */
+  function other(side, v){ return side[0]===v ? side[1] : side[0]; }
+  function third(p,q){ return "ABC".replace(p,"").replace(q,""); }
+  function model(it){
+    if(it.a.length===2){
+      var P=it.a[0][0], Q=it.a[1][0];
+      return {type:"ASA", V:P, W:Q, X:third(P,Q), a:it.s[0][1], al:it.a[0][1], be:it.a[1][1], base:it.s[0][0]};
+    }
+    var V=it.a[0][0], th=it.a[0][1], inc=it.s.filter(function(s){ return s[0].indexOf(V)>=0; });
+    if(inc.length===2){
+      var W=other(inc[0][0],V), R=other(inc[1][0],V);
+      return {type:"SAS", V:V, W:W, X:R, a:inc[0][1], b:inc[1][1], th:th, base:inc[0][0], rod:inc[1][0]};
+    }
+    var base=inc[0], rod=it.s.filter(function(s){ return s!==base; })[0], W2=other(base[0],V);
+    return {type:"SSA", V:V, W:W2, X:other(rod[0],W2), a:base[1], b:rod[1], th:th, base:base[0], rod:rod[0]};
+  }
+  /* 조건을 만족하는 세 번째 꼭짓점의 위치들 (V=(0,0), W=(a,0)) */
+  function solutions(m){
+    if(m.type==="SAS") return [[m.b*Math.cos(m.th*RAD), m.b*Math.sin(m.th*RAD)]];
+    if(m.type==="ASA"){
+      if(m.al+m.be>=180) return [];
+      var t=m.a*Math.sin(m.be*RAD)/Math.sin((m.al+m.be)*RAD);
+      return [[t*Math.cos(m.al*RAD), t*Math.sin(m.al*RAD)]];
+    }
+    var c=Math.cos(m.th*RAD), s=Math.sin(m.th*RAD), d=m.b*m.b-m.a*m.a*s*s, out=[];
+    if(d<-1e-9) return out;
+    var r=Math.sqrt(Math.max(d,0)), ts = r<1e-6 ? [m.a*c] : [m.a*c-r, m.a*c+r];
+    ts.forEach(function(t){ if(t>1e-6) out.push([t*c, t*s]); });
+    return out;
+  }
+
+  /* ───── 글자 ───── */
+  function condHTML(it){
+    var p=[];
+    it.s.forEach(function(s){ p.push('<span class="ov">'+s[0]+'</span> = '+fmt(s[1])+' cm'); });
+    it.a.forEach(function(a){ p.push('∠'+a[0]+' = '+a[1]+'°'); });
+    return '<span class="m">'+p.join(', ')+'</span>';
+  }
+  function fmt(x){ return (Math.round(x*10)/10).toString(); }
+  function current(){ var st=SETS[S.set]; return st.id==="free" ? FREE[S.free].item : st.groups[S.g].items[S.i]; }
+  function isFree(){ return SETS[S.set].id==="free"; }
+
+  /* ───── 왼쪽 판 ───── */
+  function renderTabs(){
+    $("tabs").innerHTML = SETS.map(function(st,k){
+      return '<button type="button" data-set="'+k+'" aria-pressed="'+(k===S.set)+'">'+st.label+'</button>';
+    }).join("");
+  }
+  function renderList(){
+    var st=SETS[S.set], h="";
+    if(st.id!=="free"){
+      st.groups.forEach(function(g,gi){
+        h+='<div class="group"><h2>'+g.name+'</h2>';
+        g.items.forEach(function(it,ii){
+          h+='<button type="button" class="cond" data-g="'+gi+'" data-i="'+ii+'" aria-pressed="'+(gi===S.g&&ii===S.i)+'">'+condHTML(it)+'</button>';
+        });
+        h+='</div>';
+      });
+    }else{
+      h+='<div class="group"><h2>주어진 것</h2><div class="types">';
+      FREE.forEach(function(f,k){
+        var names=f.item.s.map(function(s){ return '<span class="ov">'+s[0]+'</span>'; }).concat(f.item.a.map(function(a){ return '∠'+a[0]; }));
+        h+='<button type="button" data-free="'+k+'" aria-pressed="'+(k===S.free)+'"><span class="m">'+names.join(', ')+'</span></button>';
+      });
+      h+='</div></div><div class="group" style="margin-top:12px"><h2>크기 바꾸기</h2>';
+      var it=FREE[S.free].item;
+      it.s.forEach(function(s,k){
+        h+='<label class="slider"><span class="m ov">'+s[0]+'</span><input type="range" min="1" max="10" step="0.5" value="'+s[1]+'" data-k="s'+k+'"><output>'+fmt(s[1])+' cm</output></label>';
+      });
+      it.a.forEach(function(a,k){
+        h+='<label class="slider"><span class="m">∠'+a[0]+'</span><input type="range" min="5" max="170" step="1" value="'+a[1]+'" data-k="a'+k+'"><output>'+a[1]+'°</output></label>';
+      });
+      h+='</div>';
+    }
+    $("list").innerHTML=h;
+  }
+
+  /* ───── 처음 상태 ───── */
+  function resetState(){
+    var m=model(current()), sols=solutions(m);
+    S.found=[false,false];
+    if(m.type==="SSA"){
+      var cand=[20,10,35,50,5,65,80,100,120,140,160], best=cand[0], bd=-1;
+      cand.forEach(function(c){
+        var d=180; sols.forEach(function(p){ var ang=Math.atan2(p[1],p[0]-m.a)/RAD; d=Math.min(d,Math.abs(ang-c)); });
+        if(d>25 && bd<25){ best=c; bd=d; } else if(bd<25 && d>bd){ best=c; bd=d; }
+      });
+      S.phi=best;
+    }else if(m.type==="SAS"){
+      S.phi = m.th<=120 ? m.th+35 : m.th-40;
+    }else{
+      S.al = Math.abs(m.al-30)<8 ? 45 : 30;
+      S.be = Math.abs(m.be-30)<8 ? 45 : 30;
+    }
+  }
+
+  /* ───── 그림판 ───── */
+  function bounds(m, sols){
+    var x0=-0.9, x1=m.a+0.9, y0=-1.0, y1=3;
+    if(m.type==="SSA"){ x0=Math.min(x0,m.a-m.b-0.5); x1=Math.max(x1,m.a+m.b+0.5); y1=m.b+0.9; }
+    if(m.type==="SAS"){ x0=Math.min(x0,-m.b-0.5); x1=Math.max(x1,m.b+0.5); y1=m.b+0.9; }
+    sols.forEach(function(p){ x0=Math.min(x0,p[0]-0.9); x1=Math.max(x1,p[0]+0.9); y1=Math.max(y1,p[1]+1.0); });
+    if(m.type==="ASA" && !sols.length) y1=7;
+    return [x0,x1,y0,y1];
+  }
+  function makeView(b,W,H,pad){
+    var k=Math.min((W-2*pad)/(b[1]-b[0]), (H-2*pad)/(b[3]-b[2]));
+    var ox=(W-k*(b[1]-b[0]))/2, oy=(H-k*(b[3]-b[2]))/2;
+    return {k:k, X:function(x){ return ox+(x-b[0])*k; }, Y:function(y){ return H-oy-(y-b[2])*k; },
+            inv:function(px,py){ return [(px-ox)/k+b[0], (H-oy-py)/k+b[2]]; }};
+  }
+  function P(v,p){ return v.X(p[0]).toFixed(1)+","+v.Y(p[1]).toFixed(1); }
+  function line(v,p,q,st){ return '<line x1="'+v.X(p[0]).toFixed(1)+'" y1="'+v.Y(p[1]).toFixed(1)+'" x2="'+v.X(q[0]).toFixed(1)+'" y2="'+v.Y(q[1]).toFixed(1)+'" '+st+'/>'; }
+  function text(v,p,t,st){ return '<text x="'+v.X(p[0]).toFixed(1)+'" y="'+v.Y(p[1]).toFixed(1)+'" text-anchor="middle" dominant-baseline="central" font-family="Times New Roman,serif" '+(st||'font-size="22"')+'>'+t+'</text>'; }
+  function arc(v,c,r,a0,a1,st){
+    var p0=[c[0]+r*Math.cos(a0*RAD), c[1]+r*Math.sin(a0*RAD)], p1=[c[0]+r*Math.cos(a1*RAD), c[1]+r*Math.sin(a1*RAD)];
+    var rp=(r*v.k).toFixed(1), big=Math.abs(a1-a0)>180?1:0, sw=a1>a0?0:1;
+    return '<path d="M'+P(v,p0)+' A'+rp+','+rp+' 0 '+big+','+sw+' '+P(v,p1)+'" fill="none" '+st+'/>';
+  }
+  function off(p,c,d){ var dx=p[0]-c[0], dy=p[1]-c[1], n=Math.hypot(dx,dy)||1; return [p[0]+dx/n*d, p[1]+dy/n*d]; }
+  function handle(v,p,name,label){
+    return '<g class="h" data-h="'+name+'" tabindex="0" role="slider" aria-label="'+label+'">'+
+      '<circle cx="'+v.X(p[0]).toFixed(1)+'" cy="'+v.Y(p[1]).toFixed(1)+'" r="26" fill="transparent" data-h="'+name+'"/>'+
+      '<circle cx="'+v.X(p[0]).toFixed(1)+'" cy="'+v.Y(p[1]).toFixed(1)+'" r="11" fill="#e5484d" stroke="#fff" stroke-width="3" data-h="'+name+'"/></g>';
+  }
+
+  function drawStage(){
+    var it=current(), m=model(it), sols=solutions(m), free=isFree();
+    var b=bounds(m,sols), v=makeView(b,760,470,34), g="", INK="#4a4458", ROD="#9d7fd8";
+    view={v:v,m:m,sols:sols};
+    var V=[0,0], W=[m.a,0], thin='stroke="'+INK+'" stroke-width="2.2" stroke-linecap="round"';
+    var shown = sols.map(function(_,k){ return free || S.found[k]; });
+
+    /* 찾은 삼각형 색칠 */
+    sols.forEach(function(p,k){ if(shown[k]) g+='<polygon points="'+P(v,V)+' '+P(v,W)+' '+P(v,p)+'" fill="'+COL[k]+'" fill-opacity=".2" stroke="'+COL[k]+'" stroke-width="3" stroke-linejoin="round"/>'; });
+
+    if(m.type==="ASA"){
+      var al = free? m.al : S.al, be = free? m.be : S.be, L=60;
+      var e1=[L*Math.cos(al*RAD), L*Math.sin(al*RAD)], e2=[m.a-L*Math.cos(be*RAD), L*Math.sin(be*RAD)];
+      var ok1=free||al===m.al, ok2=free||be===m.be;
+      g+=line(v,V,e1,'stroke="'+(ok1?INK:ROD)+'" stroke-width="2.2"')+line(v,W,e2,'stroke="'+(ok2?INK:ROD)+'" stroke-width="2.2"');
+      g+=line(v,V,W,'stroke="'+INK+'" stroke-width="4" stroke-linecap="round"');
+      g+=arc(v,V,0.65,0,al,thin)+arc(v,W,0.65,180-be,180,thin);
+      g+=text(v,[1.3*Math.cos(al/2*RAD),1.3*Math.sin(al/2*RAD)],al+"°",'font-size="20" fill="'+(ok1?INK:ROD)+'"');
+      g+=text(v,[m.a-1.3*Math.cos(be/2*RAD),1.3*Math.sin(be/2*RAD)],be+"°",'font-size="20" fill="'+(ok2?INK:ROD)+'"');
+      g+=text(v,[m.a/2,-0.5],fmt(m.a)+" cm",'font-size="19"');
+      g+=text(v,[-0.4,-0.4],m.V)+text(v,[m.a+0.4,-0.4],m.W);
+      sols.forEach(function(p,k){ if(shown[k]) g+=text(v,[p[0],p[1]+0.5],m.X); });
+      if(!free){
+        var d=Math.max(2.2,m.a*0.75);
+        g+=handle(v,[d*Math.cos(al*RAD),d*Math.sin(al*RAD)],"al","각 "+m.V+" 돌리기");
+        g+=handle(v,[m.a-d*Math.cos(be*RAD),d*Math.sin(be*RAD)],"be","각 "+m.W+" 돌리기");
+      }
+    }else{
+      var th=m.th, u=[Math.cos(th*RAD),Math.sin(th*RAD)], piv = m.type==="SSA" ? W : V;
+      g+=line(v,V,[60*u[0],60*u[1]],thin);
+      if(free || S.circle) g+=arc(v,piv,m.b,0,180,'stroke="'+ROD+'" stroke-width="2" stroke-dasharray="7 6"');
+      g+=line(v,V,W,'stroke="'+INK+'" stroke-width="4" stroke-linecap="round"');
+      g+=arc(v,V,0.65,0,th,thin);
+      g+=text(v,[1.35*Math.cos(th/2*RAD),1.35*Math.sin(th/2*RAD)],th+"°",'font-size="20"');
+      g+=text(v,[m.a/2,-0.5],fmt(m.a)+" cm",'font-size="19"');
+      g+=text(v,[-0.4,-0.4],m.V)+text(v,[m.a+0.4,-0.4],m.W);
+      sols.forEach(function(p,k){
+        if(!shown[k]) return;
+        g+='<circle cx="'+v.X(p[0]).toFixed(1)+'" cy="'+v.Y(p[1]).toFixed(1)+'" r="5" fill="'+COL[k]+'"/>';
+        g+=text(v,[p[0]-0.5*u[1],p[1]+0.5*u[0]],m.X,'font-size="22" fill="'+COL[k]+'" font-weight="bold"');
+      });
+      if(!free){
+        var tip=[piv[0]+m.b*Math.cos(S.phi*RAD), piv[1]+m.b*Math.sin(S.phi*RAD)];
+        g+=line(v,piv,tip,'stroke="'+ROD+'" stroke-width="6" stroke-linecap="round"');
+        var mid=[(piv[0]+tip[0])/2,(piv[1]+tip[1])/2], nx=-Math.sin(S.phi*RAD), ny=Math.cos(S.phi*RAD), sgn = m.type==="SSA" ? -1 : 1;
+        g+=text(v,[mid[0]+sgn*0.55*nx, mid[1]+sgn*0.55*ny],fmt(m.b)+" cm",'font-size="19" fill="'+ROD+'" font-weight="bold"');
+        g+=handle(v,tip,"rod","길이 "+fmt(m.b)+" cm 막대 돌리기");
+      }
+    }
+    svg.innerHTML=g;
+    $("now").innerHTML=condHTML(it);
+    $("btnCircle").hidden = free || m.type==="ASA";
+    $("btnReset").hidden = free;
+    $("btnCircle").setAttribute("aria-pressed", S.circle);
+    drawFound(it,m,sols,shown);
+  }
+
+  /* ───── 찾은 삼각형: 하나씩 따로 그림 ───── */
+  function drawFound(it,m,sols,shown){
+    var h="";
+    sols.forEach(function(p,k){
+      if(!shown[k]) return;
+      var pts={}; pts[m.V]=[0,0]; pts[m.W]=[m.a,0]; pts[m.X]=p;
+      var xs=[0,m.a,p[0]], ys=[0,p[1]];
+      var b=[Math.min.apply(0,xs)-1, Math.max.apply(0,xs)+1, -1.1, Math.max.apply(0,ys)+0.9];
+      var v=makeView(b,230,170,6), cen=[(m.a+p[0])/3,p[1]/3], g="";
+      g+='<polygon points="'+P(v,pts[m.V])+' '+P(v,pts[m.W])+' '+P(v,p)+'" fill="'+COL[k]+'" fill-opacity=".18" stroke="'+COL[k]+'" stroke-width="2.5" stroke-linejoin="round"/>';
+      [m.V,m.W,m.X].forEach(function(n){ g+=text(v,off(pts[n],cen,0.6),n,'font-size="16"'); });
+      it.s.forEach(function(s){
+        var A=pts[s[0][0]], B=pts[s[0][1]], mid=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+        g+=text(v,off(mid,cen,0.62),fmt(s[1])+" cm",'font-size="13.5"');
+      });
+      it.a.forEach(function(a){ g+=text(v,off(pts[a[0]],cen,-Math.min(1.5,m.a*0.3)),a[1]+"°",'font-size="13"'); });
+      h+='<figure style="--c:'+COL[k]+'"><figcaption>'+MARK[k]+'</figcaption><svg viewBox="0 0 230 170">'+g+'</svg></figure>';
+    });
+    $("found").innerHTML=h;
+  }
+
+  /* ───── 끌기 ───── */
+  function toCm(e){
+    var r=svg.getBoundingClientRect(), px=(e.clientX-r.left)*760/r.width, py=(e.clientY-r.top)*470/r.height;
+    return view.v.inv(px,py);
+  }
+  function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+  function applyRod(phi){
+    var m=view.m, sols=view.sols;
+    phi=clamp(phi,0,180);
+    if(m.type==="SAS"){
+      if(Math.abs(phi-m.th)<3){ phi=m.th; S.found[0]=true; }
+    }else{
+      var tip=[m.a+m.b*Math.cos(phi*RAD), m.b*Math.sin(phi*RAD)];
+      sols.forEach(function(p,k){
+        if(Math.hypot(tip[0]-p[0],tip[1]-p[1])<0.24){ phi=Math.atan2(p[1],p[0]-m.a)/RAD; S.found[k]=true; }
+      });
+    }
+    S.phi=phi;
+  }
+  function applyAngle(which,deg){
+    var m=view.m, tgt = which==="al" ? m.al : m.be;
+    deg=clamp(Math.round(deg),5,170);
+    if(Math.abs(deg-tgt)<=1) deg=tgt;
+    S[which]=deg;
+    if(S.al===m.al && S.be===m.be && view.sols.length) S.found[0]=true;
+  }
+  function moveTo(c){
+    var m=view.m;
+    if(drag==="rod"){
+      var piv = m.type==="SSA" ? [m.a,0] : [0,0];
+      var ang=Math.atan2(c[1]-piv[1], c[0]-piv[0])/RAD;
+      if(ang<0) ang = ang<-90 ? 180 : 0;
+      applyRod(ang);
+    }else if(drag==="al"){
+      applyAngle("al", Math.atan2(Math.max(c[1],0),c[0])/RAD);
+    }else if(drag==="be"){
+      applyAngle("be", Math.atan2(Math.max(c[1],0),m.a-c[0])/RAD);
+    }
+    drawStage();
+  }
+  svg.addEventListener("pointerdown",function(e){
+    var h=e.target.getAttribute && e.target.getAttribute("data-h");
+    if(!h) return;
+    drag=h; try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  });
+  svg.addEventListener("pointermove",function(e){ if(drag){ moveTo(toCm(e)); } });
+  ["pointerup","pointercancel"].forEach(function(t){ svg.addEventListener(t,function(){ drag=null; }); });
+  svg.addEventListener("keydown",function(e){
+    var h=e.target.getAttribute && e.target.getAttribute("data-h"), d = e.key==="ArrowLeft"||e.key==="ArrowUp" ? 1 : e.key==="ArrowRight"||e.key==="ArrowDown" ? -1 : 0;
+    if(!h||!d) return;
+    e.preventDefault();
+    if(h==="rod") applyRod(S.phi+d); else applyAngle(h,S[h]+d);
+    drawStage();
+    var el=svg.querySelector('g[data-h="'+h+'"]'); if(el) el.focus();
+  });
+
+  /* ───── 버튼 ───── */
+  $("tabs").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    S.set=+b.getAttribute("data-set"); S.g=0; S.i=0; S.circle=false;
+    renderTabs(); renderList(); resetState(); drawStage();
+  });
+  $("list").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    if(b.hasAttribute("data-free")) S.free=+b.getAttribute("data-free");
+    else { S.g=+b.getAttribute("data-g"); S.i=+b.getAttribute("data-i"); }
+    S.circle=false;
+    renderList(); resetState(); drawStage();
+  });
+  $("list").addEventListener("input",function(e){
+    var k=e.target.getAttribute("data-k"); if(!k) return;
+    var it=FREE[S.free].item, val=+e.target.value, out=e.target.parentNode.querySelector("output");
+    if(k[0]==="s"){ it.s[+k[1]][1]=val; out.textContent=fmt(val)+" cm"; }
+    else { it.a[+k[1]][1]=val; out.textContent=val+"°"; }
+    drawStage();
+  });
+  $("btnCircle").addEventListener("click",function(){ S.circle=!S.circle; drawStage(); });
+  $("btnReset").addEventListener("click",function(){ S.circle=false; resetState(); drawStage(); });
+
+  renderTabs(); renderList(); resetState(); drawStage();
+})();
+</script>
+<script src="timer.js" defer></script>
+</body>
+</html>
