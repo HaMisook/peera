@@ -43,15 +43,16 @@
   summary::-webkit-details-marker{display:none;}
   summary::after{content:"›"; margin-left:auto; font-size:22px; line-height:1; color:var(--d); transition:transform .15s;}
   details[open] summary::after{transform:rotate(90deg);}
-  summary:focus-visible, .list a:focus-visible{outline:3px solid var(--d); outline-offset:-3px;}
+  summary:focus-visible, .list a:focus-visible, .list button:focus-visible{outline:3px solid var(--d); outline-offset:-3px;}
   .list{display:flex; flex-direction:column; padding:6px;}
-  .list a{
+  .list a, .list button{
     display:flex; align-items:center; gap:10px;
     padding:12px 12px; border-radius:11px;
     font-size:16px; font-weight:600; color:var(--ink); text-decoration:none;
   }
-  .list a::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--d); flex:none;}
-  .list a:hover{background:var(--bgc);}
+  .list button{border:none; background:none; font-family:inherit; text-align:left; cursor:pointer; width:100%;}
+  .list a::before, .list button::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--d); flex:none;}
+  .list a:hover, .list button:hover{background:var(--bgc);}
 
   /* 대단원별 색 (u1~u6) */
   .u1{--c:var(--pink);     --d:var(--pink-deep);     --bgc:#fff3f8;}
@@ -94,10 +95,11 @@
     <summary>공학 도구</summary>
     <div class="list">
       <a href="tonggraph.html">통그래프</a>
+      <button type="button" onclick="if(window.peeraTimerOpen)peeraTimerOpen()">타이머</button>
     </div>
   </details>
 
 </main>
-<script src="timer.js" defer></script>
+<script src="timer.js" defer data-launch="off"></script>
 </body>
 </html>

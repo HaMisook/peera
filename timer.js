@@ -1,5 +1,5 @@
 /* 피어라 매직! 수업 타이머
-   - 화면 위에 떠 있는 창: 끌어서 옮기기, 오른쪽 아래 모서리로 크기 조절, 닫기
+   - 화면 위에 떠 있는 창: 끌어서 옮기기, 모서리(왼쪽 위·왼쪽 아래·오른쪽 아래)로 크기 조절, 닫기
    - 나란히 놓기: 화면 옆(좁은 화면에서는 아래)에 붙이고 본 화면을 그만큼 줄임
    - 페이지를 옮겨도 남은 시간과 창 위치를 기억함
    사용법: 각 html의 </body> 앞에  <script src="timer.js" defer></script>  한 줄
@@ -24,7 +24,7 @@
     "display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif;box-sizing:border-box;touch-action:none;user-select:none;-webkit-user-select:none}" +
     "#pt-panel *{box-sizing:border-box}" +
     "#pt-panel[hidden]{display:none}" +
-    "#pt-head{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;background:#f1eaff;cursor:move;flex:none}" +
+    "#pt-head{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 26px;background:#f1eaff;cursor:move;flex:none}" +
     "#pt-head b{font-size:14px;margin-right:auto}" +
     "#pt-panel button{font:inherit;color:inherit;cursor:pointer;border:1px solid #d9cdf3;background:#fff;border-radius:9px;min-height:34px;padding:0 9px;font-size:13px;font-weight:700}" +
     "#pt-panel button.pt-x{border-color:transparent;background:transparent;font-size:18px;padding:0 8px}" +
@@ -33,9 +33,11 @@
     "#pt-ctl{flex:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 8px 10px}" +
     "#pt-panel button.pt-go{background:#9d7fd8;border-color:#9d7fd8;color:#fff;min-width:74px}" +
     "#pt-grip{position:absolute;right:0;bottom:0;width:26px;height:26px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 55%,#9d7fd8 55%,#9d7fd8 65%,transparent 65%,transparent 75%,#9d7fd8 75%,#9d7fd8 85%,transparent 85%)}" +
+    "#pt-tl{position:absolute;left:0;top:0;width:24px;height:24px;cursor:nwse-resize;background:linear-gradient(315deg,transparent 55%,#9d7fd8 55%,#9d7fd8 65%,transparent 65%,transparent 75%,#9d7fd8 75%,#9d7fd8 85%,transparent 85%)}" +
+    "#pt-bl{position:absolute;left:0;bottom:0;width:20px;height:20px;cursor:nesw-resize}" +
     "#pt-edge{position:absolute;left:0;top:0;bottom:0;width:12px;cursor:ew-resize;display:none}" +
     "#pt-panel.pt-dock{border-radius:0;box-shadow:none}" +
-    "#pt-panel.pt-dock #pt-grip{display:none}#pt-panel.pt-dock #pt-head{cursor:default}" +
+    "#pt-panel.pt-dock #pt-grip,#pt-panel.pt-dock #pt-tl,#pt-panel.pt-dock #pt-bl{display:none}#pt-panel.pt-dock #pt-head{cursor:default;padding-left:12px}" +
     "#pt-panel.pt-dock.pt-right{top:0;right:0;bottom:0;border-width:0 0 0 3px}#pt-panel.pt-dock.pt-right #pt-edge{display:block}" +
     "#pt-panel.pt-dock.pt-bottom{left:0;right:0;bottom:0;height:190px;border-width:3px 0 0 0}" +
     "#pt-panel.pt-done{background:#ffe1ec;border-color:#e484ac;animation:pt-blink 1s steps(2) 6}" +
@@ -66,7 +68,8 @@
     ctl.appendChild(b);
   });
   var grip = el("div", { id: "pt-grip", "aria-hidden": "true" }), edge = el("div", { id: "pt-edge", "aria-hidden": "true" });
-  panel.appendChild(head); panel.appendChild(face); panel.appendChild(ctl); panel.appendChild(grip); panel.appendChild(edge);
+  var gTL = el("div", { id: "pt-tl", "aria-hidden": "true" }), gBL = el("div", { id: "pt-bl", "aria-hidden": "true" });
+  panel.appendChild(head); panel.appendChild(face); panel.appendChild(ctl); panel.appendChild(grip); panel.appendChild(gTL); panel.appendChild(gBL); panel.appendChild(edge);
   document.body.appendChild(launch); document.body.appendChild(panel);
 
   // ----- 시간
@@ -160,7 +163,20 @@
     });
   }
   dragger(head, function (dx, dy, o) { S.x = o.x + dx; S.y = o.y + dy; }, function (e) { return S.mode !== "dock" && e.target.tagName !== "BUTTON"; });
-  dragger(grip, function (dx, dy, o) { S.w = o.w + dx; S.h = o.h + dy; });
+  // 모서리로 크기 조절: 끄는 모서리의 맞은편 모서리는 제자리에 둠 (sx, sy: 오른쪽·아래 +1, 왼쪽·위 -1)
+  function resizer(sx, sy) {
+    return function (dx, dy, o) {
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var w = Math.max(190, Math.min(o.w + sx * dx, sx < 0 ? o.x + o.w - 4 : vw - o.x - 4));
+      var h = Math.max(170, Math.min(o.h + sy * dy, sy < 0 ? o.y + o.h - 4 : vh - o.y - 4));
+      if (sx < 0) S.x = o.x + o.w - w;
+      if (sy < 0) S.y = o.y + o.h - h;
+      S.w = w; S.h = h;
+    };
+  }
+  dragger(grip, resizer(1, 1));
+  dragger(gTL, resizer(-1, -1));
+  dragger(gBL, resizer(-1, 1));
   dragger(edge, function (dx, dy, o) { S.dw = o.dw - dx; });
 
   if (S.endAt && S.endAt <= Date.now()) { S.endAt = 0; S.remain = 0; save(); }
